@@ -1,6 +1,13 @@
 package ru.umeta.libraryintegration.parser;
 
+import gov.loc.mods.v3.*;
+import org.apache.xmlbeans.XmlException;
+import ru.umeta.libraryintegration.model.ModsParseResult;
+import ru.umeta.libraryintegration.model.ParseResult;
+
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,26 +18,34 @@ public class ModsXMLParser implements IXMLParser {
     private static final String ISBN = "isbn";
     private static final String NULL = "null";
     private static final String SPACE = " ";
+    private static final String ERROR_PARSING_XML_FILE = "Error parsing XML file";
 
     @Override
-    public List<IParseResult> parse(File file) {
-        final ModsDocument modsDocument;
+    public List<ParseResult> parse(File file) {
+        List<ParseResult> resultList = new ArrayList<>();
         try {
-            modsDocument = ModsDocument.Factory.parse(file);
+            final ModsCollectionDocument modsCollectionDocument = ModsCollectionDocument.Factory.parse(file);
+            final ModsDefinition[] modsCollection = modsCollectionDocument.getModsCollection().getModsArray();
+            for (ModsDefinition mods : modsCollection) {
+                final String title = parseTitle(mods);
+                final String isbn = parseIdentifier(mods);
+                final String name = parseName(mods);
+
+                resultList.add(new ModsParseResult(title, isbn, name, mods));
+            }
+
         } catch (XmlException e) {
             System.err.println(ERROR_PARSING_XML_FILE);
-            continue;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        final String title = ModsDocumentParser.parseTitle(modsDocument);
-        final String isbn = ModsDocumentParser.parseIdentifier(modsDocument);
-        final String name = ModsDocumentParser.parseName(modsDocument);
+        return resultList;
     }
 
-    public static String parseTitle(ModsDocument document) {
+    public String parseTitle(ModsDefinition document) {
         StringBuilder titleBuilder = new StringBuilder("");
-        if (document != null && document.getMods() != null) {
-            final TitleInfoDefinition[] titleInfoArray = document.getMods().getTitleInfoArray();
+        if (document != null ) {
+            final TitleInfoDefinition[] titleInfoArray = document.getTitleInfoArray();
             if (titleInfoArray != null) {
                 for (int i = 0; i < titleInfoArray.length; i++) {
                     final TitleInfoDefinition titleInfo = titleInfoArray[i];
@@ -58,8 +73,8 @@ public class ModsXMLParser implements IXMLParser {
         return titleBuilder.toString();
     }
 
-    public static String parseIdentifier(ModsDocument document) {
-        final IdentifierDefinition[] identifierArray = document.getMods().getIdentifierArray();
+    public String parseIdentifier(ModsDefinition document) {
+        final IdentifierDefinition[] identifierArray = document.getIdentifierArray();
         final IdentifierDefinition identifier = identifierArray.length > 0 ? identifierArray[0] : null;
         final String isbn;
         if (identifier != null) {
@@ -70,16 +85,16 @@ public class ModsXMLParser implements IXMLParser {
         return isbn;
     }
 
-    public static String parseName(ModsDocument document) {
+    public String parseName(ModsDefinition document) {
         final StringBuilder nameBuilder = new StringBuilder("");
-        if (document != null && document.getMods() != null) {
-            final NameDefinition[] nameArray = document.getMods().getNameArray();
+        if (document != null) {
+            final NameDefinition[] nameArray = document.getNameArray();
             if (nameArray != null) {
-                for (int i = 0; i < nameArray.length; i++) {
-                    final NamePartDefinition[] namePartArray = nameArray[i].getNamePartArray();
+                for (NameDefinition name : nameArray) {
+                    final NamePartDefinition[] namePartArray = name.getNamePartArray();
                     if (namePartArray != null) {
-                        for (int j = 0; j < namePartArray.length; j++) {
-                            nameBuilder.append(namePartArray[j].getStringValue());
+                        for (NamePartDefinition namePart : namePartArray) {
+                            nameBuilder.append(namePart.getStringValue());
                             nameBuilder.append(SPACE);
                         }
                     }

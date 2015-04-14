@@ -1,5 +1,7 @@
 package ru.umeta.libraryintegration.parser;
 
+import ru.umeta.libraryintegration.model.ParseResult;
+
 import java.io.File;
 import java.util.List;
 
@@ -8,6 +10,6 @@ import java.util.List;
  */
 public interface IXMLParser {
 
-    List<IParseResult> parse(File file);
+    List<ParseResult> parse(File file);
 
 }

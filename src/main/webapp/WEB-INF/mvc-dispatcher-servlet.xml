@@ -25,4 +25,8 @@
     <bean id="jsonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
     </bean>
 
+    <bean class="ru.umeta.libraryintegration.service.DatabaseService" />
+
+    <bean class="ru.umeta.libraryintegration.service.MainService" />
+
 </beans>
