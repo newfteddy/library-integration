@@ -23,12 +23,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="library-integration" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="library-integration" target="1.6" />
+    <bytecodeTargetLevel target="1.8">
+      <module name="library-integration" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
-

@@ -1,5 +1,6 @@
 package ru.umeta.libraryintegration.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.umeta.libraryintegration.model.ParseResult;
 import ru.umeta.libraryintegration.parser.IXMLParser;
 import ru.umeta.libraryintegration.parser.ModsXMLParser;
@@ -14,14 +15,22 @@ import java.util.List;
  */
 public class MainService {
 
-    public void parseDirectory(String path) {
-        IXMLParser parser = new ModsXMLParser();
+    private final IXMLParser parser;
+
+    public MainService(IXMLParser parser) {
+        this.parser = parser;
+    }
+
+    public int parseDirectory(String path) {
+
         List<File> fileList = getFilesToParse(path);
         boolean isFirstFile = false;
+        int parsedDocs = 0;
         for (File file : fileList) {
             List<ParseResult> resultList = parser.parse(file);
-
+            parsedDocs += resultList.size();
         }
+        return parsedDocs;
     }
 
     private List<File> getFilesToParse(String path) {

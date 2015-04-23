@@ -5,22 +5,23 @@ import java.io.Serializable;
 /**
  * Created by k.kosolapov on 06.04.2015.
  */
-public class UploadResult implements Serializable{
+public class UploadResult implements Serializable {
+
     private static final long serialVersionUID = 8711710207201631499L;
-    private int id;
+    private int parsedDocs;
     private String message;
 
-    public UploadResult(int id, String message) {
-        this.id = id;
+    public UploadResult(int parsedDocs, String message) {
+        this.parsedDocs = parsedDocs;
         this.message = message;
     }
 
-    public int getId() {
-        return id;
+    public int getParsedDocs() {
+        return parsedDocs;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setParsedDocs(int parsedDocs) {
+        this.parsedDocs = parsedDocs;
     }
 
     public String getMessage() {

@@ -21,6 +21,8 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.1.1.RELEASE" />
           <element id="library" level="project" name="Maven: javax.servlet:servlet-api:2.5" />
           <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.1.1.RELEASE" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib/mods-3-5.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib/xmlbeans-2.6.0.jar" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="library-integration/web/Web" />

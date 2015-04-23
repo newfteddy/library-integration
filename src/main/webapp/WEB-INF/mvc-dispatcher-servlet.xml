@@ -5,7 +5,7 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <mvc:annotation-driven />
+    <mvc:annotation-driven/>
     <context:component-scan base-package="ru.umeta.libraryintegration.controller"/>
 
 
@@ -25,8 +25,12 @@
     <bean id="jsonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
     </bean>
 
-    <bean class="ru.umeta.libraryintegration.service.DatabaseService" />
+    <bean class="ru.umeta.libraryintegration.service.DatabaseService"/>
 
-    <bean class="ru.umeta.libraryintegration.service.MainService" />
+    <bean class="ru.umeta.libraryintegration.service.MainService">
+        <constructor-arg ref="modsXMLParser" />
+    </bean>
+
+    <bean id="modsXMLParser" class="ru.umeta.libraryintegration.parser.ModsXMLParser"/>
 
 </beans>

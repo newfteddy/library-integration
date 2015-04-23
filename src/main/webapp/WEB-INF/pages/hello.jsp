@@ -11,6 +11,6 @@
     <title>Library Integration</title>
 </head>
 <body>
-    You have tried to access the Library Integration as web application. It actually is a RESTful Web Service.
+    You have tried to access the Library Integration as web application. It is actually a RESTful Web Service.
 </body>
 </html>

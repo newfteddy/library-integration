@@ -19,8 +19,8 @@ public class MainController {
 
     @RequestMapping("/upload")
     public UploadResult upload(@RequestParam(value = "path", defaultValue = "default path") String path) {
-        mainService.parseDirectory(path);
-        return new UploadResult(1, "msg");
+        int parsedDocs = mainService.parseDirectory(path);
+        return new UploadResult(parsedDocs, "success");
     }
 
 }
