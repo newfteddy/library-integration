@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.umeta.libraryintegration.model.ParseResult;
 import ru.umeta.libraryintegration.parser.IXMLParser;
 import ru.umeta.libraryintegration.parser.ModsXMLParser;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * Created by k.kosolapov on 14/04/2015.
  */
+@Service
 public class MainService {
 
     private final IXMLParser parser;
@@ -29,6 +31,7 @@ public class MainService {
         for (File file : fileList) {
             List<ParseResult> resultList = parser.parse(file);
             parsedDocs += resultList.size();
+
         }
         return parsedDocs;
     }
