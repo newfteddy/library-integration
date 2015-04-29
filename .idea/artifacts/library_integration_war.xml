@@ -5,7 +5,6 @@
       <element id="artifact" artifact-name="library-integration:war exploded" />
       <element id="directory" name="WEB-INF">
         <element id="directory" name="lib">
-          <element id="file-copy" path="$PROJECT_DIR$/lib/mods-3-5.jar" />
           <element id="file-copy" path="$PROJECT_DIR$/lib/xmlbeans-2.6.0.jar" />
         </element>
       </element>

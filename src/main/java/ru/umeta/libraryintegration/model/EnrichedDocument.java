@@ -1,15 +1,14 @@
 package ru.umeta.libraryintegration.model;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Created by k.kosolapov on 27.04.2015.
+ * Created by ctash on 30.04.2015.
  */
 @Entity
-@Table(name = "Document")
-public class Document {
+@Table(name = "EnrichedDocument")
+public class EnrichedDocument {
 
     @Id
     @Column(name = "id")
@@ -34,10 +33,10 @@ public class Document {
     private Date creationTime;
 
     @ManyToOne
-    @JoinColumn(name = "protocol_id")
-    private Protocol protocol;
-
-    @ManyToOne
     @JoinColumn(name = "enriched_id")
     private EnrichedDocument enrichedDocument;
+
+    public EnrichedDocument() {
+    }
 }
+
