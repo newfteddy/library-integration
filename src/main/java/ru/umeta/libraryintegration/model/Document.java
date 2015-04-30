@@ -40,4 +40,82 @@ public class Document {
     @ManyToOne
     @JoinColumn(name = "enriched_id")
     private EnrichedDocument enrichedDocument;
+
+    @Column(name = "distance")
+    private Double distance;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public StringCache getTitle() {
+        return title;
+    }
+
+    public void setTitle(StringCache title) {
+        this.title = title;
+    }
+
+    public StringCache getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(StringCache author) {
+        this.author = author;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getXml() {
+        return xml;
+    }
+
+    public void setXml(String xml) {
+        this.xml = xml;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
+
+    public EnrichedDocument getEnrichedDocument() {
+        return enrichedDocument;
+    }
+
+    public void setEnrichedDocument(EnrichedDocument enrichedDocument) {
+        this.enrichedDocument = enrichedDocument;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
+
+    public Document() {
+    }
 }

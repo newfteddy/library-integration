@@ -1,6 +1,8 @@
 package ru.umeta.libraryintegration.model;
 
 import javax.persistence.*;
+import javax.persistence.metamodel.CollectionAttribute;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -32,11 +34,66 @@ public class EnrichedDocument {
     @Column(name = "creation_time")
     private Date creationTime;
 
-    @ManyToOne
-    @JoinColumn(name = "enriched_id")
-    private EnrichedDocument enrichedDocument;
+    @OneToMany(mappedBy = "enrichedDocument")
+    private Collection<Document> documents;
 
     public EnrichedDocument() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public StringCache getTitle() {
+        return title;
+    }
+
+    public void setTitle(StringCache title) {
+        this.title = title;
+    }
+
+    public StringCache getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(StringCache author) {
+        this.author = author;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getXml() {
+        return xml;
+    }
+
+    public void setXml(String xml) {
+        this.xml = xml;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Collection<Document> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(Collection<Document> documents) {
+        this.documents = documents;
     }
 }
 

@@ -1,10 +1,8 @@
 package ru.umeta.libraryintegration.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.umeta.libraryintegration.model.ParseResult;
+import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.parser.IXMLParser;
-import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
 import java.io.File;
 import java.util.ArrayList;

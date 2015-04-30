@@ -18,6 +18,9 @@ public class Protocol{
     @Column(name = "name")
     private String name;
 
+    @OneToMany(mappedBy = "protocol")
+    private Document document;
+
     public Long getId() {
         return id;
     }
@@ -32,5 +35,16 @@ public class Protocol{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
+    }
+
+    public Protocol() {
     }
 }

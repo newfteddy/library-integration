@@ -2,8 +2,8 @@ package ru.umeta.libraryintegration.parser;
 
 import gov.loc.mods.v3.*;
 import org.apache.xmlbeans.XmlException;
-import ru.umeta.libraryintegration.model.ModsParseResult;
-import ru.umeta.libraryintegration.model.ParseResult;
+import ru.umeta.libraryintegration.json.ModsParseResult;
+import ru.umeta.libraryintegration.json.ParseResult;
 
 import java.io.File;
 import java.io.IOException;

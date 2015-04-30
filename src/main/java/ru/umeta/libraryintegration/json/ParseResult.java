@@ -1,4 +1,4 @@
-package ru.umeta.libraryintegration.model;
+package ru.umeta.libraryintegration.json;
 
 /**
  * Created by k.kosolapov on 06.04.2015.

@@ -1,4 +1,4 @@
-package ru.umeta.libraryintegration.model;
+package ru.umeta.libraryintegration.json;
 
 import gov.loc.mods.v3.ModsDefinition;
 

@@ -1,4 +1,4 @@
-package ru.umeta.libraryintegration.model;
+package ru.umeta.libraryintegration.json;
 
 import java.io.Serializable;
 

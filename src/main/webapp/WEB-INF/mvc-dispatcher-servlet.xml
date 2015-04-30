@@ -33,4 +33,6 @@
 
     <bean id="modsXMLParser" class="ru.umeta.libraryintegration.parser.ModsXMLParser"/>
 
+    <import resource="db/data-source.xml" />
+
 </beans>

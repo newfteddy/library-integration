@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.model;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 /**
  * Created by ctash on 29.04.2015.
@@ -24,9 +25,6 @@ import javax.persistence.*;
         })
 public class StringCache {
 
-    public static final String CACHE_4 = "cache_part_4";
-
-
     @Id
     @Column(name = "id")
     @GeneratedValue
@@ -44,8 +42,20 @@ public class StringCache {
     @Column(name = "cache_part_3", nullable = false)
     private Byte cachePart3;
 
-    @Column(name = CACHE_4, nullable = false)
+    @Column(name = "cache_part_4", nullable = false)
     private Byte cachePart4;
+
+    @OneToMany(mappedBy = "title")
+    private Collection<Document> isTitleOfDocuments;
+
+    @OneToMany(mappedBy = "author")
+    private Collection<Document> isAuthorOfDocuments;
+
+    @OneToMany(mappedBy = "title")
+    private Collection<EnrichedDocument> isTitleOfEnrichedDocuments;
+
+    @OneToMany(mappedBy = "author")
+    private Collection<EnrichedDocument> isAuthorOfEnrichedDocuments;
 
     public StringCache() {
     }
@@ -96,5 +106,37 @@ public class StringCache {
 
     public void setCachePart4(Byte cachePart4) {
         this.cachePart4 = cachePart4;
+    }
+
+    public Collection<Document> getIsTitleOfDocuments() {
+        return isTitleOfDocuments;
+    }
+
+    public void setIsTitleOfDocuments(Collection<Document> isTitleOfDocuments) {
+        this.isTitleOfDocuments = isTitleOfDocuments;
+    }
+
+    public Collection<Document> getIsAuthorOfDocuments() {
+        return isAuthorOfDocuments;
+    }
+
+    public void setIsAuthorOfDocuments(Collection<Document> isAuthorOfDocuments) {
+        this.isAuthorOfDocuments = isAuthorOfDocuments;
+    }
+
+    public Collection<EnrichedDocument> getIsTitleOfEnrichedDocuments() {
+        return isTitleOfEnrichedDocuments;
+    }
+
+    public void setIsTitleOfEnrichedDocuments(Collection<EnrichedDocument> isTitleOfEnrichedDocuments) {
+        this.isTitleOfEnrichedDocuments = isTitleOfEnrichedDocuments;
+    }
+
+    public Collection<EnrichedDocument> getIsAuthorOfEnrichedDocuments() {
+        return isAuthorOfEnrichedDocuments;
+    }
+
+    public void setIsAuthorOfEnrichedDocuments(Collection<EnrichedDocument> isAuthorOfEnrichedDocuments) {
+        this.isAuthorOfEnrichedDocuments = isAuthorOfEnrichedDocuments;
     }
 }

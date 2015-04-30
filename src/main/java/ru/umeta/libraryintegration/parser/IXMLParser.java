@@ -1,6 +1,6 @@
 package ru.umeta.libraryintegration.parser;
 
-import ru.umeta.libraryintegration.model.ParseResult;
+import ru.umeta.libraryintegration.json.ParseResult;
 
 import java.io.File;
 import java.util.List;

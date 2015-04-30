@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.umeta.libraryintegration.model.UploadResult;
+import ru.umeta.libraryintegration.json.UploadResult;
 import ru.umeta.libraryintegration.service.MainService;
 
 /**
