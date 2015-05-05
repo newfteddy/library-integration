@@ -38,7 +38,7 @@ public class DocumentService {
 
         int result = 0;
         for (int i = 0; i < 32; i++) {
-            if (preHash[i] > 0) {
+            if (preHash[i] >= 0) {
                 result++;
             }
             result *= 2;
@@ -47,7 +47,7 @@ public class DocumentService {
     }
 
     public static void main(String[] args) {
-        System.out.println(Integer.toBinaryString(new DocumentService().getSimHash("hey man what is up for the night")));
-        System.out.println(Integer.toBinaryString(new DocumentService().getSimHash("hey man what is upsasdsdadsad for the night")));
+        System.out.println(Integer.toBinaryString(new DocumentService().getSimHash("собрание сочинений и рассказов")));
+        System.out.println(Integer.toBinaryString(new DocumentService().getSimHash("собр. соч. и расск.")));
     }
 }
