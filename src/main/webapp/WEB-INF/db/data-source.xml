@@ -1,15 +1,22 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns="http://www.springframework.org/schema/beans"
+       xmlns="http://www.springframework.org/schema/beans" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+       xmlns:p="http://www.springframework.org/schema/p">
+
+    <tx:annotation-driven />
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value="WEB-INF/properties/database.properties" />
+        <property name="location" value="classpath:database.properties" />
     </bean>
 
     <bean id="dataSource" class="net.sourceforge.jtds.jdbcx.JtdsDataSource">
         <property name="user" value="${jdbc.username}"/>
         <property name="password" value="${jdbc.password}"/>
+        <property name="serverName" value="${jdbc.servername}"/>
+        <property name="portNumber" value="${jdbc.port}"/>
+        <property name="databaseName" value="${jdbc.database}"/>
+        <property name="serverType" value="2"/>
     </bean>
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
@@ -19,17 +26,19 @@
 
         <property name="hibernateProperties">
             <props>
-                <prop key="hibernate.connection.driver_class">${jdbc.driverClassName}</prop>
-                <prop key="hibernate.connection.url">${jdbc.url}</prop>
-                <prop key="hibernate.connection.username">${jdbc.username}</prop>
-                <prop key="hibernate.connection.password">${jdbc.password}</prop>
                 <prop key="hibernate.dialect">${jdbc.dialect}</prop>
                 <prop key="show_sql">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
             </props>
         </property>
 
         <property name="packagesToScan" value="ru.umeta.libraryintegration.model"/>
 
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager"
+          p:sessionFactory-ref="sessionFactory">
     </bean>
 
 </beans>

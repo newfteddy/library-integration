@@ -2,13 +2,16 @@ package ru.umeta.libraryintegration.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * Created by ctash on 29.04.2015.
  */
 @Entity
 @Table(name = "Protocol")
-public class Protocol{
+public class Protocol implements Serializable{
+
+    private static final long serialVersionUID = 4908088548280013641L;
 
     @Id
     @Column(name = "id")
@@ -19,7 +22,7 @@ public class Protocol{
     private String name;
 
     @OneToMany(mappedBy = "protocol")
-    private Document document;
+    private Collection<Document> document;
 
     public Long getId() {
         return id;
@@ -37,11 +40,11 @@ public class Protocol{
         this.name = name;
     }
 
-    public Document getDocument() {
+    public Collection<Document> getDocument() {
         return document;
     }
 
-    public void setDocument(Document document) {
+    public void setDocument(Collection<Document> document) {
         this.document = document;
     }
 
