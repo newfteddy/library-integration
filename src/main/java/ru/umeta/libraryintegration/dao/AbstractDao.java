@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Created by k.kosolapov on 30.04.2015.
  */
@@ -15,15 +17,15 @@ public abstract class AbstractDao<T> implements IDao<T> {
 
     private Class genericType;
 
-    @Autowired
     private SessionFactory sessionFactory;
 
     protected AbstractDao(Class genericType) {
         this.genericType = genericType;
     }
 
+    @Autowired
     public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+        this.sessionFactory = checkNotNull(sessionFactory);
     }
 
     public Session getSession() {
