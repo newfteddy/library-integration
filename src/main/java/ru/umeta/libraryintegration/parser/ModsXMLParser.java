@@ -31,7 +31,7 @@ public class ModsXMLParser implements IXMLParser {
                 final String isbn = parseIdentifier(mods);
                 final String name = parseName(mods);
 
-                resultList.add(new ModsParseResult(title, isbn, name, mods));
+
             }
 
         } catch (XmlException e) {

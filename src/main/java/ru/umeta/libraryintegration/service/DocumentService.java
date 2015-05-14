@@ -1,53 +1,36 @@
 package ru.umeta.libraryintegration.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.umeta.libraryintegration.json.ModsParseResult;
+import ru.umeta.libraryintegration.json.ParseResult;
+import ru.umeta.libraryintegration.model.Document;
+import ru.umeta.libraryintegration.model.StringHash;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by ctash on 28.04.2015.
  */
 public class DocumentService {
 
-    /**
-     * Calculates 32-bit SimHash for the string and returns it as an int
-     * @param string
-     * @return
-     */
-    public int getSimHash(String string) {
-        String[] tokens = string.split("\\s");
-        /**
-         *  32 is hash size
-         */
-        int[] preHash = new int[32];
-        Arrays.fill(preHash, 0);
+    @Autowired
+    private StringHashService stringHashService;
 
-        for (String token : tokens) {
-            int tokenHash = token.hashCode();
-            for (int i = 0; i < 32; i++) {
-                if (tokenHash % 2 != 0) {
-                    preHash[i]++;
-                } else {
-                    preHash[i]--;
-                }
-                tokenHash = tokenHash >>> 1;
+    public void processDocumentList(List<ParseResult> resultList) {
+        for (ParseResult parseResult : checkNotNull(resultList)) {
+            if (parseResult instanceof ModsParseResult) {
+                final Document document = new Document();
+                ModsParseResult modsParseResult = (ModsParseResult) parseResult;
+                final StringHash authorHash = stringHashService.getStringHash(modsParseResult.getAuthor());
+                document.setAuthor(authorHash);
             }
         }
-
-        int result = 0;
-        for (int i = 0; i < 32; i++) {
-            if (preHash[i] >= 0) {
-                result++;
-            }
-            result *= 2;
-        }
-        return result;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(Integer.toBinaryString(new DocumentService().getSimHash("собрание сочинений и рассказов")));
-        System.out.println(Integer.toBinaryString(new DocumentService().getSimHash("собр. соч. и расск.")));
     }
 }

@@ -7,23 +7,30 @@ import java.util.Collection;
  * Created by ctash on 29.04.2015.
  */
 @Entity
-@Table(name = "StringCache",
+@Table(name = "StringHash",
         indexes = {
-                @Index(name = "IDX_CACHE_123",
-                        columnList = "cache_part_1, cache_part_2, cache_part_3"
+                @Index(name = "IDX_HASH_12",
+                        columnList = "hash_part_1, hash_part_2"
                 ),
-                @Index(name = "IDX_CACHE_234",
-                        columnList = "cache_part_2, cache_part_3, cache_part_4"
+                @Index(name = "IDX_HASH_13",
+                        columnList = "hash_part_1, hash_part_3"
                 ),
-                @Index(name = "IDX_CACHE_341",
-                        columnList = "cache_part_3, cache_part_4, cache_part_1"
+                @Index(name = "IDX_HASH_14",
+                        columnList = "hash_part_1, hash_part_4"
                 ),
-                @Index(name = "IDX_CACHE_412",
-                        columnList = "cache_part_4, cache_part_1, cache_part_2"
-                )
+                @Index(name = "IDX_HASH_23",
+                        columnList = "hash_part_2, hash_part_3"
+                ),
+                @Index(name = "IDX_HASH_24",
+                        columnList = "hash_part_2, hash_part_4"
+                ),
+                @Index(name = "IDX_HASH_34",
+                        columnList = "hash_part_3, hash_part_4"
+                ),
+
 
         })
-public class StringCache {
+public class StringHash {
 
     @Id
     @Column(name = "id")
@@ -33,17 +40,17 @@ public class StringCache {
     @Column(name = "value", nullable = false)
     private String value;
 
-    @Column(name = "cache_part_1", nullable = false)
-    private Byte cachePart1;
+    @Column(name = "hash_part_1", nullable = false)
+    private Byte hashPart1;
 
-    @Column(name = "cache_part_2", nullable = false)
-    private Byte cachePart2;
+    @Column(name = "hash_part_2", nullable = false)
+    private Byte hashPart2;
 
-    @Column(name = "cache_part_3", nullable = false)
-    private Byte cachePart3;
+    @Column(name = "hash_part_3", nullable = false)
+    private Byte hashPart3;
 
-    @Column(name = "cache_part_4", nullable = false)
-    private Byte cachePart4;
+    @Column(name = "hash_part_4", nullable = false)
+    private Byte hashPart4;
 
     @OneToMany(mappedBy = "title")
     private Collection<Document> isTitleOfDocuments;
@@ -57,7 +64,7 @@ public class StringCache {
     @OneToMany(mappedBy = "author")
     private Collection<EnrichedDocument> isAuthorOfEnrichedDocuments;
 
-    public StringCache() {
+    public StringHash() {
     }
 
     public Long getId() {
@@ -76,36 +83,36 @@ public class StringCache {
         this.value = value;
     }
 
-    public Byte getCachePart1() {
-        return cachePart1;
+    public Byte getHashPart1() {
+        return hashPart1;
     }
 
-    public void setCachePart1(Byte cachePart1) {
-        this.cachePart1 = cachePart1;
+    public void setHashPart1(Byte cachePart1) {
+        this.hashPart1 = cachePart1;
     }
 
-    public Byte getCachePart2() {
-        return cachePart2;
+    public Byte getHashPart2() {
+        return hashPart2;
     }
 
-    public void setCachePart2(Byte cachePart2) {
-        this.cachePart2 = cachePart2;
+    public void setHashPart2(Byte cachePart2) {
+        this.hashPart2 = cachePart2;
     }
 
-    public Byte getCachePart3() {
-        return cachePart3;
+    public Byte getHashPart3() {
+        return hashPart3;
     }
 
-    public void setCachePart3(Byte cachePart3) {
-        this.cachePart3 = cachePart3;
+    public void setHashPart3(Byte cachePart3) {
+        this.hashPart3 = cachePart3;
     }
 
-    public Byte getCachePart4() {
-        return cachePart4;
+    public Byte getHashPart4() {
+        return hashPart4;
     }
 
-    public void setCachePart4(Byte cachePart4) {
-        this.cachePart4 = cachePart4;
+    public void setHashPart4(Byte cachePart4) {
+        this.hashPart4 = cachePart4;
     }
 
     public Collection<Document> getIsTitleOfDocuments() {

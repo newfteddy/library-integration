@@ -1,7 +1,6 @@
 package ru.umeta.libraryintegration.model;
 
 import javax.persistence.*;
-import javax.persistence.metamodel.CollectionAttribute;
 import java.util.Collection;
 import java.util.Date;
 
@@ -19,11 +18,11 @@ public class EnrichedDocument {
 
     @ManyToOne
     @JoinColumn(name = "title_string_id")
-    private StringCache title;
+    private StringHash title;
 
     @ManyToOne
     @JoinColumn(name = "author_string_id")
-    private StringCache author;
+    private StringHash author;
 
     @Column(name = "isbn")
     private String isbn;
@@ -48,19 +47,19 @@ public class EnrichedDocument {
         this.id = id;
     }
 
-    public StringCache getTitle() {
+    public StringHash getTitle() {
         return title;
     }
 
-    public void setTitle(StringCache title) {
+    public void setTitle(StringHash title) {
         this.title = title;
     }
 
-    public StringCache getAuthor() {
+    public StringHash getAuthor() {
         return author;
     }
 
-    public void setAuthor(StringCache author) {
+    public void setAuthor(StringHash author) {
         this.author = author;
     }
 

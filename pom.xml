@@ -99,6 +99,14 @@
         </dependency>
 
         <dependency>
+            <artifactId>..</artifactId>
+            <groupId>..</groupId>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/sqljdbc4.jar</systemPath>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>18.0</version>
