@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'jetty'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+version = '1.0'
+
+ext.springVersion = '4.1.1.RELEASE'
+ext.aspectjVersion = '1.7.4'
+ext.jacksonVersion = '2.2.3'
+
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile fileTree(dir: 'lib', include: '*.jar')
+
+    compile "org.springframework:spring-core:$springVersion"
+    compile "org.springframework:spring-webmvc:$springVersion"
+    compile "org.springframework:spring-web:$springVersion"
+    compile "org.springframework:spring-test:$springVersion"
+    compile "org.springframework:spring-orm:$springVersion"
+    compile 'junit:junit:4.11'
+    compile 'javax.servlet:jstl:1.2'
+    compile 'javax.servlet.jsp:jsp-api:2.1'
+    providedCompile 'javax.servlet:servlet-api:2.5'
+    compile 'commons-fileupload:commons-fileupload:1.2.2'
+    compile 'commons-io:commons-io:1.4'
+    compile 'portlet-api:portlet-api:1.0'
+
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    compile "org.aspectj:aspectjrt:$aspectjVersion"
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.1'
+}
