@@ -1,5 +1,7 @@
 package ru.umeta.libraryintegration.model;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
@@ -18,7 +20,8 @@ public class Protocol implements Serializable{
     @GeneratedValue
     private Long id;
 
-    @Column(name = "name")
+    @NaturalId(mutable = true)
+    @Column(name = "name", unique = true)
     private String name;
 
     @OneToMany(mappedBy = "protocol")

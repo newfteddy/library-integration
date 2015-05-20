@@ -7,6 +7,8 @@ import ru.umeta.libraryintegration.model.StringHash;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Created by k.kosolapov on 14.05.2015.
  */
@@ -24,6 +26,7 @@ public class StringHashService {
         byte simHashPart2 = (byte) (simHash % 256);
         simHash = simHash >>> 8;
         byte simHashPart1 = (byte) (simHash % 256);
+
         StringHash stringHash = new StringHash();
         stringHash.setValue(string);
         stringHash.setHashPart1(simHashPart1);
@@ -82,5 +85,12 @@ public class StringHashService {
         return result;
     }
 
-
+    public StringHash getFromRepository(String string) {
+        StringHash repoStringHash = stringHashDao.get(string);
+        if (repoStringHash == null) {
+            StringHash stringHash = getStringHash(string);
+            repoStringHash = stringHashDao.save(stringHash);
+        }
+        return repoStringHash;
+    }
 }

@@ -4,14 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.model.Document;
-import ru.umeta.libraryintegration.model.StringHash;
+import ru.umeta.libraryintegration.model.EnrichedDocument;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -20,17 +15,45 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class DocumentService {
 
+    private static final String DEFAULT_PROTOCOL = "Z39.50";
+
     @Autowired
     private StringHashService stringHashService;
 
-    public void processDocumentList(List<ParseResult> resultList) {
+    @Autowired
+    private ProtocolService protocolService;
+
+    @Autowired
+    private ProtocolService enrichedDocumentService;
+
+
+    public void processDocumentList(List<ParseResult> resultList, String protocolName) {
         for (ParseResult parseResult : checkNotNull(resultList)) {
             if (parseResult instanceof ModsParseResult) {
-                final Document document = new Document();
+                Document document = new Document();
                 ModsParseResult modsParseResult = (ModsParseResult) parseResult;
-                final StringHash authorHash = stringHashService.getStringHash(modsParseResult.getAuthor());
-                document.setAuthor(authorHash);
+
+                document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
+
+                document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
+
+                document.setCreationTime(new Date());
+
+                document.setIsbn(modsParseResult.getIsbn());
+
+                document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
+
+                document.setXml(modsParseResult.getModsDefinition().xmlText());
+
+                findEnrichedDocument(document);
             }
         }
+    }
+
+    private EnrichedDocument findEnrichedDocument(Document document) {
+        filterIsbn();
+
+        List<EnrichedDocument> nearDuplicates = enrichedDocumentService.findNearDuplicates(document);
+
     }
 }

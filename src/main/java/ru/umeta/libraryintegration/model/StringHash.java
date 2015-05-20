@@ -1,5 +1,7 @@
 package ru.umeta.libraryintegration.model;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -37,7 +39,8 @@ public class StringHash {
     @GeneratedValue
     private Long id;
 
-    @Column(name = "value", nullable = false)
+    @NaturalId(mutable = false)
+    @Column(name = "value", nullable = false, unique = true)
     private String value;
 
     @Column(name = "hash_part_1", nullable = false)

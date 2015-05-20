@@ -16,35 +16,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 @Transactional
 @Repository
-public class EnrichedDocumentDao {
-
-    private final SessionFactory sessionFactory;
+public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
 
     public EnrichedDocumentDao(SessionFactory sessionFactory) {
-        this.sessionFactory = checkNotNull(sessionFactory);
+        super(sessionFactory);
     }
 
-    public Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+    
 
-    public EnrichedDocument save(EnrichedDocument object) {
-        getSession().persist(object);
-        return object;
-    }
-
-    public void delete(EnrichedDocument object) {
-        getSession().delete(object);
-    }
-
-    @SuppressWarnings("unchecked")
-    public EnrichedDocument get(final Long id) {
-        return (EnrichedDocument) getSession().get(EnrichedDocument.class, id);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<EnrichedDocument> getAll() {
-        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(EnrichedDocument.class);
-        return (List<EnrichedDocument>) criteria.list();
-    }
 }
