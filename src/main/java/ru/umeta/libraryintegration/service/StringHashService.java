@@ -5,7 +5,13 @@ import ru.umeta.libraryintegration.dao.StringHashDao;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.model.StringHash;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by k.kosolapov on 14.05.2015.
@@ -24,6 +30,7 @@ public class StringHashService {
         byte simHashPart2 = (byte) (simHash % 256);
         simHash = simHash >>> 8;
         byte simHashPart1 = (byte) (simHash % 256);
+
         StringHash stringHash = new StringHash();
         stringHash.setValue(string);
         stringHash.setHashPart1(simHashPart1);
@@ -47,13 +54,7 @@ public class StringHashService {
             return 0;
         }
 
-        Set<String> tokens = new HashSet<>();
-        for (int i = 0; i < string.length() - 1; i++) {
-            final String token = string.substring(i, i + 1);
-            if (!tokens.contains(token)) {
-                tokens.add(token);
-            }
-        }
+        Set<String> tokens = getTokens(string);
         /**
          *  32 is hash size
          */
@@ -61,7 +62,7 @@ public class StringHashService {
         Arrays.fill(preHash, 0);
 
         for (String token : tokens) {
-            int tokenHash = token.hashCode();
+            int tokenHash = getHash(token);
             for (int i = 0; i < 32; i++) {
                 if (tokenHash % 2 != 0) {
                     preHash[i]++;
@@ -82,5 +83,65 @@ public class StringHashService {
         return result;
     }
 
+    private int getHash(String value) {
+        try {
+            byte[] bytes = value.getBytes("UTF-8");
+            int result = 0;
+            for (byte oneByte : bytes) {
+                result = result*31 + (oneByte & 0xFF);
+            }
+            return result;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
+    private Set<String> getTokens(String string) {
+        if (string == null || string.length() == 0) {
+            return null;
+        }
+        Set<String> tokens = new HashSet<>();
+        for (int i = 0; i < string.length() - 3; i++) {
+            final String token = string.substring(i, i + 4);
+            if (!tokens.contains(token)) {
+                tokens.add(token);
+            }
+        }
+        return tokens;
+    }
+
+    public StringHash getFromRepository(String string) {
+        StringHash repoStringHash = stringHashDao.get(string);
+        if (repoStringHash == null) {
+            StringHash stringHash = getStringHash(string);
+            stringHash.setId(stringHashDao.save(stringHash).longValue());
+            repoStringHash = stringHash;
+        }
+        return repoStringHash;
+    }
+
+    public double distance(String obj1, String obj2) {
+        Set<String> tokens1 = getTokens(obj1);
+        Set<String> tokens2 = getTokens(obj2);
+
+        if (tokens1 == null) {
+            if (tokens2 == null) {
+                return 1;
+            }
+            return 0;
+        }
+
+        if (tokens2 == null) {
+            return 0;
+        }
+
+        Set<String> union = new HashSet<>(tokens1);
+        Set<String> intersection = new HashSet<>(tokens1);
+
+        union.addAll(tokens2);
+        intersection.retainAll(tokens2);
+
+        return (intersection.size()*1.)/(union.size()*1.);
+    }
 }

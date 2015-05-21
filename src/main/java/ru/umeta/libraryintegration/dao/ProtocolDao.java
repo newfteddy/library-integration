@@ -17,35 +17,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 @Transactional
 @Repository
-public class ProtocolDao{
-
-    private final SessionFactory sessionFactory;
+public class ProtocolDao extends AbstractDao<Protocol> {
 
     public ProtocolDao(SessionFactory sessionFactory) {
-        this.sessionFactory = checkNotNull(sessionFactory);
-    }
-
-    public Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
-
-    public Protocol save(Protocol object) {
-        getSession().persist(object);
-        return object;
-    }
-
-    public void delete(Protocol object) {
-        getSession().delete(object);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Protocol get(final Long id) {
-        return (Protocol) getSession().get(Protocol.class, id);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Protocol> getAll() {
-        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Protocol.class);
-        return (List<Protocol>) criteria.list();
+        super(sessionFactory);
     }
 }

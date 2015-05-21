@@ -44,11 +44,10 @@
         <constructor-arg ref="modsXMLParser" />
     </bean>
 
-    <bean class="ru.umeta.libraryintegration.service.StringHashService">
-    </bean>
+    <bean class="ru.umeta.libraryintegration.service.DocumentService"/>
+    <bean class="ru.umeta.libraryintegration.service.StringHashService"/>
+    <bean class="ru.umeta.libraryintegration.service.ProtocolService"/>
 
-    <bean class="ru.umeta.libraryintegration.service.DocumentService">
-    </bean>
 
     <bean id="modsXMLParser" class="ru.umeta.libraryintegration.parser.ModsXMLParser"/>
 

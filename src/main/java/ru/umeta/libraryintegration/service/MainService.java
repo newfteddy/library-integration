@@ -35,7 +35,7 @@ public class MainService {
         int parsedDocs = 0;
         for (File file : fileList) {
             List<ParseResult> resultList = parser.parse(file);
-            documentService.processDocumentList(resultList);
+            documentService.processDocumentList(resultList, null);
         }
         return parsedDocs;
     }
