@@ -31,7 +31,6 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
     public List<EnrichedDocument> getNearDuplicates(Document document) {
         Criteria c = getEmptyCriteria();
         c = getNearDuplicateCriteria(document, c);
-
         return c.list();
     }
 
@@ -39,15 +38,15 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
         StringHash author = document.getAuthor();
         StringHash title = document.getTitle();
 
-        Criterion authorEq1 = Restrictions.eq("author.hash_part_1", author.getHashPart1());
-        Criterion authorEq2 = Restrictions.eq("author.hash_part_2", author.getHashPart2());
-        Criterion authorEq3 = Restrictions.eq("author.hash_part_3", author.getHashPart3());
-        Criterion authorEq4 = Restrictions.eq("author.hash_part_4", author.getHashPart4());
+        Criterion authorEq1 = Restrictions.eq("author.hashPart1", author.getHashPart1());
+        Criterion authorEq2 = Restrictions.eq("author.hashPart2", author.getHashPart2());
+        Criterion authorEq3 = Restrictions.eq("author.hashPart3", author.getHashPart3());
+        Criterion authorEq4 = Restrictions.eq("author.hashPart4", author.getHashPart4());
 
-        Criterion titleEq1 = Restrictions.eq("title.hash_part_1", title.getHashPart1());
-        Criterion titleEq2 = Restrictions.eq("title.hash_part_2", title.getHashPart2());
-        Criterion titleEq3 = Restrictions.eq("title.hash_part_3", title.getHashPart3());
-        Criterion titleEq4 = Restrictions.eq("title.hash_part_4", title.getHashPart4());
+        Criterion titleEq1 = Restrictions.eq("title.hashPart1", title.getHashPart1());
+        Criterion titleEq2 = Restrictions.eq("title.hashPart2", title.getHashPart2());
+        Criterion titleEq3 = Restrictions.eq("title.hashPart3", title.getHashPart3());
+        Criterion titleEq4 = Restrictions.eq("title.hashPart4", title.getHashPart4());
 
         c.add(Restrictions.and(
                 Restrictions.or(

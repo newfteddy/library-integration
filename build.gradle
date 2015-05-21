@@ -40,6 +40,8 @@ dependencies {
     compile 'org.apache.xmlbeans:xmlbeans:2.6.0'
     compile 'com.google.guava:guava:18.0'
     compile 'org.hibernate:hibernate-core:4.3.9.Final'
+    compile 'org.slf4j:slf4j-simple:1.6.6'
+    compile 'org.slf4j:slf4j-api:1.6.6'
 }
 
 

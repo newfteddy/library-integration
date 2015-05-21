@@ -44,7 +44,9 @@
         <constructor-arg ref="modsXMLParser" />
     </bean>
 
-    <context:component-scan base-package="ru.umeta.libraryintegration.service" />
+    <bean class="ru.umeta.libraryintegration.service.DocumentService"/>
+    <bean class="ru.umeta.libraryintegration.service.StringHashService"/>
+    <bean class="ru.umeta.libraryintegration.service.ProtocolService"/>
 
 
     <bean id="modsXMLParser" class="ru.umeta.libraryintegration.parser.ModsXMLParser"/>

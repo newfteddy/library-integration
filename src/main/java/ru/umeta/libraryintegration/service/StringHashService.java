@@ -5,6 +5,10 @@ import ru.umeta.libraryintegration.dao.StringHashDao;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.model.StringHash;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -58,7 +62,7 @@ public class StringHashService {
         Arrays.fill(preHash, 0);
 
         for (String token : tokens) {
-            int tokenHash = token.hashCode();
+            int tokenHash = getHash(token);
             for (int i = 0; i < 32; i++) {
                 if (tokenHash % 2 != 0) {
                     preHash[i]++;
@@ -79,13 +83,27 @@ public class StringHashService {
         return result;
     }
 
+    private int getHash(String value) {
+        try {
+            byte[] bytes = value.getBytes("UTF-8");
+            int result = 0;
+            for (byte oneByte : bytes) {
+                result = result*31 + (oneByte & 0xFF);
+            }
+            return result;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     private Set<String> getTokens(String string) {
         if (string == null || string.length() == 0) {
             return null;
         }
         Set<String> tokens = new HashSet<>();
-        for (int i = 0; i < string.length() - 1; i++) {
-            final String token = string.substring(i, i + 1);
+        for (int i = 0; i < string.length() - 3; i++) {
+            final String token = string.substring(i, i + 4);
             if (!tokens.contains(token)) {
                 tokens.add(token);
             }
@@ -97,7 +115,8 @@ public class StringHashService {
         StringHash repoStringHash = stringHashDao.get(string);
         if (repoStringHash == null) {
             StringHash stringHash = getStringHash(string);
-            repoStringHash = stringHashDao.save(stringHash);
+            stringHash.setId(stringHashDao.save(stringHash).longValue());
+            repoStringHash = stringHash;
         }
         return repoStringHash;
     }

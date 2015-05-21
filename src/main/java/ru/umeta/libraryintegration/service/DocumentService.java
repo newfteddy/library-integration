@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.umeta.libraryintegration.dao.DocumentDao;
 import ru.umeta.libraryintegration.dao.EnrichedDocumentDao;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
@@ -27,6 +28,9 @@ public class DocumentService {
     @Autowired
     private EnrichedDocumentDao enrichedDocumentDao;
 
+    @Autowired
+    private DocumentDao documentDao;
+
     public void processDocumentList(List<ParseResult> resultList, String protocolName) {
         for (ParseResult parseResult : checkNotNull(resultList)) {
             if (parseResult instanceof ModsParseResult) {
@@ -34,20 +38,33 @@ public class DocumentService {
                 ModsParseResult modsParseResult = (ModsParseResult) parseResult;
 
                 document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
-
                 document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
-
                 document.setCreationTime(new Date());
-
                 document.setIsbn(modsParseResult.getIsbn());
-
                 document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
-
                 document.setXml(modsParseResult.getModsDefinition().xmlText());
 
-                findEnrichedDocument(document);
+                EnrichedDocument enrichedDocument = findEnrichedDocument(document);
+                if (enrichedDocument != null) {
+                    mergeDocuments(modsParseResult, enrichedDocument);
+                } else {
+                    enrichedDocument = new EnrichedDocument();
+                    enrichedDocument.setAuthor(document.getAuthor());
+                    enrichedDocument.setTitle(document.getTitle());
+                    enrichedDocument.setIsbn(document.getIsbn());
+                    enrichedDocument.setXml(document.getXml());
+                    enrichedDocument.setCreationTime(document.getCreationTime());
+                    enrichedDocument.setId(enrichedDocumentDao.save(enrichedDocument).longValue());
+                    document.setDistance(1.);
+                }
+                document.setEnrichedDocument(enrichedDocument);
+                documentDao.save(document);
             }
         }
+    }
+
+    private void mergeDocuments(ModsParseResult modsParseResult, EnrichedDocument enrichedDocument) {
+
     }
 
     private EnrichedDocument findEnrichedDocument(Document document) {
@@ -88,9 +105,10 @@ public class DocumentService {
                 }
 
             }
-
+            document.setDistance(maxDistance);
+            return closestDocument;
         }
 
-
+        return null;
     }
 }

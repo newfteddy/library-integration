@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.dao;
 
 import org.hibernate.*;
+import org.springframework.stereotype.Repository;
 import ru.umeta.libraryintegration.model.StringHash;
 import ru.umeta.libraryintegration.util.Generics;
 
@@ -13,6 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by k.kosolapov on 30.04.2015.
  */
+@Transactional
 public abstract class AbstractDao<E>{
 
     private final SessionFactory sessionFactory;
@@ -132,7 +134,21 @@ public abstract class AbstractDao<E>{
      */
     @SuppressWarnings("unchecked")
     protected E get(Serializable id) {
-        return (E) currentSession().get(entityClass, checkNotNull(id));
+        Session session = currentSession();
+        Transaction transaction = null;
+        E result = null;
+        try {
+            transaction = session.beginTransaction();
+            result = (E) (session.get(entityClass, checkNotNull(id)));
+        } catch (Exception e) {
+
+        }
+        finally {
+            if (transaction != null) {
+                transaction.commit();
+            }
+        }
+        return result;
     }
 
     /**
@@ -151,8 +167,8 @@ public abstract class AbstractDao<E>{
     }
 
     @SuppressWarnings("unchecked")
-    public E save(E entity) {
-        return (E) currentSession().save(checkNotNull(entity));
+    public Number save(E entity) {
+        return (Number) currentSession().save(checkNotNull(entity));
     }
 
     @SuppressWarnings("unchecked")

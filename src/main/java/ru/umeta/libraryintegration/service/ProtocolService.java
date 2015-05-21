@@ -21,7 +21,8 @@ public class ProtocolService {
         if (repoProtocol == null) {
             Protocol protocol = new Protocol();
             protocol.setName(protocolName);
-            repoProtocol = protocolDao.save(protocol);
+            protocol.setId(protocolDao.save(protocol).longValue());
+            repoProtocol = protocol;
         }
         return repoProtocol;
     }
