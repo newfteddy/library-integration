@@ -50,13 +50,7 @@ public class StringHashService {
             return 0;
         }
 
-        Set<String> tokens = new HashSet<>();
-        for (int i = 0; i < string.length() - 1; i++) {
-            final String token = string.substring(i, i + 1);
-            if (!tokens.contains(token)) {
-                tokens.add(token);
-            }
-        }
+        Set<String> tokens = getTokens(string);
         /**
          *  32 is hash size
          */
@@ -85,6 +79,20 @@ public class StringHashService {
         return result;
     }
 
+    private Set<String> getTokens(String string) {
+        if (string == null || string.length() == 0) {
+            return null;
+        }
+        Set<String> tokens = new HashSet<>();
+        for (int i = 0; i < string.length() - 1; i++) {
+            final String token = string.substring(i, i + 1);
+            if (!tokens.contains(token)) {
+                tokens.add(token);
+            }
+        }
+        return tokens;
+    }
+
     public StringHash getFromRepository(String string) {
         StringHash repoStringHash = stringHashDao.get(string);
         if (repoStringHash == null) {
@@ -92,5 +100,29 @@ public class StringHashService {
             repoStringHash = stringHashDao.save(stringHash);
         }
         return repoStringHash;
+    }
+
+    public double distance(String obj1, String obj2) {
+        Set<String> tokens1 = getTokens(obj1);
+        Set<String> tokens2 = getTokens(obj2);
+
+        if (tokens1 == null) {
+            if (tokens2 == null) {
+                return 1;
+            }
+            return 0;
+        }
+
+        if (tokens2 == null) {
+            return 0;
+        }
+
+        Set<String> union = new HashSet<>(tokens1);
+        Set<String> intersection = new HashSet<>(tokens1);
+
+        union.addAll(tokens2);
+        intersection.retainAll(tokens2);
+
+        return (intersection.size()*1.)/(union.size()*1.);
     }
 }

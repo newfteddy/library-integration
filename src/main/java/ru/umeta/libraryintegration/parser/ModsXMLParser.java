@@ -16,7 +16,7 @@ import java.util.List;
 public class ModsXMLParser implements IXMLParser {
 
     private static final String ISBN = "isbn";
-    private static final String NULL = "null";
+    private static final String NULL = null;
     private static final String SPACE = " ";
     private static final String ERROR_PARSING_XML_FILE = "Error parsing XML file";
 

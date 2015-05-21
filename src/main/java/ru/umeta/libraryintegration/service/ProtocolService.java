@@ -26,7 +26,4 @@ public class ProtocolService {
         return repoProtocol;
     }
 
-    public List<EnrichedDocument> findNearDuplicates(Document document) {
-
-    }
 }
