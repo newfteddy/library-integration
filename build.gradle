@@ -42,6 +42,7 @@ dependencies {
     compile 'org.hibernate:hibernate-core:4.3.9.Final'
     compile 'org.slf4j:slf4j-simple:1.6.6'
     compile 'org.slf4j:slf4j-api:1.6.6'
+    compile 'postgresql:postgresql:9.1-901.jdbc4'
 }
 
 

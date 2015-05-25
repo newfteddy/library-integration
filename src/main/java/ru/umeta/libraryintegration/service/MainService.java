@@ -34,8 +34,13 @@ public class MainService {
         boolean isFirstFile = false;
         int parsedDocs = 0;
         for (File file : fileList) {
+            long startTime = System.nanoTime();
             List<ParseResult> resultList = parser.parse(file);
+            long parseTime = System.nanoTime();
+            System.out.println("The documents bulk parsed in " + (double)(parseTime - startTime) / 1000000000.0);
             documentService.processDocumentList(resultList, null);
+            long endTime = System.nanoTime();
+            System.out.println("The documents bulk is added in " + (double)(endTime - startTime) / 1000000000.0);
         }
         return parsedDocs;
     }

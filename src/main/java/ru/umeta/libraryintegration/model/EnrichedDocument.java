@@ -8,7 +8,7 @@ import java.util.Date;
  * Created by ctash on 30.04.2015.
  */
 @Entity
-@Table(name = "EnrichedDocument")
+@Table(name = "enriched_document")
 public class EnrichedDocument {
 
     @Id
@@ -27,7 +27,7 @@ public class EnrichedDocument {
     @Column(name = "isbn")
     private String isbn;
 
-    @Column(name = "xml")
+    @Column(name = "xml", columnDefinition = "TEXT")
     private String xml;
 
     @Column(name = "creation_time")

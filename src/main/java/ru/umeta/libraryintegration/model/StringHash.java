@@ -9,7 +9,7 @@ import java.util.Collection;
  * Created by ctash on 29.04.2015.
  */
 @Entity
-@Table(name = "StringHash",
+@Table(name = "string_hash",
         indexes = {
                 @Index(name = "IDX_HASH_12",
                         columnList = "hash_part_1, hash_part_2"

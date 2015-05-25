@@ -10,7 +10,7 @@ import java.util.Collection;
  * Created by ctash on 29.04.2015.
  */
 @Entity
-@Table(name = "Protocol")
+@Table(name = "protocol")
 public class Protocol implements Serializable{
 
     private static final long serialVersionUID = 4908088548280013641L;

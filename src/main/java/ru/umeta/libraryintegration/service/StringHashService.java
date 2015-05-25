@@ -50,7 +50,7 @@ public class StringHashService {
             return 0;
         }
 
-        if (string.length() < 2) {
+        if (string.length() < 4) {
             return 0;
         }
 
@@ -101,6 +101,7 @@ public class StringHashService {
         if (string == null || string.length() == 0) {
             return null;
         }
+
         Set<String> tokens = new HashSet<>();
         for (int i = 0; i < string.length() - 3; i++) {
             final String token = string.substring(i, i + 4);
@@ -122,8 +123,16 @@ public class StringHashService {
     }
 
     public double distance(String obj1, String obj2) {
-        Set<String> tokens1 = getTokens(obj1);
-        Set<String> tokens2 = getTokens(obj2);
+        Set<String> tokens1 = null;
+        Set<String> tokens2 = null;
+        if (obj1.length() <= 4 || obj2.length() <= 4) {
+            tokens1 = getCharTokens(obj1);
+            tokens2 = getCharTokens(obj2);
+        } else {
+            tokens1 = getTokens(obj1);
+            tokens2 = getTokens(obj2);
+        }
+
 
         if (tokens1 == null) {
             if (tokens2 == null) {
@@ -143,5 +152,19 @@ public class StringHashService {
         intersection.retainAll(tokens2);
 
         return (intersection.size()*1.)/(union.size()*1.);
+    }
+
+    private Set<String> getCharTokens(String string) {
+        Set<String> charTokens = new HashSet<>();
+
+        int length = string.length();
+        for (int i = 0; i < length; i++) {
+            String charToken = String.valueOf(string.charAt(i));
+            if (!charTokens.contains(charToken)) {
+                charTokens.add(charToken);
+            }
+        }
+
+        return charTokens;
     }
 }

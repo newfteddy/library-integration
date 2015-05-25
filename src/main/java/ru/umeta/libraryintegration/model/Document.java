@@ -1,5 +1,7 @@
 package ru.umeta.libraryintegration.model;
 
+import org.hibernate.type.TextType;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -7,7 +9,7 @@ import java.util.Date;
  * Created by k.kosolapov on 27.04.2015.
  */
 @Entity
-@Table(name = "Document")
+@Table(name = "document")
 public class Document {
 
     @Id
@@ -26,7 +28,7 @@ public class Document {
     @Column(name = "isbn")
     private String isbn;
 
-    @Column(name = "xml")
+    @Column(name = "xml", columnDefinition = "TEXT")
     private String xml;
 
     @Column(name = "creation_time")
