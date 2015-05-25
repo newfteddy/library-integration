@@ -4,10 +4,13 @@ import gov.loc.mods.v3.*;
 import org.apache.xmlbeans.XmlException;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
-
+import ru.umeta.libraryintegration.model.EnrichedDocument;
+import org.apache.xmlbeans.XmlObject;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,6 +42,107 @@ public class ModsXMLParser implements IXMLParser {
             e.printStackTrace();
         }
         return resultList;
+    }
+
+    public EnrichedDocument enrich(ModsDefinition definition, EnrichedDocument enrichedDocument) {
+        try {
+            ModsDefinition enrichedDefinition = ModsDefinition.Factory.parse(enrichedDocument.getXml());
+            //abstract
+            Object[] newAbstractArray = mergeSimpleProperty(definition.getAbstractArray(), enrichedDefinition.getAbstractArray());
+            enrichedDefinition.setAbstractArray((AbstractDefinition[]) newAbstractArray);
+            //classification
+            List<ClassificationDefinition> enrichedClassificationArray = mergeComplexProperty(definition.getClassificationArray(), enrichedDefinition.getClassificationArray());
+            enrichedDefinition.setClassificationArray(enrichedClassificationArray.toArray(new ClassificationDefinition[enrichedClassificationArray.size()]));
+
+            //genre
+            Object[] enrichedGenreArray = mergeComplexProperty(definition.getGenreArray(), enrichedDefinition.getGenreArray());
+            enrichedDefinition.setGenreArray((GenreDefinition[]) enrichedGenreArray);
+
+            //identifier
+            Object[] enrichedIdentifierArray = mergeComplexProperty(definition.getIdentifierArray(), enrichedDefinition.getIdentifierArray());
+            enrichedDefinition.setIdentifierArray((IdentifierDefinition[]) enrichedIdentifierArray);
+
+            //language
+            Object[] enrichedLanguageArray = mergeComplexProperty(definition.getLanguageArray(), enrichedDefinition.getLanguageArray());
+            enrichedDefinition.setLanguageArray((LanguageDefinition[]) enrichedLanguageArray);
+
+            //location
+            Object[] enrichedLocationArray = mergeComplexProperty(definition.getLocationArray(), enrichedDefinition.getLocationArray());
+            enrichedDefinition.setLocationArray((LocationDefinition[]) enrichedLocationArray);
+
+            //note
+            Object[] newNoteArray = mergeSimpleProperty(definition.getNoteArray(), enrichedDefinition.getNoteArray());
+            enrichedDefinition.setNoteArray((NoteDefinition[]) newNoteArray);
+
+            //originInfo
+            Object[] newOriginInfoArray = mergeSimpleProperty(definition.getOriginInfoArray(), enrichedDefinition.getOriginInfoArray());
+            enrichedDefinition.setOriginInfoArray((OriginInfoDefinition[]) newOriginInfoArray);
+
+            //part
+            Object[] newPartArray = mergeSimpleProperty(definition.getPartArray(), enrichedDefinition.getPartArray());
+            enrichedDefinition.setPartArray((PartDefinition[]) newPartArray);
+
+            //physicalDescription
+            Object[] newPhysicalDescriptionArray = mergeSimpleProperty(definition.getPhysicalDescriptionArray(), enrichedDefinition.getPhysicalDescriptionArray());
+            enrichedDefinition.setPhysicalDescriptionArray((PhysicalDescriptionDefinition[]) newPhysicalDescriptionArray);
+
+            //recordInfo
+            Object[] newRecordInfoArray = mergeSimpleProperty(definition.getRecordInfoArray(), enrichedDefinition.getRecordInfoArray());
+            enrichedDefinition.setRecordInfoArray((RecordInfoDefinition[]) newRecordInfoArray);
+
+            //relatedItem
+            Object[] enrichedRelatedItemArray = mergeComplexProperty(definition.getRelatedItemArray(), enrichedDefinition.getRelatedItemArray());
+            enrichedDefinition.setRelatedItemArray((RelatedItemDefinition[]) enrichedRelatedItemArray);
+
+            //subject
+            Object[] enrichedSubjectArray = mergeComplexProperty(definition.getSubjectArray(), enrichedDefinition.getSubjectArray());
+            enrichedDefinition.setSubjectArray((SubjectDefinition[]) enrichedSubjectArray);
+
+            //tableOfContents
+            Object[] newTableOfContentsArray = mergeSimpleProperty(definition.getTableOfContentsArray(), enrichedDefinition.getTableOfContentsArray());
+            enrichedDefinition.setTableOfContentsArray((TableOfContentsDefinition[]) newTableOfContentsArray);
+
+            //targetAudience
+            Object[] newTargetAudienceArray = mergeSimpleProperty(definition.getTargetAudienceArray(), enrichedDefinition.getTargetAudienceArray());
+            enrichedDefinition.setTargetAudienceArray((TargetAudienceDefinition[]) newTargetAudienceArray);
+
+            //typeOfResource
+            Object[] newTypeOfResourceArray = mergeSimpleProperty(definition.getTypeOfResourceArray(), enrichedDefinition.getTypeOfResourceArray());
+            enrichedDefinition.setTypeOfResourceArray((TypeOfResourceDefinition[]) newTypeOfResourceArray);
+
+            enrichedDocument.setXml(enrichedDefinition.xmlText());
+
+            return enrichedDocument;
+        } catch (XmlException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Object[] mergeSimpleProperty(Object[] propertyArray, Object[] enrichedPropertyArray) {
+        if (enrichedPropertyArray.length == 0 && propertyArray.length > 0) {
+            return propertyArray;
+        }
+        return enrichedPropertyArray;
+    }
+
+    private <T extends XmlObject> List<T> mergeComplexProperty(T[] propertyArray, T[] enrichedPropertyArray) {
+        List<T> enrichedPropertyList = new ArrayList<>(Arrays.asList(enrichedPropertyArray));
+        int size = enrichedPropertyList.size();
+        for (T property : propertyArray) {
+            int i = 0;
+            for (T enrichedProperty : enrichedPropertyList) {
+                if (property.valueEquals(enrichedProperty)) {
+                    break;
+                }
+                i++;
+            }
+            if (i == size) {
+                enrichedPropertyList.add(property);
+                size++;
+            }
+        }
+        return enrichedPropertyList;
     }
 
     public String parseTitle(ModsDefinition document) {
@@ -74,13 +178,15 @@ public class ModsXMLParser implements IXMLParser {
 
     public String parseIdentifier(ModsDefinition document) {
         final IdentifierDefinition[] identifierArray = document.getIdentifierArray();
-        final IdentifierDefinition identifier = identifierArray.length > 0 ? identifierArray[0] : null;
-        final String isbn;
-        if (identifier != null) {
-            isbn = ISBN.compareTo(identifier.getType()) == 0 ? identifier.getStringValue() : NULL;
-        } else {
-            isbn = NULL;
+
+        String isbn = NULL;
+        for (IdentifierDefinition identifier : identifierArray) {
+            if (identifier != null && ISBN.compareTo(identifier.getType()) == 0) {
+                isbn = identifier.getStringValue();
+                break;
+            }
         }
+
         return isbn;
     }
 

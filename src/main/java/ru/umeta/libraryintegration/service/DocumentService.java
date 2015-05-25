@@ -7,7 +7,11 @@ import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
+import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -31,7 +35,11 @@ public class DocumentService {
     @Autowired
     private DocumentDao documentDao;
 
+    @Autowired
+    private ModsXMLParser modsXMLParser;
+
     public void processDocumentList(List<ParseResult> resultList, String protocolName) {
+
         for (ParseResult parseResult : checkNotNull(resultList)) {
             if (parseResult instanceof ModsParseResult) {
                 Document document = new Document();
@@ -42,8 +50,13 @@ public class DocumentService {
                 document.setCreationTime(new Date());
                 document.setIsbn(modsParseResult.getIsbn());
                 document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
-                document.setXml(modsParseResult.getModsDefinition().xmlText());
-
+                try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                    modsParseResult.getModsDefinition().save(outputStream);
+                    document.setXml(new String(outputStream.toByteArray(),"UTF-8"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    continue;
+                }
                 EnrichedDocument enrichedDocument = findEnrichedDocument(document);
                 if (enrichedDocument != null) {
                     mergeDocuments(modsParseResult, enrichedDocument);
@@ -64,7 +77,7 @@ public class DocumentService {
     }
 
     private void mergeDocuments(ModsParseResult modsParseResult, EnrichedDocument enrichedDocument) {
-
+        modsXMLParser.enrich(modsParseResult.getModsDefinition(),enrichedDocument);
     }
 
     private EnrichedDocument findEnrichedDocument(Document document) {
