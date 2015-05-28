@@ -162,7 +162,7 @@ public abstract class AbstractDao<E>{
      * @throws HibernateException
      * @see Session#saveOrUpdate(Object)
      */
-    protected void saveOrUpdate(E entity) throws HibernateException {
+    public void saveOrUpdate(E entity) throws HibernateException {
         currentSession().saveOrUpdate(checkNotNull(entity));
     }
 

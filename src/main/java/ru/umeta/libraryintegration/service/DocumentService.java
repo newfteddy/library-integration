@@ -5,6 +5,7 @@ import ru.umeta.libraryintegration.dao.DocumentDao;
 import ru.umeta.libraryintegration.dao.EnrichedDocumentDao;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
+import ru.umeta.libraryintegration.json.UploadResult;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
 import ru.umeta.libraryintegration.parser.ModsXMLParser;
@@ -38,7 +39,9 @@ public class DocumentService {
     @Autowired
     private ModsXMLParser modsXMLParser;
 
-    public void processDocumentList(List<ParseResult> resultList, String protocolName) {
+    public UploadResult processDocumentList(List<ParseResult> resultList, String protocolName) {
+        int newEnriched = 0;
+        int parsedDocs = 0;
 
         for (ParseResult parseResult : checkNotNull(resultList)) {
             if (parseResult instanceof ModsParseResult) {
@@ -60,6 +63,7 @@ public class DocumentService {
                 EnrichedDocument enrichedDocument = findEnrichedDocument(document);
                 if (enrichedDocument != null) {
                     mergeDocuments(modsParseResult, enrichedDocument);
+                    enrichedDocumentDao.saveOrUpdate(enrichedDocument);
                 } else {
                     enrichedDocument = new EnrichedDocument();
                     enrichedDocument.setAuthor(document.getAuthor());
@@ -68,12 +72,15 @@ public class DocumentService {
                     enrichedDocument.setXml(document.getXml());
                     enrichedDocument.setCreationTime(document.getCreationTime());
                     enrichedDocument.setId(enrichedDocumentDao.save(enrichedDocument).longValue());
+                    newEnriched++;
                     document.setDistance(1.);
                 }
                 document.setEnrichedDocument(enrichedDocument);
                 documentDao.save(document);
+                parsedDocs++;
             }
         }
+        return new UploadResult(parsedDocs, newEnriched);
     }
 
     private void mergeDocuments(ModsParseResult modsParseResult, EnrichedDocument enrichedDocument) {

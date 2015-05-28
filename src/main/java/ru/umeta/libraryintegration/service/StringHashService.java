@@ -113,6 +113,9 @@ public class StringHashService {
     }
 
     public StringHash getFromRepository(String string) {
+        if (string.length() > 255) {
+            string = string.substring(0, 255);
+        }
         StringHash repoStringHash = stringHashDao.get(string);
         if (repoStringHash == null) {
             StringHash stringHash = getStringHash(string);

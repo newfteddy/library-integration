@@ -2,6 +2,7 @@ package ru.umeta.libraryintegration.parser;
 
 import gov.loc.mods.v3.*;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.values.XmlObjectBase;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
@@ -48,67 +49,67 @@ public class ModsXMLParser implements IXMLParser {
         try {
             ModsDefinition enrichedDefinition = ModsDefinition.Factory.parse(enrichedDocument.getXml());
             //abstract
-            Object[] newAbstractArray = mergeSimpleProperty(definition.getAbstractArray(), enrichedDefinition.getAbstractArray());
-            enrichedDefinition.setAbstractArray((AbstractDefinition[]) newAbstractArray);
+            AbstractDefinition[] newAbstractArray = mergeSimpleProperty(definition.getAbstractArray(), enrichedDefinition.getAbstractArray());
+            enrichedDefinition.setAbstractArray(newAbstractArray);
             //classification
             List<ClassificationDefinition> enrichedClassificationArray = mergeComplexProperty(definition.getClassificationArray(), enrichedDefinition.getClassificationArray());
             enrichedDefinition.setClassificationArray(enrichedClassificationArray.toArray(new ClassificationDefinition[enrichedClassificationArray.size()]));
 
             //genre
-            Object[] enrichedGenreArray = mergeComplexProperty(definition.getGenreArray(), enrichedDefinition.getGenreArray());
-            enrichedDefinition.setGenreArray((GenreDefinition[]) enrichedGenreArray);
+            List<GenreDefinition> enrichedGenreArray = mergeComplexProperty(definition.getGenreArray(), enrichedDefinition.getGenreArray());
+            enrichedDefinition.setGenreArray(enrichedGenreArray.toArray(new GenreDefinition[enrichedGenreArray.size()]));
 
             //identifier
-            Object[] enrichedIdentifierArray = mergeComplexProperty(definition.getIdentifierArray(), enrichedDefinition.getIdentifierArray());
-            enrichedDefinition.setIdentifierArray((IdentifierDefinition[]) enrichedIdentifierArray);
+            List<IdentifierDefinition> enrichedIdentifierArray = mergeComplexProperty(definition.getIdentifierArray(), enrichedDefinition.getIdentifierArray());
+            enrichedDefinition.setIdentifierArray(enrichedIdentifierArray.toArray(new IdentifierDefinition[enrichedIdentifierArray.size()]));
 
             //language
-            Object[] enrichedLanguageArray = mergeComplexProperty(definition.getLanguageArray(), enrichedDefinition.getLanguageArray());
-            enrichedDefinition.setLanguageArray((LanguageDefinition[]) enrichedLanguageArray);
+            List<LanguageDefinition> enrichedLanguageArray = mergeComplexProperty(definition.getLanguageArray(), enrichedDefinition.getLanguageArray());
+            enrichedDefinition.setLanguageArray(enrichedLanguageArray.toArray(new LanguageDefinition[enrichedLanguageArray.size()]));
 
             //location
-            Object[] enrichedLocationArray = mergeComplexProperty(definition.getLocationArray(), enrichedDefinition.getLocationArray());
-            enrichedDefinition.setLocationArray((LocationDefinition[]) enrichedLocationArray);
+            List<LocationDefinition> enrichedLocationArray = mergeComplexProperty(definition.getLocationArray(), enrichedDefinition.getLocationArray());
+            enrichedDefinition.setLocationArray(enrichedLocationArray.toArray(new LocationDefinition[enrichedLocationArray.size()]));
 
             //note
-            Object[] newNoteArray = mergeSimpleProperty(definition.getNoteArray(), enrichedDefinition.getNoteArray());
-            enrichedDefinition.setNoteArray((NoteDefinition[]) newNoteArray);
+            NoteDefinition[] newNoteArray = mergeSimpleProperty(definition.getNoteArray(), enrichedDefinition.getNoteArray());
+            enrichedDefinition.setNoteArray(newNoteArray);
 
             //originInfo
-            Object[] newOriginInfoArray = mergeSimpleProperty(definition.getOriginInfoArray(), enrichedDefinition.getOriginInfoArray());
-            enrichedDefinition.setOriginInfoArray((OriginInfoDefinition[]) newOriginInfoArray);
+            OriginInfoDefinition[] newOriginInfoArray = mergeSimpleProperty(definition.getOriginInfoArray(), enrichedDefinition.getOriginInfoArray());
+            enrichedDefinition.setOriginInfoArray(newOriginInfoArray);
 
             //part
-            Object[] newPartArray = mergeSimpleProperty(definition.getPartArray(), enrichedDefinition.getPartArray());
-            enrichedDefinition.setPartArray((PartDefinition[]) newPartArray);
+            PartDefinition[] newPartArray = mergeSimpleProperty(definition.getPartArray(), enrichedDefinition.getPartArray());
+            enrichedDefinition.setPartArray(newPartArray);
 
             //physicalDescription
-            Object[] newPhysicalDescriptionArray = mergeSimpleProperty(definition.getPhysicalDescriptionArray(), enrichedDefinition.getPhysicalDescriptionArray());
-            enrichedDefinition.setPhysicalDescriptionArray((PhysicalDescriptionDefinition[]) newPhysicalDescriptionArray);
+            PhysicalDescriptionDefinition[] newPhysicalDescriptionArray = mergeSimpleProperty(definition.getPhysicalDescriptionArray(), enrichedDefinition.getPhysicalDescriptionArray());
+            enrichedDefinition.setPhysicalDescriptionArray(newPhysicalDescriptionArray);
 
             //recordInfo
-            Object[] newRecordInfoArray = mergeSimpleProperty(definition.getRecordInfoArray(), enrichedDefinition.getRecordInfoArray());
-            enrichedDefinition.setRecordInfoArray((RecordInfoDefinition[]) newRecordInfoArray);
+            RecordInfoDefinition[] newRecordInfoArray = mergeSimpleProperty(definition.getRecordInfoArray(), enrichedDefinition.getRecordInfoArray());
+            enrichedDefinition.setRecordInfoArray(newRecordInfoArray);
 
             //relatedItem
-            Object[] enrichedRelatedItemArray = mergeComplexProperty(definition.getRelatedItemArray(), enrichedDefinition.getRelatedItemArray());
-            enrichedDefinition.setRelatedItemArray((RelatedItemDefinition[]) enrichedRelatedItemArray);
+            List<RelatedItemDefinition> enrichedRelatedItemArray = mergeComplexProperty(definition.getRelatedItemArray(), enrichedDefinition.getRelatedItemArray());
+            enrichedDefinition.setRelatedItemArray(enrichedRelatedItemArray.toArray(new RelatedItemDefinition[enrichedRelatedItemArray.size()]));
 
             //subject
-            Object[] enrichedSubjectArray = mergeComplexProperty(definition.getSubjectArray(), enrichedDefinition.getSubjectArray());
-            enrichedDefinition.setSubjectArray((SubjectDefinition[]) enrichedSubjectArray);
+            List<SubjectDefinition> enrichedSubjectArray = mergeComplexProperty(definition.getSubjectArray(), enrichedDefinition.getSubjectArray());
+            enrichedDefinition.setSubjectArray(enrichedSubjectArray.toArray(new SubjectDefinition[enrichedSubjectArray.size()]));
 
             //tableOfContents
-            Object[] newTableOfContentsArray = mergeSimpleProperty(definition.getTableOfContentsArray(), enrichedDefinition.getTableOfContentsArray());
-            enrichedDefinition.setTableOfContentsArray((TableOfContentsDefinition[]) newTableOfContentsArray);
+            TableOfContentsDefinition[] newTableOfContentsArray = mergeSimpleProperty(definition.getTableOfContentsArray(), enrichedDefinition.getTableOfContentsArray());
+            enrichedDefinition.setTableOfContentsArray(newTableOfContentsArray);
 
             //targetAudience
-            Object[] newTargetAudienceArray = mergeSimpleProperty(definition.getTargetAudienceArray(), enrichedDefinition.getTargetAudienceArray());
-            enrichedDefinition.setTargetAudienceArray((TargetAudienceDefinition[]) newTargetAudienceArray);
+            TargetAudienceDefinition[] newTargetAudienceArray = mergeSimpleProperty(definition.getTargetAudienceArray(), enrichedDefinition.getTargetAudienceArray());
+            enrichedDefinition.setTargetAudienceArray(newTargetAudienceArray);
 
             //typeOfResource
-            Object[] newTypeOfResourceArray = mergeSimpleProperty(definition.getTypeOfResourceArray(), enrichedDefinition.getTypeOfResourceArray());
-            enrichedDefinition.setTypeOfResourceArray((TypeOfResourceDefinition[]) newTypeOfResourceArray);
+            TypeOfResourceDefinition[] newTypeOfResourceArray = mergeSimpleProperty(definition.getTypeOfResourceArray(), enrichedDefinition.getTypeOfResourceArray());
+            enrichedDefinition.setTypeOfResourceArray(newTypeOfResourceArray);
 
             enrichedDocument.setXml(enrichedDefinition.xmlText());
 
@@ -119,7 +120,7 @@ public class ModsXMLParser implements IXMLParser {
         }
     }
 
-    private Object[] mergeSimpleProperty(Object[] propertyArray, Object[] enrichedPropertyArray) {
+    private <T extends XmlObject> T[] mergeSimpleProperty(T[] propertyArray, T[] enrichedPropertyArray) {
         if (enrichedPropertyArray.length == 0 && propertyArray.length > 0) {
             return propertyArray;
         }
@@ -130,9 +131,11 @@ public class ModsXMLParser implements IXMLParser {
         List<T> enrichedPropertyList = new ArrayList<>(Arrays.asList(enrichedPropertyArray));
         int size = enrichedPropertyList.size();
         for (T property : propertyArray) {
+            XmlObjectBase propertyBase = (XmlObjectBase) property;
             int i = 0;
             for (T enrichedProperty : enrichedPropertyList) {
-                if (property.valueEquals(enrichedProperty)) {
+                XmlObjectBase enrichedPropertyBase = (XmlObjectBase) enrichedProperty;
+                if (propertyBase.getStringValue().equals(enrichedPropertyBase.getStringValue())) {
                     break;
                 }
                 i++;

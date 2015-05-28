@@ -9,11 +9,11 @@ public class UploadResult implements Serializable {
 
     private static final long serialVersionUID = 8711710207201631499L;
     private int parsedDocs;
-    private String message;
+    private int newEnriched;
 
-    public UploadResult(int parsedDocs, String message) {
+    public UploadResult(int parsedDocs, int newEnriched) {
         this.parsedDocs = parsedDocs;
-        this.message = message;
+        this.newEnriched = newEnriched;
     }
 
     public int getParsedDocs() {
@@ -24,11 +24,11 @@ public class UploadResult implements Serializable {
         this.parsedDocs = parsedDocs;
     }
 
-    public String getMessage() {
-        return message;
+    public int getNewEnriched() {
+        return newEnriched;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setNewEnriched(int newEnriched) {
+        this.newEnriched = newEnriched;
     }
 }
