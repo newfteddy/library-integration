@@ -31,6 +31,7 @@
                 <prop key="hibernate.connection.password">${jdbc.password}</prop>
                 <prop key="hibernate.dialect">${jdbc.dialect}</prop>
                 <prop key="show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
             </props>
         </property>

@@ -2,16 +2,16 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'idea'
+apply plugin: 'kotlin'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 version = '1.0'
 
 ext.springVersion = '4.1.1.RELEASE'
 ext.aspectjVersion = '1.7.4'
 ext.jacksonVersion = '2.2.3'
-
 
 repositories {
     mavenLocal()
@@ -43,9 +43,22 @@ dependencies {
     compile 'org.slf4j:slf4j-simple:1.6.6'
     compile 'org.slf4j:slf4j-api:1.6.6'
     compile 'postgresql:postgresql:9.1-901.jdbc4'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.1'
+}
+buildscript {
+    ext.kotlin_version = '0.12.1230'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
 }
