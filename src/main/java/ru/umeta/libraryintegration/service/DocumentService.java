@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import ru.umeta.libraryintegration.dao.DocumentDao;
 import ru.umeta.libraryintegration.dao.EnrichedDocumentDao;
 import ru.umeta.libraryintegration.json.ModsParseResult;
@@ -23,6 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class DocumentService {
 
     private static final String DEFAULT_PROTOCOL = "Z39.50";
+    private static final int DUPLICATE_SIZE = 1000;
 
     @Autowired
     private StringHashService stringHashService;
@@ -130,5 +132,37 @@ public class DocumentService {
         }
 
         return null;
+    }
+
+    public List<ParseResult> addSalt(ParseResult parseResult, int saltLevel) {
+        String author = parseResult.getAuthor();
+        String title = parseResult.getTitle();
+
+        int authorLength = author.length();
+        int titleLength = title.length();
+
+        parseResult.setIsbn(null);
+        if (StringUtils.isEmpty(author) || StringUtils.isEmpty(title)) {
+            return null;
+        } else {
+            ArrayList<ParseResult> resultList = new ArrayList<>();
+            for (int i = 0; i < DUPLICATE_SIZE; i++) {
+                ParseResult newParseResult = parseResult.clone();
+                StringBuilder newAuthor = new StringBuilder(author);
+                StringBuilder newTitle = new StringBuilder(title);
+                for (int j = 0; j < saltLevel; j++) {
+                    Random rnd = new Random();
+                    int saltIndex = rnd.nextInt(authorLength);
+                    newAuthor.setCharAt(saltIndex, '#');
+
+                    saltIndex = new Random().nextInt(titleLength);
+                    newTitle.setCharAt(saltIndex, '#');
+                }
+                newParseResult.setAuthor(newAuthor.toString());
+                newParseResult.setTitle(newTitle.toString());
+                resultList.add(newParseResult);
+            }
+            return resultList;
+        }
     }
 }

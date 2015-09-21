@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * The main service to handle the integration logic
  * Created by k.kosolapov on 14/04/2015.
  */
 @Service
@@ -29,7 +30,7 @@ public class MainService {
         this.parser = parser;
     }
 
-    public UploadResult parseDirectory(String path) {
+    public UploadResult parseDirectory(String path) throws InterruptedException {
 
         List<File> fileList = getFilesToParse(path);
         UploadResult result = new UploadResult(0, 0);
@@ -37,12 +38,12 @@ public class MainService {
             long startTime = System.nanoTime();
             List<ParseResult> resultList = parser.parse(file);
             long parseTime = System.nanoTime();
-            System.out.println("The documents bulk parsed in " + (double)(parseTime - startTime) / 1000000000.0);
+            System.out.println("The documents bulk parsed in " + (double) (parseTime - startTime) / 1000000000.0);
+            System.out.println("resultList size is " + resultList.size());
             UploadResult uploadResult = documentService.processDocumentList(resultList, null);
+
             result.setParsedDocs(result.getParsedDocs() + uploadResult.getParsedDocs());
             result.setNewEnriched(result.getNewEnriched() + uploadResult.getNewEnriched());
-            long endTime = System.nanoTime();
-            System.out.println("The documents bulk is added in " + (double)(endTime - startTime) / 1000000000.0);
         }
         return result;
     }
@@ -57,5 +58,27 @@ public class MainService {
     }
 
 
+    public UploadResult parseDirectoryBalance(String path, int saltLevel) {
+        List<File> fileList = getFilesToParse(path);
+        UploadResult result = new UploadResult(0, 0);
+        for (File file : fileList) {
+            long startTime = System.nanoTime();
+            List<ParseResult> resultList = parser.parse(file);
+            long parseTime = System.nanoTime();
+            System.out.println("The documents bulk parsed in " + (double) (parseTime - startTime) / 1000000000.0);
+            System.out.println("resultList size is " + resultList.size());
+            for (ParseResult parseResult: resultList) {
+                List<ParseResult> saltedResult = documentService.addSalt(parseResult, saltLevel);
+                if (saltedResult == null) {
+                    System.out.println("The parsed result either had no authors or the title was blank.");
+                    continue;
+                }
+                UploadResult uploadResult = documentService.processDocumentList(saltedResult, null);
+                System.out.println("The result with salt of level " + saltLevel + " is " + uploadResult.getNewEnriched());
 
+            }
+
+        }
+        return result;
+    }
 }

@@ -18,8 +18,16 @@ public class MainController {
     private MainService mainService;
 
     @RequestMapping("/upload")
-    public UploadResult upload(@RequestParam(value = "path", defaultValue = "default path") String path) {
+    public UploadResult upload(@RequestParam(value = "path", defaultValue = "default path") String path)
+            throws InterruptedException {
         return mainService.parseDirectory(path);
+    }
+
+    @RequestMapping("/balance")
+    public UploadResult balance(@RequestParam(value = "path", defaultValue = "default path") String path,
+                                @RequestParam(value = "level", defaultValue = "1") int level)
+            throws InterruptedException {
+        return mainService.parseDirectoryBalance(path, level);
     }
 
 }

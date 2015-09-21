@@ -20,4 +20,9 @@ public class ModsParseResult extends ParseResult {
     public void setModsDefinition(ModsDefinition modsDefinition) {
         this.modsDefinition = modsDefinition;
     }
+
+    @Override
+    public ParseResult clone() {
+        return new ModsParseResult(title, isbn, author, modsDefinition);
+    }
 }

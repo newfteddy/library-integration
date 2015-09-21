@@ -112,10 +112,11 @@ public class StringHashService {
         return tokens;
     }
 
-    public StringHash getFromRepository(String string) {
+    public synchronized StringHash getFromRepository(String string) {
         if (string.length() > 255) {
             string = string.substring(0, 255);
         }
+
         StringHash repoStringHash = stringHashDao.get(string);
         if (repoStringHash == null) {
             StringHash stringHash = getStringHash(string);
