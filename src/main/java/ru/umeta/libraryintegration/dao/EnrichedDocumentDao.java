@@ -50,20 +50,15 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
 
         c.add(Restrictions.and(
                 Restrictions.or(
-                        Restrictions.and(authorEq1, authorEq2),
-                        Restrictions.and(authorEq1, authorEq3),
-                        Restrictions.and(authorEq1, authorEq4),
-                        Restrictions.and(authorEq2, authorEq3),
-                        Restrictions.and(authorEq2, authorEq4),
-                        Restrictions.and(authorEq3, authorEq4)
-                ),
-                Restrictions.or(
                         Restrictions.and(titleEq1, titleEq2),
                         Restrictions.and(titleEq1, titleEq3),
                         Restrictions.and(titleEq1, titleEq4),
                         Restrictions.and(titleEq2, titleEq3),
                         Restrictions.and(titleEq2, titleEq4),
                         Restrictions.and(titleEq3, titleEq4)
+                ),
+                Restrictions.or(
+                        Restrictions.or(authorEq1, authorEq2)
                 )
         ));
         return c;

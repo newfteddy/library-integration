@@ -13,14 +13,14 @@
     </bean>
 
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver" />
-        <property name="url" value="jdbc:postgresql://localhost:5432/LibraryIntegration" />
-        <property name="username" value="sa"/>
+        <property name="driverClassName" value="org.mariadb.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/library_integration" />
+        <property name="username" value="root"/>
         <property name="password" value="1472"/>
     </bean>
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-
+        
         <property name="dataSource" ref="dataSource"/>
 
         <property name="hibernateProperties">
@@ -33,6 +33,10 @@
                 <prop key="show_sql">true</prop>
                 <prop key="hibernate.format_sql">true</prop>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <prop key="hibernate.c3p0.max_size">100</prop>
+                <prop key="hibernate.c3p0.min_size">10</prop>
+                <prop key="hibernate.c3p0.timeout">1800</prop>
+                <prop key="hibernate.c3p0.max_statements">50</prop>
             </props>
         </property>
 

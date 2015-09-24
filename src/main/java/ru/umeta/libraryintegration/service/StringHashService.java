@@ -2,13 +2,9 @@ package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.umeta.libraryintegration.dao.StringHashDao;
-import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.model.StringHash;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -97,14 +93,40 @@ public class StringHashService {
         }
     }
 
-    private Set<String> getTokens(String string) {
+    public Set<String> getTokens(String string) {
+        if (string == null) {
+            return Collections.emptySet();
+        }
+        if (string.length() < 12) {
+            return getShortTokens(string);
+        } else {
+            return getLongTokens(string);
+        }
+    }
+
+    private Set<String> getShortTokens(String string) {
+        if (string == null || string.length() == 0) {
+            return null;
+        }
+
+        Set<String> tokens = new HashSet<>();
+        for (int i = 0; i < string.length() - 1; i++) {
+            final String token = string.substring(i, i + 1);
+            if (!tokens.contains(token)) {
+                tokens.add(token);
+            }
+        }
+        return tokens;
+    }
+
+    private Set<String> getLongTokens(String string) {
         if (string == null || string.length() == 0) {
             return null;
         }
 
         Set<String> tokens = new HashSet<>();
         for (int i = 0; i < string.length() - 3; i++) {
-            final String token = string.substring(i, i + 4);
+            final String token = string.substring(i, i + 3);
             if (!tokens.contains(token)) {
                 tokens.add(token);
             }

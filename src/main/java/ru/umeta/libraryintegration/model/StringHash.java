@@ -29,7 +29,13 @@ import java.util.Collection;
                 @Index(name = "IDX_HASH_34",
                         columnList = "hash_part_3, hash_part_4"
                 ),
-
+                //Indices for small strings (e.g. Titles)
+                @Index(name = "IDX_HASH_1",
+                        columnList = "hash_part_1"
+                ),
+                @Index(name = "IDX_HASH_2",
+                        columnList = "hash_part_2"
+                )
 
         })
 public class StringHash {
