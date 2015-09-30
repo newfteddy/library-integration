@@ -47,39 +47,47 @@ public class DocumentService {
 
         for (ParseResult parseResult : checkNotNull(resultList)) {
             if (parseResult instanceof ModsParseResult) {
-                Document document = new Document();
-                ModsParseResult modsParseResult = (ModsParseResult) parseResult;
+                try {
+                    Document document = new Document();
+                    ModsParseResult modsParseResult = (ModsParseResult) parseResult;
 
-                document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
-                document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
-                document.setCreationTime(new Date());
-                document.setIsbn(modsParseResult.getIsbn());
-                document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
-                try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                    modsParseResult.getModsDefinition().save(outputStream);
-                    document.setXml(new String(outputStream.toByteArray(),"UTF-8"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    continue;
+                    document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
+                    document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
+                    document.setCreationTime(new Date());
+                    document.setIsbn(modsParseResult.getIsbn());
+                    document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
+                    try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                        modsParseResult.getModsDefinition().save(outputStream);
+                        document.setXml(new String(outputStream.toByteArray(),"UTF-8"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        continue;
+                    }
+                    EnrichedDocument enrichedDocument = findEnrichedDocument(document);
+                    if (enrichedDocument != null) {
+                        mergeDocuments(modsParseResult, enrichedDocument);
+                        enrichedDocumentDao.saveOrUpdate(enrichedDocument);
+                    } else {
+                        enrichedDocument = new EnrichedDocument();
+                        enrichedDocument.setAuthor(document.getAuthor());
+                        enrichedDocument.setTitle(document.getTitle());
+                        enrichedDocument.setIsbn(document.getIsbn());
+                        enrichedDocument.setXml(document.getXml());
+                        enrichedDocument.setCreationTime(document.getCreationTime());
+                        enrichedDocument.setId(enrichedDocumentDao.save(enrichedDocument).longValue());
+                        newEnriched++;
+                        document.setDistance(1.);
+                    }
+                    document.setEnrichedDocument(enrichedDocument);
+                    documentDao.save(document);
+                    parsedDocs++;
+                } catch (Exception e) {
+//                    System.err.println("ERROR. Failed to add a document with title {" +
+//                            parseResult.getTitle() + "}, author {" +
+//                            parseResult.getAuthor() + "}");
                 }
-                EnrichedDocument enrichedDocument = findEnrichedDocument(document);
-                if (enrichedDocument != null) {
-                    mergeDocuments(modsParseResult, enrichedDocument);
-                    enrichedDocumentDao.saveOrUpdate(enrichedDocument);
-                } else {
-                    enrichedDocument = new EnrichedDocument();
-                    enrichedDocument.setAuthor(document.getAuthor());
-                    enrichedDocument.setTitle(document.getTitle());
-                    enrichedDocument.setIsbn(document.getIsbn());
-                    enrichedDocument.setXml(document.getXml());
-                    enrichedDocument.setCreationTime(document.getCreationTime());
-                    enrichedDocument.setId(enrichedDocumentDao.save(enrichedDocument).longValue());
-                    newEnriched++;
-                    document.setDistance(1.);
-                }
-                document.setEnrichedDocument(enrichedDocument);
-                documentDao.save(document);
-                parsedDocs++;
+
+
             }
         }
         return new UploadResult(parsedDocs, newEnriched);

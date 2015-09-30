@@ -111,7 +111,7 @@ public class StringHashService {
 
         Set<String> tokens = new HashSet<>();
         for (int i = 0; i < string.length() - 1; i++) {
-            final String token = string.substring(i, i + 1);
+            final String token = string.substring(i, i + 2);
             if (!tokens.contains(token)) {
                 tokens.add(token);
             }
@@ -126,7 +126,7 @@ public class StringHashService {
 
         Set<String> tokens = new HashSet<>();
         for (int i = 0; i < string.length() - 3; i++) {
-            final String token = string.substring(i, i + 3);
+            final String token = string.substring(i, i + 4);
             if (!tokens.contains(token)) {
                 tokens.add(token);
             }

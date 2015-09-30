@@ -38,12 +38,17 @@ public class MainService {
             long startTime = System.nanoTime();
             List<ParseResult> resultList = parser.parse(file);
             long parseTime = System.nanoTime();
-            System.out.println("The documents bulk parsed in " + (double) (parseTime - startTime) / 1000000000.0);
+            System.out.println("The documents bulk parsed in " +
+                    (double) (parseTime - startTime) / 1000000000.0);
             System.out.println("resultList size is " + resultList.size());
-            UploadResult uploadResult = documentService.processDocumentList(resultList, null);
 
+            UploadResult uploadResult = documentService.processDocumentList(resultList, null);
+            long endTime = System.nanoTime();
+            System.out.println("The documents bulk is added in "
+                    + (double) (endTime - startTime) / 1000000000.0);
             result.setParsedDocs(result.getParsedDocs() + uploadResult.getParsedDocs());
-            result.setNewEnriched(result.getNewEnriched() + uploadResult.getNewEnriched());
+            result.setNewEnriched(result.getNewEnriched()
+                    + uploadResult.getNewEnriched());
         }
         return result;
     }
@@ -67,7 +72,7 @@ public class MainService {
             long parseTime = System.nanoTime();
             System.out.println("The documents bulk parsed in " + (double) (parseTime - startTime) / 1000000000.0);
             System.out.println("resultList size is " + resultList.size());
-            for (ParseResult parseResult: resultList) {
+            for (ParseResult parseResult : resultList) {
                 List<ParseResult> saltedResult = documentService.addSalt(parseResult, saltLevel);
                 if (saltedResult == null) {
                     System.out.println("The parsed result either had no authors or the title was blank.");
