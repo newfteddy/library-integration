@@ -14,13 +14,13 @@ import java.util.ResourceBundle;
  */
 public class ModsCreator {
 
-    public static final ResourceBundle PROPERTIES = ResourceBundle.getBundle("application");
-    private final static String SQL_DRIVER_NAME = PROPERTIES.getString("SQL_DRIVER_NAME");
-    private final static String SQL_DB_CONNECT_STRING = PROPERTIES.getString("SQL_DB_CONNECT_STRING");
-    private final static String SQL_DB_NAME = PROPERTIES.getString("SQL_DB_NAME");
-    private final static String SQL_DB_USER = PROPERTIES.getString("SQL_DB_USER");
-    private final static String SQL_DB_PASS = PROPERTIES.getString("SQL_DB_PASS");
-    private static final long BATCH_SIZE = 1000;
+    private final static String SQL_DRIVER_NAME = "org.mariadb.jdbc.Driver";
+    private final static String SQL_DB_CONNECT_STRING = "jdbc:mysql://localhost:3306/";
+    private final static String SQL_DB_NAME = "test2";
+    private final static String SQL_DB_USER = "root";
+    private final static String SQL_DB_PASS = "";
+    private static final long FOLDER_BATCH_SIZE = 100;
+    private static final long BATCH_SIZE = 10000;
 
     private static boolean driverLoaded = false;
 
@@ -38,7 +38,7 @@ public class ModsCreator {
         PreparedStatement statement = conn.prepareStatement(
                 "SELECT Id, Author, Name, SubName, PublishYear, ISBN " +
                         "FROM `test2`.`tbl_common_biblio_card` " +
-                        "WHERE Id >= ? AND Id < ? + 1000");
+                        "WHERE Id >= ? AND Id < ? + " + BATCH_SIZE);
         statement.setLong(1, startId);
         statement.setLong(2, startId);
         ResultSet result = statement.executeQuery();
@@ -68,10 +68,10 @@ public class ModsCreator {
                     "</mods>");
         }
 
-        new File("results").mkdirs();
-        File file = new File("results/" + startId + ".xml");
+        String folder = isMkdirs(startId);
+        File file = new File(folder + startId + ".xml");
         file.createNewFile();
-        try (PrintWriter writer = new PrintWriter(file)) {
+        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
             writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                     "<modsCollection xsi:schemaLocation=\"http://www.loc.gov/mods/v3 " +
                     "http://www.loc.gov/standards/mods/v3/mods-3-5.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
@@ -83,6 +83,12 @@ public class ModsCreator {
         }
 
         conn.close();
+    }
+
+    private static String isMkdirs(long startId) {
+        String folder = "results/" + startId / 100000 + "/";
+        new File(folder).mkdirs();
+        return folder;
     }
 
     public static void main(String[] args) {
@@ -106,6 +112,7 @@ public class ModsCreator {
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT Id FROM `test2`.`tbl_common_biblio_card` ORDER BY Id ASC LIMIT 1");
             ResultSet result = statement.executeQuery();
+            result.next();
             return result.getLong(1);
         }
     }
@@ -115,6 +122,7 @@ public class ModsCreator {
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT Id FROM `test2`.`tbl_common_biblio_card` ORDER BY Id DESC LIMIT 1");
             ResultSet result = statement.executeQuery();
+            result.next();
             return result.getLong(1);
         }
     }
