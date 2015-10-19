@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.json.UploadResult;
 import ru.umeta.libraryintegration.parser.IXMLParser;
+import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -53,11 +54,26 @@ public class MainService {
         return result;
     }
 
-    private List<File> getFilesToParse(String path) {
+    private static List<File> getFilesToParse(String path) {
         final List<File> result = new ArrayList<>();
         final File folder = new File(path);
         if (folder.listFiles() != null) {
             Collections.addAll(result, folder.listFiles());
+        }
+        return result;
+    }
+
+    public static UploadResult parseDirectoryStatic(String path) throws InterruptedException {
+
+        List<File> fileList = getFilesToParse(path);
+        UploadResult result = new UploadResult(0, 0);
+        for (File file : fileList) {
+            long startTime = System.nanoTime();
+            List<ParseResult> resultList = new ModsXMLParser().parse(file);
+            long parseTime = System.nanoTime();
+            System.out.println("The documents bulk parsed in " +
+                    (double) (parseTime - startTime) / 1000000000.0);
+            System.out.println("resultList size is " + resultList.size());
         }
         return result;
     }
@@ -85,5 +101,14 @@ public class MainService {
 
         }
         return result;
+    }
+
+    public static void main(String[] args) {
+        try {
+            parseDirectoryStatic(args != null && args.length > 0 ? args[0] : "D:\\prj\\input");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 }

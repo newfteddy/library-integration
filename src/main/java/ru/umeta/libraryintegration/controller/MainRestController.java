@@ -12,7 +12,7 @@ import ru.umeta.libraryintegration.service.MainService;
  */
 @RestController
 @RequestMapping("/rest")
-public class RestAccessController {
+public class MainRestController {
 
     @Autowired
     private MainService mainService;
