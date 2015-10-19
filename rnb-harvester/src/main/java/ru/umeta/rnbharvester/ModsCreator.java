@@ -1,5 +1,16 @@
 package ru.umeta.rnbharvester;
 
+import org.w3c.dom.*;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,12 +25,11 @@ import java.util.ResourceBundle;
  */
 public class ModsCreator {
 
-    public static final ResourceBundle PROPERTIES = ResourceBundle.getBundle("application");
-    private final static String SQL_DRIVER_NAME = PROPERTIES.getString("SQL_DRIVER_NAME");
-    private final static String SQL_DB_CONNECT_STRING = PROPERTIES.getString("SQL_DB_CONNECT_STRING");
-    private final static String SQL_DB_NAME = PROPERTIES.getString("SQL_DB_NAME");
-    private final static String SQL_DB_USER = PROPERTIES.getString("SQL_DB_USER");
-    private final static String SQL_DB_PASS = PROPERTIES.getString("SQL_DB_PASS");
+    private final static String SQL_DRIVER_NAME = "org.mariadb.jdbc.Driver";
+    private final static String SQL_DB_CONNECT_STRING = "jdbc:mysql://localhost:3306/";
+    private final static String SQL_DB_NAME = "test2";
+    private final static String SQL_DB_USER = "root";
+    private final static String SQL_DB_PASS = "";
     private static final long BATCH_SIZE = 1000;
 
     private static boolean driverLoaded = false;
@@ -33,7 +43,7 @@ public class ModsCreator {
         }
     }
 
-    private static void getRecordListFromDB(long startId) throws SQLException, IOException {
+    private static void getRecordListFromDB(long startId) throws SQLException, IOException, ParserConfigurationException, TransformerException {
         Connection conn = DriverManager.getConnection(SQL_DB_CONNECT_STRING + SQL_DB_NAME, SQL_DB_USER, SQL_DB_PASS);
         PreparedStatement statement = conn.prepareStatement(
                 "SELECT Id, Author, Name, SubName, PublishYear, ISBN " +
@@ -43,44 +53,70 @@ public class ModsCreator {
         statement.setLong(2, startId);
         ResultSet result = statement.executeQuery();
         List<String> recordList = new ArrayList<>();
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+        // root elements
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("modsCollection");
+        rootElement.setAttribute("xmlns","http://www.loc.gov/mods/v3");
+        rootElement.setAttributeNS("xsi","schemaLocation","http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd");
+        rootElement.setAttributeNS("xmlns","xsi","http://www.w3.org/2001/XMLSchema-instance");
+        doc.appendChild(rootElement);
+
         while (result.next()) {
             String author = result.getString(2);
+            author = author != null ? author : "";
             String title = result.getString(3);
+            title = title != null ? title : "";
             String subTitle = result.getString(4);
+            subTitle = subTitle != null ? subTitle : "";
             String publishYear = result.getString(5);
+            publishYear = publishYear != null ? publishYear : "";
             String isbn = result.getString(6);
+            isbn = isbn != null ? isbn : "";
 
-            recordList.add(
-                    "<mods version=\"3.5\">" +
-                        "<titleInfo>" +
-                            "<title>" + (title != null ? title : "") + "</title>" +
-                            "<subTitle>" + (subTitle != null ? subTitle : "") + "</subTitle>" +
-                        "</titleInfo>" +
-                        "<name>" +
-                            "<namePart type=\"personal\" usage=\"primary\" nameTitleGroup=\"1\">" +
-                                (author != null ? author : "") +
-                            "</namePart>" +
-                        "</name>" +
-                        "<originInfo>" +
-                            "<dateIssued>" + (publishYear != null ? publishYear : "") + "</dateIssued>" +
-                        "</originInfo>" +
-                        "<identifier type=\"isbn\">" + (isbn != null ? isbn : "") + "</identifier>" +
-                    "</mods>");
+            Element mods = doc.createElement("mods");
+            mods.setAttribute("version",  "3.5");
+            rootElement.appendChild(mods);
+
+            Element titleInfo = doc.createElement("titleInfo");
+            mods.appendChild(titleInfo);
+
+            titleInfo.appendChild(doc.createElement("title").appendChild(doc.createTextNode(title)));
+            titleInfo.appendChild(doc.createElement("subTitle").appendChild(doc.createTextNode(subTitle)));
+
+            Element name = doc.createElement("name");
+            name.setAttribute("type", "personal");
+            name.setAttribute("usage", "primary");
+            name.setAttribute("nameTitleGroup", "1");
+            mods.appendChild(name);
+            name.appendChild(doc.createElement("namePart").appendChild(doc.createTextNode(author)));
+
+            Element originInfo = doc.createElement("originInfo");
+            mods.appendChild(originInfo);
+            originInfo.appendChild(doc.createElement("dataIssued").appendChild(doc.createTextNode(publishYear)));
+
+            Element identifier = doc.createElement("identifier");
+            identifier.setAttribute("type", "isbn");
+            identifier.appendChild(doc.createTextNode(isbn));
+            originInfo.appendChild(identifier);
         }
 
         new File("results").mkdirs();
         File file = new File("results/" + startId + ".xml");
         file.createNewFile();
-        try (PrintWriter writer = new PrintWriter(file)) {
-            writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                    "<modsCollection xsi:schemaLocation=\"http://www.loc.gov/mods/v3 " +
-                    "http://www.loc.gov/standards/mods/v3/mods-3-5.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                    "xmlns=\"http://www.loc.gov/mods/v3\">\n");
 
-            recordList.stream().forEach(writer::println);
+        // write the content into xml file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+        StreamResult resultStream = new StreamResult(file);
 
-            writer.println("</modsCollection>");
-        }
+        // Output to console for testing
+        // StreamResult result = new StreamResult(System.out);
+
+        transformer.transform(source, resultStream);
 
         conn.close();
     }
@@ -106,6 +142,7 @@ public class ModsCreator {
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT Id FROM `test2`.`tbl_common_biblio_card` ORDER BY Id ASC LIMIT 1");
             ResultSet result = statement.executeQuery();
+            result.next();
             return result.getLong(1);
         }
     }
@@ -115,6 +152,7 @@ public class ModsCreator {
             PreparedStatement statement = conn.prepareStatement(
                     "SELECT Id FROM `test2`.`tbl_common_biblio_card` ORDER BY Id DESC LIMIT 1");
             ResultSet result = statement.executeQuery();
+            result.next();
             return result.getLong(1);
         }
     }

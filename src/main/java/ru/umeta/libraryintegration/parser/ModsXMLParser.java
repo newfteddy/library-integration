@@ -39,6 +39,7 @@ public class ModsXMLParser implements IXMLParser {
 
         } catch (XmlException e) {
             System.err.println(ERROR_PARSING_XML_FILE);
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

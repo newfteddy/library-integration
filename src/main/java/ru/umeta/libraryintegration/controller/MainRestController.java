@@ -8,11 +8,12 @@ import ru.umeta.libraryintegration.json.UploadResult;
 import ru.umeta.libraryintegration.service.MainService;
 
 /**
- * Created by k.kosolapov on 06.04.2015.
+ * The Main Rest Controller
+ * Created by Kirill Kosolapov (https://github.com/c-tash) on 06.04.2015.
  */
 @RestController
 @RequestMapping("/rest")
-public class RestController {
+public class MainRestController {
 
     @Autowired
     private MainService mainService;
