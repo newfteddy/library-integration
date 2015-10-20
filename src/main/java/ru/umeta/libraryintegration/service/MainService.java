@@ -9,6 +9,7 @@ import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,12 +56,20 @@ public class MainService {
     }
 
     private static List<File> getFilesToParse(String path) {
-        final List<File> result = new ArrayList<>();
-        final File folder = new File(path);
-        if (folder.listFiles() != null) {
-            Collections.addAll(result, folder.listFiles());
+        File file = new File(path);
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                if (file.listFiles() != null) {
+                    List<File> result = new ArrayList<>();
+                    Arrays.asList(file.listFiles()).stream().forEach(
+                            subFile -> result.addAll(getFilesToParse(subFile.getPath())));
+                    return result;
+                }
+            } else {
+                return Collections.singletonList(file);
+            }
         }
-        return result;
+        return Collections.emptyList();
     }
 
     public static UploadResult parseDirectoryStatic(String path) throws InterruptedException {
