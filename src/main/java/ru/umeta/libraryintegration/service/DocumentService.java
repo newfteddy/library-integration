@@ -120,18 +120,17 @@ public class DocumentService {
             } else if (isbn == null) {
                 nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithPublishYear(document);
 
-                if (nearDuplicates == null || nearDuplicates.size() == 0) {
-                    // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithNullPublishYear(document);
-                }
-
             } else {
                 //both publishYear and isbn is not null
                 nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbnAndPublishYear(document);
 
                 if (nearDuplicates == null || nearDuplicates.size() == 0) {
                     // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithNullIsbnAndPublishYear(document);
+                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbn(document);
+
+                    if (nearDuplicates == null || nearDuplicates.size() == 0) {
+                        nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithPublishYear(document);
+                    }
                 }
             }
 

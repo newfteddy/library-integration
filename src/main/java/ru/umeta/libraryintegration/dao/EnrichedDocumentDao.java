@@ -87,30 +87,18 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
 
     public List<EnrichedDocument> getNearDuplicatesWithPublishYear(Document document) {
         Criteria c = getEmptyCriteria();
-        c.add(Restrictions.eq("enriched.publishYear", document.getPublishYear()));
-        c = getNearDuplicateCriteria(document, c);
-        return c.list();
-    }
-
-    public List<EnrichedDocument> getNearDuplicatesWithNullPublishYear(Document document) {
-        Criteria c = getEmptyCriteria();
-        c.add(Restrictions.isNull("enriched.publishYear"));
+        c.add(Restrictions.or(
+                Restrictions.eq("enriched.publishYear", document.getPublishYear()),
+                Restrictions.isNull("enriched.publishYear")));
         c = getNearDuplicateCriteria(document, c);
         return c.list();
     }
 
     public List<EnrichedDocument> getNearDuplicatesWithIsbnAndPublishYear(Document document) {
         Criteria c = getEmptyCriteria();
-        c.add(Restrictions.eq("enriched.isbn", document.getIsbn()));
-        c.add(Restrictions.eq("enriched.publishYear", document.getPublishYear()));
-        c = getNearDuplicateCriteria(document, c);
-        return c.list();
-    }
-
-    public List<EnrichedDocument> getNearDuplicatesWithNullIsbnAndPublishYear(Document document) {
-        Criteria c = getEmptyCriteria();
-        c.add(Restrictions.isNull("enriched.isbn"));
-        c.add(Restrictions.isNull("enriched.publishYear"));
+        c.add(Restrictions.and(
+                Restrictions.eq("enriched.isbn", document.getIsbn()),
+                Restrictions.eq("enriched.publishYear", document.getPublishYear())));
         c = getNearDuplicateCriteria(document, c);
         return c.list();
     }
