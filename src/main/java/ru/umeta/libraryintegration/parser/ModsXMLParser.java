@@ -221,7 +221,11 @@ public class ModsXMLParser implements IXMLParser {
             if (originInfoArray != null) {
                 DateDefinition[] dateIssuedArray = originInfoArray[0].getDateIssuedArray();
                 if (dateIssuedArray != null) {
-                    return Integer.valueOf(dateIssuedArray[0].getStringValue());
+                    try {
+                        return Integer.valueOf(dateIssuedArray[0].getStringValue());
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
                 }
             }
         }

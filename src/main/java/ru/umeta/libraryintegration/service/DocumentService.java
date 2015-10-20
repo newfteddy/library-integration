@@ -66,6 +66,12 @@ public class DocumentService {
                     }
                     EnrichedDocument enrichedDocument = findEnrichedDocument(document);
                     if (enrichedDocument != null) {
+                        if (enrichedDocument.getPublishYear() == null) {
+                            enrichedDocument.setPublishYear(document.getPublishYear());
+                        }
+                        if (enrichedDocument.getIsbn() == null) {
+                            enrichedDocument.setIsbn(document.getIsbn());
+                        }
                         mergeDocuments(modsParseResult, enrichedDocument);
                         enrichedDocumentDao.saveOrUpdate(enrichedDocument);
                     } else {
@@ -75,6 +81,7 @@ public class DocumentService {
                         enrichedDocument.setIsbn(document.getIsbn());
                         enrichedDocument.setXml(document.getXml());
                         enrichedDocument.setCreationTime(document.getCreationTime());
+                        enrichedDocument.setPublishYear(document.getPublishYear());
                         enrichedDocument.setId(enrichedDocumentDao.save(enrichedDocument).longValue());
                         newEnriched++;
                         document.setDistance(1.);
