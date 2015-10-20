@@ -28,13 +28,14 @@ public class ModsXMLParser implements IXMLParser {
     public List<ParseResult> parse(File file) {
         List<ParseResult> resultList = new ArrayList<>();
         try {
-            final ModsCollectionDocument modsCollectionDocument = ModsCollectionDocument.Factory.parse(file);
-            final ModsDefinition[] modsCollection = modsCollectionDocument.getModsCollection().getModsArray();
+            ModsCollectionDocument modsCollectionDocument = ModsCollectionDocument.Factory.parse(file);
+            ModsDefinition[] modsCollection = modsCollectionDocument.getModsCollection().getModsArray();
             for (ModsDefinition mods : modsCollection) {
                 final String title = parseTitle(mods);
                 final String isbn = parseIdentifier(mods);
                 final String name = parseName(mods);
-                resultList.add(new ModsParseResult(title, isbn, name, mods));
+                final Integer publishYear = parsePublishYear(mods);
+                resultList.add(new ModsParseResult(title, isbn, name, publishYear, mods));
             }
 
         } catch (XmlException e) {
@@ -181,7 +182,7 @@ public class ModsXMLParser implements IXMLParser {
     }
 
     public String parseIdentifier(ModsDefinition document) {
-        final IdentifierDefinition[] identifierArray = document.getIdentifierArray();
+        IdentifierDefinition[] identifierArray = document.getIdentifierArray();
 
         String isbn = NULL;
         for (IdentifierDefinition identifier : identifierArray) {
@@ -195,7 +196,7 @@ public class ModsXMLParser implements IXMLParser {
     }
 
     public String parseName(ModsDefinition document) {
-        final StringBuilder nameBuilder = new StringBuilder("");
+        StringBuilder nameBuilder = new StringBuilder("");
         if (document != null) {
             final NameDefinition[] nameArray = document.getNameArray();
             if (nameArray != null) {
@@ -214,5 +215,17 @@ public class ModsXMLParser implements IXMLParser {
         return nameBuilder.toString();
     }
 
+    public Integer parsePublishYear(ModsDefinition document) {
+        if (document != null) {
+            final OriginInfoDefinition[] originInfoArray = document.getOriginInfoArray();
+            if (originInfoArray != null) {
+                DateDefinition[] dateIssuedArray = originInfoArray[0].getDateIssuedArray();
+                if (dateIssuedArray != null) {
+                    return Integer.valueOf(dateIssuedArray[0].getStringValue());
+                }
+            }
+        }
+        return null;
+    }
 
 }

@@ -33,6 +33,9 @@ public class EnrichedDocument {
     @Column(name = "creation_time")
     private Date creationTime;
 
+    @Column(name = "publish_year")
+    private Integer publishYear;
+
     @OneToMany(mappedBy = "enrichedDocument")
     private Collection<Document> documents;
 
@@ -93,6 +96,14 @@ public class EnrichedDocument {
 
     public void setDocuments(Collection<Document> documents) {
         this.documents = documents;
+    }
+
+    public Integer getPublishYear() {
+        return publishYear;
+    }
+
+    public void setPublishYear(Integer publishYear) {
+        this.publishYear = publishYear;
     }
 }
 

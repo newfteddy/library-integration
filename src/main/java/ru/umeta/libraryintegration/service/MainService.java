@@ -89,7 +89,7 @@ public class MainService {
             System.out.println("The documents bulk parsed in " + (double) (parseTime - startTime) / 1000000000.0);
             System.out.println("resultList size is " + resultList.size());
             for (ParseResult parseResult : resultList) {
-                List<ParseResult> saltedResult = documentService.addSalt(parseResult, saltLevel);
+                List<ParseResult> saltedResult = documentService.addNoise(parseResult, saltLevel);
                 if (saltedResult == null) {
                     System.out.println("The parsed result either had no authors or the title was blank.");
                     continue;

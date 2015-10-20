@@ -56,6 +56,7 @@ public class DocumentService {
                     document.setCreationTime(new Date());
                     document.setIsbn(modsParseResult.getIsbn());
                     document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
+                    document.setPublishYear(modsParseResult.getPublishYear());
                     try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                         modsParseResult.getModsDefinition().save(outputStream);
                         document.setXml(new String(outputStream.toByteArray(),"UTF-8"));
@@ -101,18 +102,39 @@ public class DocumentService {
 
         //first check whether the document has isbn or not
         String isbn = document.getIsbn();
+        Integer publishYear = document.getPublishYear();
         List<EnrichedDocument> nearDuplicates;
-        if (isbn == null) {
+        if (isbn == null && publishYear == null) {
             // if it's null, we search through every record in the storage
             nearDuplicates = enrichedDocumentDao.getNearDuplicates(document);
         } else {
-            // if it's not null, we search through record where isbn is the same
-            nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbn(document);
 
-            if (nearDuplicates == null || nearDuplicates.size() == 0) {
-                // if it didn't find anything, search through record with null isbn.
-                nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithNullIsbn(document);
+            // if it's not null, we search through record where isbn is the same
+            if (publishYear == null) {
+                nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbn(document);
+
+                if (nearDuplicates == null || nearDuplicates.size() == 0) {
+                    // if it didn't find anything, search through record with null isbn.
+                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithNullIsbn(document);
+                }
+            } else if (isbn == null) {
+                nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithPublishYear(document);
+
+                if (nearDuplicates == null || nearDuplicates.size() == 0) {
+                    // if it didn't find anything, search through record with null isbn.
+                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithNullPublishYear(document);
+                }
+
+            } else {
+                //both publishYear and isbn is not null
+                nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbnAndPublishYear(document);
+
+                if (nearDuplicates == null || nearDuplicates.size() == 0) {
+                    // if it didn't find anything, search through record with null isbn.
+                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithNullIsbnAndPublishYear(document);
+                }
             }
+
         }
 
         if (nearDuplicates != null && nearDuplicates.size() > 0) {
@@ -142,7 +164,7 @@ public class DocumentService {
         return null;
     }
 
-    public List<ParseResult> addSalt(ParseResult parseResult, int saltLevel) {
+    public List<ParseResult> addNoise(ParseResult parseResult, int saltLevel) {
         String author = parseResult.getAuthor();
         String title = parseResult.getTitle();
 

@@ -34,6 +34,9 @@ public class Document {
     @Column(name = "creation_time")
     private Date creationTime;
 
+    @Column(name = "publish_year")
+    private Integer publishYear;
+
     @ManyToOne
     @JoinColumn(name = "protocol_id")
     private Protocol protocol;
@@ -118,5 +121,13 @@ public class Document {
     }
 
     public Document() {
+    }
+
+    public Integer getPublishYear() {
+        return publishYear;
+    }
+
+    public void setPublishYear(Integer publishYear) {
+        this.publishYear = publishYear;
     }
 }

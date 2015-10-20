@@ -40,8 +40,6 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
 
         Criterion authorEq1 = Restrictions.eq("author.hashPart1", author.getHashPart1());
         Criterion authorEq2 = Restrictions.eq("author.hashPart2", author.getHashPart2());
-        Criterion authorEq3 = Restrictions.eq("author.hashPart3", author.getHashPart3());
-        Criterion authorEq4 = Restrictions.eq("author.hashPart4", author.getHashPart4());
 
         Criterion titleEq1 = Restrictions.eq("title.hashPart1", title.getHashPart1());
         Criterion titleEq2 = Restrictions.eq("title.hashPart2", title.getHashPart2());
@@ -85,5 +83,35 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
         c = getNearDuplicateCriteria(document, c);
         return c.list();
 
+    }
+
+    public List<EnrichedDocument> getNearDuplicatesWithPublishYear(Document document) {
+        Criteria c = getEmptyCriteria();
+        c.add(Restrictions.eq("enriched.publishYear", document.getPublishYear()));
+        c = getNearDuplicateCriteria(document, c);
+        return c.list();
+    }
+
+    public List<EnrichedDocument> getNearDuplicatesWithNullPublishYear(Document document) {
+        Criteria c = getEmptyCriteria();
+        c.add(Restrictions.isNull("enriched.publishYear"));
+        c = getNearDuplicateCriteria(document, c);
+        return c.list();
+    }
+
+    public List<EnrichedDocument> getNearDuplicatesWithIsbnAndPublishYear(Document document) {
+        Criteria c = getEmptyCriteria();
+        c.add(Restrictions.eq("enriched.isbn", document.getIsbn()));
+        c.add(Restrictions.eq("enriched.publishYear", document.getPublishYear()));
+        c = getNearDuplicateCriteria(document, c);
+        return c.list();
+    }
+
+    public List<EnrichedDocument> getNearDuplicatesWithNullIsbnAndPublishYear(Document document) {
+        Criteria c = getEmptyCriteria();
+        c.add(Restrictions.isNull("enriched.isbn"));
+        c.add(Restrictions.isNull("enriched.publishYear"));
+        c = getNearDuplicateCriteria(document, c);
+        return c.list();
     }
 }
