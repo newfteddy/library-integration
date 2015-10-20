@@ -71,7 +71,6 @@ public class ModsCreator {
             author = author != null ? author : "";
             String title = result.getString(3);
             title = title != null ? title : "";
-
             String subTitle = result.getString(4);
             subTitle = subTitle != null ? subTitle : "";
             String publishYear = result.getString(5);
@@ -80,30 +79,38 @@ public class ModsCreator {
             isbn = isbn != null ? isbn : "";
 
             Element mods = doc.createElement("mods");
-            mods.setAttribute("version",  "3.5");
+            mods.setAttribute("version", "3.5");
             rootElement.appendChild(mods);
 
             Element titleInfo = doc.createElement("titleInfo");
             mods.appendChild(titleInfo);
 
-            titleInfo.appendChild(doc.createElement("title").appendChild(doc.createTextNode(title)));
-            titleInfo.appendChild(doc.createElement("subTitle").appendChild(doc.createTextNode(subTitle)));
+            Element titleNode = doc.createElement("title");
+            titleNode.appendChild(doc.createTextNode(title));
+            titleInfo.appendChild(titleNode);
+            Element subTitleNode = doc.createElement("subTitle");
+            subTitleNode.appendChild(doc.createTextNode(subTitle));
+            titleInfo.appendChild(subTitleNode);
 
             Element name = doc.createElement("name");
             name.setAttribute("type", "personal");
             name.setAttribute("usage", "primary");
             name.setAttribute("nameTitleGroup", "1");
             mods.appendChild(name);
-            name.appendChild(doc.createElement("namePart").appendChild(doc.createTextNode(author)));
+            Element namePart = doc.createElement("namePart");
+            namePart.appendChild(doc.createTextNode(author));
+            name.appendChild(namePart);
 
             Element originInfo = doc.createElement("originInfo");
             mods.appendChild(originInfo);
-            originInfo.appendChild(doc.createElement("dataIssued").appendChild(doc.createTextNode(publishYear)));
+            Element dateIssued = doc.createElement("dateIssued");
+            dateIssued.appendChild(doc.createTextNode(publishYear));
+            originInfo.appendChild(dateIssued);
 
             Element identifier = doc.createElement("identifier");
             identifier.setAttribute("type", "isbn");
             identifier.appendChild(doc.createTextNode(isbn));
-            originInfo.appendChild(identifier);
+            mods.appendChild(identifier);
         }
 
         String folder = isMkdirs(startId);
