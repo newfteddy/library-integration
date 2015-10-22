@@ -54,7 +54,11 @@ public class DocumentService {
                     document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
                     document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
                     document.setCreationTime(new Date());
-                    document.setIsbn(modsParseResult.getIsbn());
+                    String isbn = modsParseResult.getIsbn();
+                    if (StringUtils.isEmpty(isbn)) {
+                        isbn = null;
+                    }
+                    document.setIsbn(isbn);
                     document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
                     document.setPublishYear(modsParseResult.getPublishYear());
                     try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
