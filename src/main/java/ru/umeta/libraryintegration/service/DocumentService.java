@@ -150,6 +150,7 @@ public class DocumentService {
         if (nearDuplicates != null && nearDuplicates.size() > 0) {
 
             double maxDistance = 0;
+            double minDistance = 0.4;
             EnrichedDocument closestDocument = null;
             String titleValue = document.getTitle().getValue();
             String authorValue = document.getAuthor().getValue();
@@ -161,7 +162,7 @@ public class DocumentService {
 
                 double resultDistance = (titleDistance + authorDistance) / 2;
 
-                if (resultDistance > maxDistance) {
+                if (resultDistance > maxDistance && resultDistance > minDistance) {
                     maxDistance = resultDistance;
                     closestDocument = nearDuplicate;
                 }
