@@ -19,5 +19,5 @@ The only requirement is the data format - [MODS](http://www.loc.gov/standards/mo
 3. Run `gradlew jettyRunWar` to start the Jetty server with the application. Or use `gradlew war` to create `.war` file for your favorite application server.
 4. The REST URL to start adding and merging the data is `"[server]/rest/upload?path=[path to the file folder]"` (The multipart is to be implemented).
 
-## P.S.
-There are also tasks in gradle for creating Intellij IDEA and Eclipse projects.
+## IDE import
+There are tasks in gradle for creating Intellij IDEA and Eclipse projects. `gradlew idea` and `gradle eclipse`.
