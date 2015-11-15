@@ -1,8 +1,6 @@
 package ru.umeta.libraryintegration.dao;
 
 import org.hibernate.*;
-import org.springframework.stereotype.Repository;
-import ru.umeta.libraryintegration.model.StringHash;
 import ru.umeta.libraryintegration.util.Generics;
 
 import javax.transaction.Transactional;
@@ -15,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Created by k.kosolapov on 30.04.2015.
  */
 @Transactional
-public abstract class AbstractDao<E>{
+public abstract class AbstractDao<E> {
 
     private final SessionFactory sessionFactory;
     private final Class<?> entityClass;

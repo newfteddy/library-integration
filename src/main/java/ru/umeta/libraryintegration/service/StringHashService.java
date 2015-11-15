@@ -2,6 +2,7 @@ package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.umeta.libraryintegration.dao.StringHashDao;
+import ru.umeta.libraryintegration.inmemory.StringHashRepository;
 import ru.umeta.libraryintegration.model.StringHash;
 
 import java.io.UnsupportedEncodingException;
@@ -14,8 +15,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class StringHashService {
 
+    private final StringHashRepository stringHashRepository;
+
     @Autowired
-    private StringHashDao stringHashDao;
+    public StringHashService(StringHashRepository stringHashRepository) {
+        this.stringHashRepository = stringHashRepository;
+    }
 
     public StringHash getStringHash(String string) {
         int simHash = getSimHash(string);
@@ -134,15 +139,15 @@ public class StringHashService {
         return tokens;
     }
 
-    public synchronized StringHash getFromRepository(String string) {
+    public StringHash getFromRepository(String string) {
         if (string.length() > 255) {
             string = string.substring(0, 255);
         }
 
-        StringHash repoStringHash = stringHashDao.get(string);
+        StringHash repoStringHash = stringHashRepository.get(string);
         if (repoStringHash == null) {
             StringHash stringHash = getStringHash(string);
-            stringHash.setId(stringHashDao.save(stringHash).longValue());
+            stringHash.setId((Long) stringHashRepository.save(stringHash));
             repoStringHash = stringHash;
         }
         return repoStringHash;

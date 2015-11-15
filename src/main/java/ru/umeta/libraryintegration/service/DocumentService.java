@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import ru.umeta.libraryintegration.dao.DocumentDao;
 import ru.umeta.libraryintegration.dao.EnrichedDocumentDao;
+import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.json.UploadResult;
@@ -13,7 +14,6 @@ import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,20 +26,28 @@ public class DocumentService {
     private static final String DEFAULT_PROTOCOL = "Z39.50";
     private static final int DUPLICATE_SIZE = 1000;
 
-    @Autowired
-    private StringHashService stringHashService;
+    private final StringHashService stringHashService;
+
+    private final ProtocolService protocolService;
+
+    private final EnrichedDocumentRepository enrichedDocumentRepository;
+
+    private final DocumentDao documentDao;
+
+    private final ModsXMLParser modsXMLParser;
 
     @Autowired
-    private ProtocolService protocolService;
-
-    @Autowired
-    private EnrichedDocumentDao enrichedDocumentDao;
-
-    @Autowired
-    private DocumentDao documentDao;
-
-    @Autowired
-    private ModsXMLParser modsXMLParser;
+    public DocumentService(StringHashService stringHashService,
+                           ProtocolService protocolService,
+                           EnrichedDocumentRepository enrichedDocumentRepository,
+                           DocumentDao documentDao,
+                           ModsXMLParser modsXMLParser) {
+        this.stringHashService = stringHashService;
+        this.protocolService = protocolService;
+        this.enrichedDocumentRepository = enrichedDocumentRepository;
+        this.documentDao = documentDao;
+        this.modsXMLParser = modsXMLParser;
+    }
 
     public UploadResult processDocumentList(List<ParseResult> resultList, String protocolName) {
         int newEnriched = 0;
@@ -60,7 +68,7 @@ public class DocumentService {
                     }
                     document.setIsbn(isbn);
                     document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
-                    document.setPublishYear(modsParseResult.getPublishYear());
+                    document.setPublishYear(null);
                     try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                         modsParseResult.getModsDefinition().save(outputStream);
                         document.setXml(new String(outputStream.toByteArray(),"UTF-8"));
@@ -77,7 +85,6 @@ public class DocumentService {
                             enrichedDocument.setIsbn(document.getIsbn());
                         }
                         mergeDocuments(modsParseResult, enrichedDocument);
-                        enrichedDocumentDao.saveOrUpdate(enrichedDocument);
                     } else {
                         enrichedDocument = new EnrichedDocument();
                         enrichedDocument.setAuthor(document.getAuthor());
