@@ -93,7 +93,7 @@ public class DocumentService {
                         enrichedDocument.setXml(document.getXml());
                         enrichedDocument.setCreationTime(document.getCreationTime());
                         enrichedDocument.setPublishYear(document.getPublishYear());
-                        enrichedDocument.setId(enrichedDocumentDao.save(enrichedDocument).longValue());
+                        enrichedDocument.setId(enrichedDocumentRepository.save(enrichedDocument).longValue());
                         newEnriched++;
                         document.setDistance(1.);
                     }
@@ -124,30 +124,30 @@ public class DocumentService {
         List<EnrichedDocument> nearDuplicates;
         if (isbn == null && publishYear == null) {
             // if it's null, we search through every record in the storage
-            nearDuplicates = enrichedDocumentDao.getNearDuplicates(document);
+            nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document);
         } else {
 
             // if it's not null, we search through record where isbn is the same
             if (publishYear == null) {
-                nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbn(document);
+                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document);
 
                 if (nearDuplicates == null || nearDuplicates.size() == 0) {
                     // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithNullIsbn(document);
+                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document);
                 }
             } else if (isbn == null) {
-                nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithPublishYear(document);
+                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document);
 
             } else {
                 //both publishYear and isbn is not null
-                nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbnAndPublishYear(document);
+                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbnAndPublishYear(document);
 
                 if (nearDuplicates == null || nearDuplicates.size() == 0) {
                     // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithIsbn(document);
+                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document);
 
                     if (nearDuplicates == null || nearDuplicates.size() == 0) {
-                        nearDuplicates = enrichedDocumentDao.getNearDuplicatesWithPublishYear(document);
+                        nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document);
                     }
                 }
             }
