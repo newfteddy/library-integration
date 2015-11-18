@@ -1,14 +1,11 @@
 package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.umeta.libraryintegration.dao.StringHashDao;
 import ru.umeta.libraryintegration.inmemory.StringHashRepository;
 import ru.umeta.libraryintegration.model.StringHash;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by k.kosolapov on 14.05.2015.

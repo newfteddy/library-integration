@@ -8,69 +8,27 @@ import java.util.Collection;
 /**
  * Created by ctash on 29.04.2015.
  */
-@Entity
-@Table(name = "string_hash",
-        indexes = {
-                @Index(name = "IDX_HASH_12",
-                        columnList = "hash_part_1, hash_part_2"
-                ),
-                @Index(name = "IDX_HASH_13",
-                        columnList = "hash_part_1, hash_part_3"
-                ),
-                @Index(name = "IDX_HASH_14",
-                        columnList = "hash_part_1, hash_part_4"
-                ),
-                @Index(name = "IDX_HASH_23",
-                        columnList = "hash_part_2, hash_part_3"
-                ),
-                @Index(name = "IDX_HASH_24",
-                        columnList = "hash_part_2, hash_part_4"
-                ),
-                @Index(name = "IDX_HASH_34",
-                        columnList = "hash_part_3, hash_part_4"
-                ),
-                //Indices for small strings (e.g. Titles)
-                @Index(name = "IDX_HASH_1",
-                        columnList = "hash_part_1"
-                ),
-                @Index(name = "IDX_HASH_2",
-                        columnList = "hash_part_2"
-                )
 
-        })
 public class StringHash {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue
     private Long id;
 
-    @NaturalId(mutable = false)
-    @Column(name = "value", nullable = false, unique = true)
     private String value;
 
-    @Column(name = "hash_part_1", nullable = false)
     private Byte hashPart1;
 
-    @Column(name = "hash_part_2", nullable = false)
     private Byte hashPart2;
 
-    @Column(name = "hash_part_3", nullable = false)
     private Byte hashPart3;
 
-    @Column(name = "hash_part_4", nullable = false)
     private Byte hashPart4;
 
-    @OneToMany(mappedBy = "title")
     private Collection<Document> isTitleOfDocuments;
 
-    @OneToMany(mappedBy = "author")
     private Collection<Document> isAuthorOfDocuments;
 
-    @OneToMany(mappedBy = "title")
     private Collection<EnrichedDocument> isTitleOfEnrichedDocuments;
 
-    @OneToMany(mappedBy = "author")
     private Collection<EnrichedDocument> isAuthorOfEnrichedDocuments;
 
     public StringHash() {

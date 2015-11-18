@@ -218,9 +218,9 @@ public class ModsXMLParser implements IXMLParser {
     public Integer parsePublishYear(ModsDefinition document) {
         if (document != null) {
             final OriginInfoDefinition[] originInfoArray = document.getOriginInfoArray();
-            if (originInfoArray != null) {
+            if (originInfoArray != null && originInfoArray.length > 0) {
                 DateDefinition[] dateIssuedArray = originInfoArray[0].getDateIssuedArray();
-                if (dateIssuedArray != null) {
+                if (dateIssuedArray != null && dateIssuedArray.length > 0) {
                     try {
                         return Integer.valueOf(dateIssuedArray[0].getStringValue());
                     } catch (NumberFormatException e) {

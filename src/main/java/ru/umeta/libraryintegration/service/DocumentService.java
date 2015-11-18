@@ -2,8 +2,7 @@ package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import ru.umeta.libraryintegration.dao.DocumentDao;
-import ru.umeta.libraryintegration.dao.EnrichedDocumentDao;
+import ru.umeta.libraryintegration.inmemory.DocumentRepository;
 import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
@@ -32,7 +31,7 @@ public class DocumentService {
 
     private final EnrichedDocumentRepository enrichedDocumentRepository;
 
-    private final DocumentDao documentDao;
+    private final DocumentRepository documentRepository;
 
     private final ModsXMLParser modsXMLParser;
 
@@ -40,12 +39,12 @@ public class DocumentService {
     public DocumentService(StringHashService stringHashService,
                            ProtocolService protocolService,
                            EnrichedDocumentRepository enrichedDocumentRepository,
-                           DocumentDao documentDao,
+                           DocumentRepository documentRepository,
                            ModsXMLParser modsXMLParser) {
         this.stringHashService = stringHashService;
         this.protocolService = protocolService;
         this.enrichedDocumentRepository = enrichedDocumentRepository;
-        this.documentDao = documentDao;
+        this.documentRepository = documentRepository;
         this.modsXMLParser = modsXMLParser;
     }
 
@@ -69,9 +68,9 @@ public class DocumentService {
                     document.setIsbn(isbn);
                     document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
                     document.setPublishYear(null);
-                    try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                         modsParseResult.getModsDefinition().save(outputStream);
-                        document.setXml(new String(outputStream.toByteArray(),"UTF-8"));
+                        document.setXml(null);
                     } catch (IOException e) {
                         e.printStackTrace();
                         continue;
@@ -90,7 +89,7 @@ public class DocumentService {
                         enrichedDocument.setAuthor(document.getAuthor());
                         enrichedDocument.setTitle(document.getTitle());
                         enrichedDocument.setIsbn(document.getIsbn());
-                        enrichedDocument.setXml(document.getXml());
+                        enrichedDocument.setXml(null);
                         enrichedDocument.setCreationTime(document.getCreationTime());
                         enrichedDocument.setPublishYear(document.getPublishYear());
                         enrichedDocument.setId(enrichedDocumentRepository.save(enrichedDocument).longValue());
@@ -98,7 +97,7 @@ public class DocumentService {
                         document.setDistance(1.);
                     }
                     document.setEnrichedDocument(enrichedDocument);
-                    documentDao.save(document);
+                    documentRepository.save(document);
                     parsedDocs++;
                 } catch (Exception e) {
 //                    System.err.println("ERROR. Failed to add a document with title {" +
@@ -113,7 +112,7 @@ public class DocumentService {
     }
 
     private void mergeDocuments(ModsParseResult modsParseResult, EnrichedDocument enrichedDocument) {
-        modsXMLParser.enrich(modsParseResult.getModsDefinition(),enrichedDocument);
+        //modsXMLParser.enrich(modsParseResult.getModsDefinition(),enrichedDocument);
     }
 
     private EnrichedDocument findEnrichedDocument(Document document) {

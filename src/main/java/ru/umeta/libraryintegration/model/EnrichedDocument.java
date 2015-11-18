@@ -7,36 +7,22 @@ import java.util.Date;
 /**
  * Created by ctash on 30.04.2015.
  */
-@Entity
-@Table(name = "enriched_document")
 public class EnrichedDocument {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "title_string_id")
     private StringHash title;
 
-    @ManyToOne
-    @JoinColumn(name = "author_string_id")
     private StringHash author;
 
-    @Column(name = "isbn")
     private String isbn;
 
-    @Column(name = "xml", columnDefinition = "TEXT")
     private String xml;
 
-    @Column(name = "creation_time")
     private Date creationTime;
 
-    @Column(name = "publish_year")
     private Integer publishYear;
 
-    @OneToMany(mappedBy = "enrichedDocument")
     private Collection<Document> documents;
 
     public EnrichedDocument() {

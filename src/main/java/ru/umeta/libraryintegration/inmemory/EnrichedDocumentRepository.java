@@ -8,9 +8,7 @@ import ru.umeta.libraryintegration.model.EnrichedDocument;
 import ru.umeta.libraryintegration.model.StringHash;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -106,7 +104,7 @@ public class EnrichedDocumentRepository {
         result.addAll(t2t4a2Map.get(yt2t4a2Hash));
         result.addAll(t3t4a1Map.get(yt3t4a1Hash));
         result.addAll(t3t4a2Map.get(yt3t4a2Hash));
-        return result;
+        return result.stream().distinct().collect(Collectors.toList());
     }
 
     private Integer getHashWithoutYear(byte hash1, byte hash2, byte hash3) {
@@ -170,7 +168,7 @@ public class EnrichedDocumentRepository {
         result.addAll(yt2t4a2Map.get(yt2t4a2Hash));
         result.addAll(yt3t4a1Map.get(yt3t4a1Hash));
         result.addAll(yt3t4a2Map.get(yt3t4a2Hash));
-        return result;
+        return result.stream().distinct().collect(Collectors.toList());
     }
 
     private Integer getHashWithYear(int year, byte hash1, byte hash2, byte hash3) {
@@ -197,6 +195,73 @@ public class EnrichedDocumentRepository {
             isbnMap.put(isbn, enrichedDocument);
         }
 
+        StringHash author = enrichedDocument.getAuthor();
+        StringHash title = enrichedDocument.getTitle();
+        Integer year = enrichedDocument.getPublishYear();
+
+        Byte a1 = author.getHashPart1();
+        Byte a2 = author.getHashPart2();
+
+        Byte t1 = title.getHashPart1();
+        Byte t2 = title.getHashPart2();
+        Byte t3 = title.getHashPart3();
+        Byte t4 = title.getHashPart4();
+
+        Integer t1t2a1Hash = getHashWithoutYear(t1, t2, a1);
+        Integer t1t2a2Hash = getHashWithoutYear(t1, t2, a2);
+        Integer t1t3a1Hash = getHashWithoutYear(t1, t3, a1);
+        Integer t1t3a2Hash = getHashWithoutYear(t1, t3, a2);
+        Integer t1t4a1Hash = getHashWithoutYear(t1, t4, a1);
+        Integer t1t4a2Hash = getHashWithoutYear(t1, t4, a2);
+
+        Integer t2t3a1Hash = getHashWithoutYear(t2, t3, a1);
+        Integer t2t3a2Hash = getHashWithoutYear(t2, t3, a2);
+        Integer t2t4a1Hash = getHashWithoutYear(t2, t4, a1);
+        Integer t2t4a2Hash = getHashWithoutYear(t2, t4, a2);
+
+        Integer t3t4a1Hash = getHashWithoutYear(t3, t4, a1);
+        Integer t3t4a2Hash = getHashWithoutYear(t3, t4, a2);
+
+        Integer yt1t2a1Hash = getHashWithYear(year, t1, t2, a1);
+        Integer yt1t2a2Hash = getHashWithYear(year, t1, t2, a2);
+        Integer yt1t3a1Hash = getHashWithYear(year, t1, t3, a1);
+        Integer yt1t3a2Hash = getHashWithYear(year, t1, t3, a2);
+        Integer yt1t4a1Hash = getHashWithYear(year, t1, t4, a1);
+        Integer yt1t4a2Hash = getHashWithYear(year, t1, t4, a2);
+
+        Integer yt2t3a1Hash = getHashWithYear(year, t2, t3, a1);
+        Integer yt2t3a2Hash = getHashWithYear(year, t2, t3, a2);
+        Integer yt2t4a1Hash = getHashWithYear(year, t2, t4, a1);
+        Integer yt2t4a2Hash = getHashWithYear(year, t2, t4, a2);
+
+        Integer yt3t4a1Hash = getHashWithYear(year, t3, t4, a1);
+        Integer yt3t4a2Hash = getHashWithYear(year, t3, t4, a2);
+
+        t1t2a1Map.put(t1t2a1Hash, enrichedDocument);
+        t1t2a2Map.put(t1t2a2Hash, enrichedDocument);
+        t1t3a1Map.put(t1t3a1Hash, enrichedDocument);
+        t1t3a2Map.put(t1t3a2Hash, enrichedDocument);
+        t1t4a1Map.put(t1t4a1Hash, enrichedDocument);
+        t1t4a2Map.put(t1t4a2Hash, enrichedDocument);
+        t2t3a1Map.put(t2t3a1Hash, enrichedDocument);
+        t2t3a2Map.put(t2t3a2Hash, enrichedDocument);
+        t2t4a1Map.put(t2t4a1Hash, enrichedDocument);
+        t2t4a2Map.put(t2t4a2Hash, enrichedDocument);
+        t3t4a1Map.put(t3t4a1Hash, enrichedDocument);
+        t3t4a2Map.put(t3t4a2Hash, enrichedDocument);
+
+        yt1t2a1Map.put(yt1t2a1Hash, enrichedDocument);
+        yt1t2a2Map.put(yt1t2a2Hash, enrichedDocument);
+        yt1t3a1Map.put(yt1t3a1Hash, enrichedDocument);
+        yt1t3a2Map.put(yt1t3a2Hash, enrichedDocument);
+        yt1t4a1Map.put(yt1t4a1Hash, enrichedDocument);
+        yt1t4a2Map.put(yt1t4a2Hash, enrichedDocument);
+        yt2t3a1Map.put(yt2t3a1Hash, enrichedDocument);
+        yt2t3a2Map.put(yt2t3a2Hash, enrichedDocument);
+        yt2t4a1Map.put(yt2t4a1Hash, enrichedDocument);
+        yt2t4a2Map.put(yt2t4a2Hash, enrichedDocument);
+        yt3t4a1Map.put(yt3t4a1Hash, enrichedDocument);
+        yt3t4a2Map.put(yt3t4a2Hash, enrichedDocument);
 
         return id;
     }

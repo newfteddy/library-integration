@@ -2,8 +2,10 @@ package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.json.UploadResult;
+import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.parser.IXMLParser;
 import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
@@ -11,7 +13,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  * The main service to handle the integration logic
@@ -21,9 +27,6 @@ import java.util.List;
 public class MainService {
 
     private final IXMLParser parser;
-
-    @Autowired
-    private StringHashService stringHashService;
 
     @Autowired
     private DocumentService documentService;
@@ -113,11 +116,26 @@ public class MainService {
     }
 
     public static void main(String[] args) {
+        Map<Long, Document> documents = new HashMap<>();
+        long i = 0L;
         try {
-            parseDirectoryStatic(args != null && args.length > 0 ? args[0] : "D:\\prj\\input");
-        } catch (InterruptedException e) {
+            for (; i < 200000000; i++) {
+                Document document = new Document();
+
+                //document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
+                //document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
+                document.setCreationTime(new Date());
+                String isbn = "12331232313";
+                document.setIsbn(isbn);
+                //                    document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
+                document.setPublishYear(null);
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
+        scanner.close();
     }
 }
