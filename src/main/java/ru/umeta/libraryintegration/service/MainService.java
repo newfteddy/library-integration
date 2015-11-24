@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * The main service to handle the integration logic
@@ -28,6 +31,8 @@ public class MainService {
 
     private final IXMLParser parser;
 
+    private final ExecutorService executor = Executors.newFixedThreadPool(5);
+
     @Autowired
     private DocumentService documentService;
 
@@ -37,24 +42,32 @@ public class MainService {
 
     public UploadResult parseDirectory(String path) throws InterruptedException {
 
+        documentService.getPersistedData();
+
         List<File> fileList = getFilesToParse(path);
+        int total = 0;
         UploadResult result = new UploadResult(0, 0);
         for (File file : fileList) {
             long startTime = System.nanoTime();
             List<ParseResult> resultList = parser.parse(file);
-            long parseTime = System.nanoTime();
-            System.out.println("The documents bulk parsed in " +
-                    (double) (parseTime - startTime) / 1000000000.0);
-            System.out.println("resultList size is " + resultList.size());
-
+            int size = resultList.size();
+            total += size;
+//            long parseTime = System.nanoTime();
+//            System.out.println("The documents bulk parsed in " +
+//                    (double) (parseTime - startTime) / 1000000000.0);
+            System.out.println("resultList size is " + size);
             UploadResult uploadResult = documentService.processDocumentList(resultList, null);
             long endTime = System.nanoTime();
-            System.out.println("The documents bulk is added in "
-                    + (double) (endTime - startTime) / 1000000000.0);
+            System.out.println("The documents bulk is added in " + (double) (endTime - startTime) / 1000000000.0
+                    + ". Total: " + total);
             result.setParsedDocs(result.getParsedDocs() + uploadResult.getParsedDocs());
             result.setNewEnriched(result.getNewEnriched()
                     + uploadResult.getNewEnriched());
+
+
         }
+
+        executor.submit(() -> documentService.persistData());
         return result;
     }
 

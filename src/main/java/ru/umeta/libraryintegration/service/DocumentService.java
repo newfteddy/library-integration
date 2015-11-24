@@ -75,7 +75,7 @@ public class DocumentService {
                         e.printStackTrace();
                         continue;
                     }
-                    EnrichedDocument enrichedDocument = findEnrichedDocument(document);
+                    EnrichedDocument enrichedDocument = null; //findEnrichedDocument(document);
                     if (enrichedDocument != null) {
                         if (enrichedDocument.getPublishYear() == null) {
                             enrichedDocument.setPublishYear(document.getPublishYear());
@@ -97,7 +97,7 @@ public class DocumentService {
                         document.setDistance(1.);
                     }
                     document.setEnrichedDocument(enrichedDocument);
-                    documentRepository.save(document);
+                    //documentRepository.save(document);
                     parsedDocs++;
                 } catch (Exception e) {
 //                    System.err.println("ERROR. Failed to add a document with title {" +
@@ -211,5 +211,13 @@ public class DocumentService {
             }
             return resultList;
         }
+    }
+
+    public void persistData() {
+        for
+    }
+
+    public void getPersistedData() {
+        //TODO
     }
 }
