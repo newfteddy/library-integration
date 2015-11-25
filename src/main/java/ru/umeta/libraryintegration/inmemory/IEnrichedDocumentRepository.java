@@ -21,4 +21,7 @@ public interface IEnrichedDocumentRepository {
     List<EnrichedDocument> getNearDuplicatesWithIsbnAndPublishYear(Document document);
 
     Number save(EnrichedDocument enrichedDocument);
+
+    void getPersistedData();
+
 }

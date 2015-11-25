@@ -77,11 +77,11 @@ public class EnrichedDocument {
         this.isbn = isbn;
     }
 
-    public String getXml() {
+    public EnrichedXmlBlob getXml() {
         return xml;
     }
 
-    public void setXml(String xml) {
+    public void setXml(EnrichedXmlBlob xml) {
         this.xml = xml;
     }
 

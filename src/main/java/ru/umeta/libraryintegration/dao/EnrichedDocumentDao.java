@@ -102,4 +102,12 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
         c = getNearDuplicateCriteria(document, c);
         return c.list();
     }
+
+    public EnrichedDocument getEnrichedDocument(Long id) {
+        return (EnrichedDocument) currentSession().get(EnrichedDocument.class, id);
+    }
+
+    public void getEnrichedDocumentForIdRange(long start, long end) {
+        //TODO Add range get
+    }
 }

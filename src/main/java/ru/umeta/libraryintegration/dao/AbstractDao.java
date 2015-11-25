@@ -165,8 +165,8 @@ public abstract class AbstractDao<E> {
     }
 
     @SuppressWarnings("unchecked")
-    public Number save(E entity) {
-        return (Number) currentSession().save(checkNotNull(entity));
+    public Long save(E entity) {
+        return (Long) currentSession().save(checkNotNull(entity));
     }
 
     @SuppressWarnings("unchecked")

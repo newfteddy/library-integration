@@ -3,7 +3,7 @@ package ru.umeta.libraryintegration.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import ru.umeta.libraryintegration.inmemory.DocumentRepository;
-import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository;
+import ru.umeta.libraryintegration.inmemory.IEnrichedDocumentRepository;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.json.UploadResult;
@@ -29,7 +29,7 @@ public class DocumentService {
 
     private final ProtocolService protocolService;
 
-    private final EnrichedDocumentRepository enrichedDocumentRepository;
+    private final IEnrichedDocumentRepository enrichedDocumentRepository;
 
     private final DocumentRepository documentRepository;
 
@@ -38,7 +38,7 @@ public class DocumentService {
     @Autowired
     public DocumentService(StringHashService stringHashService,
                            ProtocolService protocolService,
-                           EnrichedDocumentRepository enrichedDocumentRepository,
+                           IEnrichedDocumentRepository enrichedDocumentRepository,
                            DocumentRepository documentRepository,
                            ModsXMLParser modsXMLParser) {
         this.stringHashService = stringHashService;
@@ -218,6 +218,6 @@ public class DocumentService {
     }
 
     public void getPersistedData() {
-        //TODO
+        enrichedDocumentRepository.getPersistedData();
     }
 }

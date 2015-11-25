@@ -3,7 +3,10 @@ package ru.umeta.libraryintegration.inmemory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import gnu.trove.map.hash.TIntLongHashMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import ru.umeta.libraryintegration.dao.EnrichedDocumentDao;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
 import ru.umeta.libraryintegration.model.StringHash;
@@ -28,41 +31,47 @@ import java.util.stream.Collectors;
  *
  * Created by Kirill Kosolapov (https://github.com/c-tash) on 12.11.2015.
  */
+@Primary
 @Repository
 public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
-    private AtomicLong identity = new AtomicLong(0);
-
-    Multimap<String, EnrichedDocument> isbnMap = ArrayListMultimap.create();
+    Multimap<String, Long> isbnMap = ArrayListMultimap.create();
 
     //no year maps
-    Multimap<Integer, EnrichedDocument> t1t2a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t1t2a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t1t3a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t1t3a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t1t4a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t1t4a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t2t3a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t2t3a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t2t4a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t2t4a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t3t4a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> t3t4a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t1t2a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t1t2a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t1t3a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t1t3a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t1t4a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t1t4a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t2t3a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t2t3a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t2t4a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t2t4a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t3t4a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> t3t4a2Map = ArrayListMultimap.create();
 
     //year maps
-    Multimap<Integer, EnrichedDocument> yt1t2a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt1t2a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt1t3a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt1t3a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt1t4a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt1t4a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt2t3a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt2t3a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt2t4a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt2t4a2Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt3t4a1Map = ArrayListMultimap.create();
-    Multimap<Integer, EnrichedDocument> yt3t4a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt1t2a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt1t2a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt1t3a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt1t3a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt1t4a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt1t4a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt2t3a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt2t3a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt2t4a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt2t4a2Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt3t4a1Map = ArrayListMultimap.create();
+    Multimap<Integer, Long> yt3t4a2Map = ArrayListMultimap.create();
 
+
+    private final EnrichedDocumentDao enrichedDocumentDao;
+
+    @Autowired
+    public EnrichedDocumentRepository(EnrichedDocumentDao enrichedDocumentDao) {
+        this.enrichedDocumentDao = enrichedDocumentDao;
+    }
 
     @Override
     public List<EnrichedDocument> getNearDuplicates(Document document) {
@@ -92,7 +101,7 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
         Integer yt3t4a1Hash = getHashWithoutYear(t3, t4, a1);
         Integer yt3t4a2Hash = getHashWithoutYear(t3, t4, a2);
 
-        List<EnrichedDocument> result = new ArrayList<>();
+        List<Long> result = new ArrayList<>();
 
         result.addAll(t1t2a1Map.get(yt1t2a1Hash));
         result.addAll(t1t2a2Map.get(yt1t2a2Hash));
@@ -106,20 +115,25 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
         result.addAll(t2t4a2Map.get(yt2t4a2Hash));
         result.addAll(t3t4a1Map.get(yt3t4a1Hash));
         result.addAll(t3t4a2Map.get(yt3t4a2Hash));
-        return result.stream().distinct().collect(Collectors.toList());
+        return result.stream().distinct()
+                .map(enrichedDocumentDao::getEnrichedDocument)
+                .collect(Collectors.toList());
     }
 
     private Integer getHashWithoutYear(byte hash1, byte hash2, byte hash3) {
-        int prime = 31;
+        //shift is of the size of a byte
+        int shift = 8;
         int result = hash1;
-        result = result*prime + hash2;
-        result = result*prime + hash3;
+        result = result << shift + hash2;
+        result = result << shift + hash3;
         return result;
     }
 
     @Override
     public List<EnrichedDocument> getNearDuplicatesWithIsbn(Document document) {
-        return (List<EnrichedDocument>) isbnMap.get(document.getIsbn());
+        return isbnMap.get(document.getIsbn()).stream()
+                .map(enrichedDocumentDao::getEnrichedDocument)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -159,7 +173,7 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
         Integer yt3t4a1Hash = getHashWithYear(year, t3, t4, a1);
         Integer yt3t4a2Hash = getHashWithYear(year, t3, t4, a2);
 
-        List<EnrichedDocument> result = new ArrayList<>();
+        List<Long> result = new ArrayList<>();
 
         result.addAll(yt1t2a1Map.get(yt1t2a1Hash));
         result.addAll(yt1t2a2Map.get(yt1t2a2Hash));
@@ -173,15 +187,17 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
         result.addAll(yt2t4a2Map.get(yt2t4a2Hash));
         result.addAll(yt3t4a1Map.get(yt3t4a1Hash));
         result.addAll(yt3t4a2Map.get(yt3t4a2Hash));
-        return result.stream().distinct().collect(Collectors.toList());
+        return result.stream().distinct()
+                .map(enrichedDocumentDao::getEnrichedDocument)
+                .collect(Collectors.toList());
     }
 
     private Integer getHashWithYear(int year, byte hash1, byte hash2, byte hash3) {
-        int prime = 31;
+        int shift = 8;
         int result = year;
-        result = result*prime + hash1;
-        result = result*prime + hash2;
-        result = result*prime + hash3;
+        result = result << shift + hash1;
+        result = result << shift + hash2;
+        result = result << shift + hash3;
         return result;
     }
 
@@ -195,11 +211,12 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
     @Override
     public Number save(EnrichedDocument enrichedDocument) {
-        long id = identity.getAndIncrement();
-        enrichedDocument.setId(id);
+        //save enrichedDocument to the database
+        Long id = enrichedDocumentDao.save(enrichedDocument);
+
         String isbn = enrichedDocument.getIsbn();
         if (isbn != null ) {
-            isbnMap.put(isbn, enrichedDocument);
+            isbnMap.put(isbn, enrichedDocument.getId());
         }
 
         StringHash author = enrichedDocument.getAuthor();
@@ -244,32 +261,37 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
         Integer yt3t4a1Hash = getHashWithYear(year, t3, t4, a1);
         Integer yt3t4a2Hash = getHashWithYear(year, t3, t4, a2);
 
-        t1t2a1Map.put(t1t2a1Hash, enrichedDocument);
-        t1t2a2Map.put(t1t2a2Hash, enrichedDocument);
-        t1t3a1Map.put(t1t3a1Hash, enrichedDocument);
-        t1t3a2Map.put(t1t3a2Hash, enrichedDocument);
-        t1t4a1Map.put(t1t4a1Hash, enrichedDocument);
-        t1t4a2Map.put(t1t4a2Hash, enrichedDocument);
-        t2t3a1Map.put(t2t3a1Hash, enrichedDocument);
-        t2t3a2Map.put(t2t3a2Hash, enrichedDocument);
-        t2t4a1Map.put(t2t4a1Hash, enrichedDocument);
-        t2t4a2Map.put(t2t4a2Hash, enrichedDocument);
-        t3t4a1Map.put(t3t4a1Hash, enrichedDocument);
-        t3t4a2Map.put(t3t4a2Hash, enrichedDocument);
+        t1t2a1Map.put(t1t2a1Hash, id);
+        t1t2a2Map.put(t1t2a2Hash, id);
+        t1t3a1Map.put(t1t3a1Hash, id);
+        t1t3a2Map.put(t1t3a2Hash, id);
+        t1t4a1Map.put(t1t4a1Hash, id);
+        t1t4a2Map.put(t1t4a2Hash, id);
+        t2t3a1Map.put(t2t3a1Hash, id);
+        t2t3a2Map.put(t2t3a2Hash, id);
+        t2t4a1Map.put(t2t4a1Hash, id);
+        t2t4a2Map.put(t2t4a2Hash, id);
+        t3t4a1Map.put(t3t4a1Hash, id);
+        t3t4a2Map.put(t3t4a2Hash, id);
 
-        yt1t2a1Map.put(yt1t2a1Hash, enrichedDocument);
-        yt1t2a2Map.put(yt1t2a2Hash, enrichedDocument);
-        yt1t3a1Map.put(yt1t3a1Hash, enrichedDocument);
-        yt1t3a2Map.put(yt1t3a2Hash, enrichedDocument);
-        yt1t4a1Map.put(yt1t4a1Hash, enrichedDocument);
-        yt1t4a2Map.put(yt1t4a2Hash, enrichedDocument);
-        yt2t3a1Map.put(yt2t3a1Hash, enrichedDocument);
-        yt2t3a2Map.put(yt2t3a2Hash, enrichedDocument);
-        yt2t4a1Map.put(yt2t4a1Hash, enrichedDocument);
-        yt2t4a2Map.put(yt2t4a2Hash, enrichedDocument);
-        yt3t4a1Map.put(yt3t4a1Hash, enrichedDocument);
-        yt3t4a2Map.put(yt3t4a2Hash, enrichedDocument);
+        yt1t2a1Map.put(yt1t2a1Hash, id);
+        yt1t2a2Map.put(yt1t2a2Hash, id);
+        yt1t3a1Map.put(yt1t3a1Hash, id);
+        yt1t3a2Map.put(yt1t3a2Hash, id);
+        yt1t4a1Map.put(yt1t4a1Hash, id);
+        yt1t4a2Map.put(yt1t4a2Hash, id);
+        yt2t3a1Map.put(yt2t3a1Hash, id);
+        yt2t3a2Map.put(yt2t3a2Hash, id);
+        yt2t4a1Map.put(yt2t4a1Hash, id);
+        yt2t4a2Map.put(yt2t4a2Hash, id);
+        yt3t4a1Map.put(yt3t4a1Hash, id);
+        yt3t4a2Map.put(yt3t4a2Hash, id);
 
         return id;
+    }
+
+    @Override
+    public void getPersistedData() {
+        enrichedDocumentDao.getEnrichedDocumentForIdRange(0, 10000);
     }
 }

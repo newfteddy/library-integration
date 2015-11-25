@@ -8,27 +8,41 @@ import java.util.Collection;
 /**
  * Created by ctash on 29.04.2015.
  */
+@Entity
 
 public class StringHash {
 
+@Id
+    @Column(name = "id")
+    @GeneratedValue
     private Long id;
 
+    @NaturalId(mutable = false)
+    @Column(name = "value", nullable = false, unique = true)
     private String value;
 
+    @Column(name = "hash_part_1", nullable = false)
     private Byte hashPart1;
 
+    @Column(name = "hash_part_2", nullable = false)
     private Byte hashPart2;
 
+    @Column(name = "hash_part_3", nullable = false)
     private Byte hashPart3;
 
+    @Column(name = "hash_part_4", nullable = false)
     private Byte hashPart4;
 
+    @OneToMany(mappedBy = "title")
     private Collection<Document> isTitleOfDocuments;
 
+    @OneToMany(mappedBy = "author")
     private Collection<Document> isAuthorOfDocuments;
 
+    @OneToMany(mappedBy = "title")
     private Collection<EnrichedDocument> isTitleOfEnrichedDocuments;
 
+    @OneToMany(mappedBy = "author")
     private Collection<EnrichedDocument> isAuthorOfEnrichedDocuments;
 
     public StringHash() {

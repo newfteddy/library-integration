@@ -67,7 +67,6 @@ public class MainService {
 
         }
 
-        executor.submit(() -> documentService.persistData());
         return result;
     }
 
