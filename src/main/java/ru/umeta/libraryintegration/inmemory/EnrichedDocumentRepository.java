@@ -2,6 +2,7 @@ package ru.umeta.libraryintegration.inmemory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import gnu.trove.map.hash.TIntLongHashMap;
 import org.springframework.stereotype.Repository;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  * Created by Kirill Kosolapov (https://github.com/c-tash) on 12.11.2015.
  */
 @Repository
-public class EnrichedDocumentRepository {
+public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
     private AtomicLong identity = new AtomicLong(0);
 
@@ -63,6 +64,7 @@ public class EnrichedDocumentRepository {
     Multimap<Integer, EnrichedDocument> yt3t4a2Map = ArrayListMultimap.create();
 
 
+    @Override
     public List<EnrichedDocument> getNearDuplicates(Document document) {
         StringHash author = document.getAuthor();
         StringHash title = document.getTitle();
@@ -115,10 +117,12 @@ public class EnrichedDocumentRepository {
         return result;
     }
 
+    @Override
     public List<EnrichedDocument> getNearDuplicatesWithIsbn(Document document) {
         return (List<EnrichedDocument>) isbnMap.get(document.getIsbn());
     }
 
+    @Override
     public List<EnrichedDocument> getNearDuplicatesWithNullIsbn(Document document) {
         List<EnrichedDocument> nearDuplicates = getNearDuplicates(document);
         return nearDuplicates.stream().filter(
@@ -126,6 +130,7 @@ public class EnrichedDocumentRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<EnrichedDocument> getNearDuplicatesWithPublishYear(Document document) {
         StringHash author = document.getAuthor();
         StringHash title = document.getTitle();
@@ -180,6 +185,7 @@ public class EnrichedDocumentRepository {
         return result;
     }
 
+    @Override
     public List<EnrichedDocument> getNearDuplicatesWithIsbnAndPublishYear(Document document) {
         List<EnrichedDocument> nearDuplicates = getNearDuplicatesWithIsbn(document);
         return nearDuplicates.stream().filter((
@@ -187,6 +193,7 @@ public class EnrichedDocumentRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Number save(EnrichedDocument enrichedDocument) {
         long id = identity.getAndIncrement();
         enrichedDocument.setId(id);
