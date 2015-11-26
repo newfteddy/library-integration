@@ -9,6 +9,8 @@ import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.json.UploadResult;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
+import ru.umeta.libraryintegration.model.EnrichedDocumentLite;
+import ru.umeta.libraryintegration.model.EnrichedXmlBlob;
 import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
 import java.io.ByteArrayOutputStream;
@@ -67,15 +69,15 @@ public class DocumentService {
                     }
                     document.setIsbn(isbn);
                     document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
-                    document.setPublishYear(null);
+                    document.setPublishYear(modsParseResult.getPublishYear());
                     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                         modsParseResult.getModsDefinition().save(outputStream);
-                        document.setXml(null);
+                        document.setXml(new String(outputStream.toByteArray(), "UTF-8"));
                     } catch (IOException e) {
                         e.printStackTrace();
                         continue;
                     }
-                    EnrichedDocument enrichedDocument = null; //findEnrichedDocument(document);
+                    EnrichedDocument enrichedDocument = findEnrichedDocument(document);
                     if (enrichedDocument != null) {
                         if (enrichedDocument.getPublishYear() == null) {
                             enrichedDocument.setPublishYear(document.getPublishYear());
@@ -83,13 +85,14 @@ public class DocumentService {
                         if (enrichedDocument.getIsbn() == null) {
                             enrichedDocument.setIsbn(document.getIsbn());
                         }
-                        mergeDocuments(modsParseResult, enrichedDocument);
+                        //mergeDocuments(modsParseResult, enrichedDocument);
+                        enrichedDocumentRepository.update(enrichedDocument);
                     } else {
                         enrichedDocument = new EnrichedDocument();
                         enrichedDocument.setAuthor(document.getAuthor());
                         enrichedDocument.setTitle(document.getTitle());
                         enrichedDocument.setIsbn(document.getIsbn());
-                        enrichedDocument.setXml(null);
+                        enrichedDocument.setXml(document.getXml());
                         enrichedDocument.setCreationTime(document.getCreationTime());
                         enrichedDocument.setPublishYear(document.getPublishYear());
                         enrichedDocument.setId(enrichedDocumentRepository.save(enrichedDocument).longValue());
@@ -97,7 +100,7 @@ public class DocumentService {
                         document.setDistance(1.);
                     }
                     document.setEnrichedDocument(enrichedDocument);
-                    //documentRepository.save(document);
+                    documentRepository.save(document);
                     parsedDocs++;
                 } catch (Exception e) {
 //                    System.err.println("ERROR. Failed to add a document with title {" +
@@ -112,7 +115,7 @@ public class DocumentService {
     }
 
     private void mergeDocuments(ModsParseResult modsParseResult, EnrichedDocument enrichedDocument) {
-        //modsXMLParser.enrich(modsParseResult.getModsDefinition(),enrichedDocument);
+        modsXMLParser.enrich(modsParseResult.getModsDefinition(),enrichedDocument);
     }
 
     private EnrichedDocument findEnrichedDocument(Document document) {
@@ -120,7 +123,7 @@ public class DocumentService {
         //first check whether the document has isbn or not
         String isbn = document.getIsbn();
         Integer publishYear = document.getPublishYear();
-        List<EnrichedDocument> nearDuplicates;
+        List<EnrichedDocumentLite> nearDuplicates;
         if (isbn == null && publishYear == null) {
             // if it's null, we search through every record in the storage
             nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document);
@@ -138,16 +141,10 @@ public class DocumentService {
                 nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document);
 
             } else {
-                //both publishYear and isbn is not null
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbnAndPublishYear(document);
+                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document);
 
                 if (nearDuplicates == null || nearDuplicates.size() == 0) {
-                    // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document);
-
-                    if (nearDuplicates == null || nearDuplicates.size() == 0) {
-                        nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document);
-                    }
+                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document);
                 }
             }
 
@@ -156,15 +153,17 @@ public class DocumentService {
         if (nearDuplicates != null && nearDuplicates.size() > 0) {
 
             double maxDistance = 0;
-            double minDistance = 0.4;
-            EnrichedDocument closestDocument = null;
-            String titleValue = document.getTitle().getValue();
-            String authorValue = document.getAuthor().getValue();
-            for (EnrichedDocument nearDuplicate : nearDuplicates) {
+            double minDistance = 0.7;
+            EnrichedDocumentLite closestDocument = null;
 
-                double titleDistance = stringHashService.distance(titleValue, nearDuplicate.getTitle().getValue());
+            Set<String> titleTokens = stringHashService.getTokens(document.getTitle().getValue());
+            Set<String> authorTokens = stringHashService.getTokens(document.getAuthor().getValue());
 
-                double authorDistance = stringHashService.distance(authorValue, nearDuplicate.getAuthor().getValue());
+            for (EnrichedDocumentLite nearDuplicate : nearDuplicates) {
+
+                double titleDistance = stringHashService.distance(titleTokens, nearDuplicate.titleTokens);
+
+                double authorDistance = stringHashService.distance(authorTokens, nearDuplicate.authorTokens);
 
                 double resultDistance = (titleDistance + authorDistance) / 2;
 
@@ -175,7 +174,9 @@ public class DocumentService {
 
             }
             document.setDistance(maxDistance);
-            return closestDocument;
+            if (closestDocument != null) {
+                return enrichedDocumentRepository.getById(closestDocument.id);
+            }
         }
 
         return null;
@@ -211,10 +212,6 @@ public class DocumentService {
             }
             return resultList;
         }
-    }
-
-    public void persistData() {
-
     }
 
     public void getPersistedData() {

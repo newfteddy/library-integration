@@ -8,7 +8,22 @@
     <mvc:annotation-driven/>
     <context:component-scan base-package="ru.umeta.libraryintegration.controller"/>
     <context:component-scan base-package="ru.umeta.libraryintegration.inmemory"/>
-    <context:component-scan base-package="ru.umeta.libraryintegration.dao"/>
+
+    <bean class="ru.umeta.libraryintegration.dao.ProtocolDao">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
+
+    <bean class="ru.umeta.libraryintegration.dao.StringHashDao">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
+
+    <bean class="ru.umeta.libraryintegration.dao.DocumentDao">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
+
+    <bean class="ru.umeta.libraryintegration.dao.EnrichedDocumentDao">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/pages/"/>
@@ -37,5 +52,6 @@
 
     <bean id="modsXMLParser" class="ru.umeta.libraryintegration.parser.ModsXMLParser"/>
 
+    <import resource="db/data-source.xml" />
 
 </beans>

@@ -1,7 +1,5 @@
 package ru.umeta.libraryintegration.model;
 
-import org.springframework.context.annotation.Lazy;
-
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Date;
@@ -29,9 +27,8 @@ public class EnrichedDocument {
     @Column(name = "isbn")
     private String isbn;
 
-    @OneToOne
-    @Lazy
-    private EnrichedXmlBlob xml;
+    @Column(name = "xml", columnDefinition = "TEXT")
+    private String xml;
 
     @Column(name = "creation_time")
     private Date creationTime;
@@ -77,11 +74,11 @@ public class EnrichedDocument {
         this.isbn = isbn;
     }
 
-    public EnrichedXmlBlob getXml() {
+    public String getXml() {
         return xml;
     }
 
-    public void setXml(EnrichedXmlBlob xml) {
+    public void setXml(String xml) {
         this.xml = xml;
     }
 

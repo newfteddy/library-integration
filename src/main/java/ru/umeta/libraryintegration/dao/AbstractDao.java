@@ -174,4 +174,9 @@ public abstract class AbstractDao<E> {
         return (E) currentSession().bySimpleNaturalId(entityClass).load(value);
     }
 
+    @SuppressWarnings("unchecked")
+    public E getById(Long id) {
+        return (E) currentSession().get(entityClass, id);
+    }
+
 }

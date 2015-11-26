@@ -2,6 +2,7 @@ package ru.umeta.libraryintegration.inmemory;
 
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
+import ru.umeta.libraryintegration.model.EnrichedDocumentLite;
 
 import java.util.List;
 
@@ -10,18 +11,19 @@ import java.util.List;
  */
 public interface IEnrichedDocumentRepository {
 
-    List<EnrichedDocument> getNearDuplicates(Document document);
+    List<EnrichedDocumentLite> getNearDuplicates(Document document);
 
-    List<EnrichedDocument> getNearDuplicatesWithIsbn(Document document);
+    List<EnrichedDocumentLite> getNearDuplicatesWithIsbn(Document document);
 
-    List<EnrichedDocument> getNearDuplicatesWithNullIsbn(Document document);
+    List<EnrichedDocumentLite> getNearDuplicatesWithNullIsbn(Document document);
 
-    List<EnrichedDocument> getNearDuplicatesWithPublishYear(Document document);
-
-    List<EnrichedDocument> getNearDuplicatesWithIsbnAndPublishYear(Document document);
+    List<EnrichedDocumentLite> getNearDuplicatesWithPublishYear(Document document);
 
     Number save(EnrichedDocument enrichedDocument);
 
     void getPersistedData();
 
+    void update(EnrichedDocument enrichedDocument);
+
+    EnrichedDocument getById(long id);
 }

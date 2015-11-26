@@ -1,11 +1,9 @@
 package ru.umeta.libraryintegration.dao;
 
 import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.SimpleExpression;
 import org.springframework.stereotype.Repository;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
@@ -103,11 +101,10 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
         return c.list();
     }
 
-    public EnrichedDocument getEnrichedDocument(Long id) {
-        return (EnrichedDocument) currentSession().get(EnrichedDocument.class, id);
-    }
-
-    public void getEnrichedDocumentForIdRange(long start, long end) {
-        //TODO Add range get
+    public List<EnrichedDocument> getEnrichedDocumentForIdRange(long start, int limit) {
+        Criteria c = currentSession().createCriteria(EnrichedDocument.class, "enriched");
+        c.add(Restrictions.gt("enriched.id", start));
+        c.setMaxResults(limit);
+        return c.list();
     }
 }

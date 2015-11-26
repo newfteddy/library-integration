@@ -122,18 +122,7 @@ public class StringHashService {
     }
 
     private Set<String> getLongTokens(String string) {
-        if (string == null || string.length() == 0) {
-            return null;
-        }
-
-        Set<String> tokens = new HashSet<>();
-        for (int i = 0; i < string.length() - 3; i++) {
-            final String token = string.substring(i, i + 4);
-            if (!tokens.contains(token)) {
-                tokens.add(token);
-            }
-        }
-        return tokens;
+        return getShortTokens(string);
     }
 
     public StringHash getFromRepository(String string) {
@@ -150,18 +139,7 @@ public class StringHashService {
         return repoStringHash;
     }
 
-    public double distance(String obj1, String obj2) {
-        Set<String> tokens1 = null;
-        Set<String> tokens2 = null;
-        if (obj1.length() <= 4 || obj2.length() <= 4) {
-            tokens1 = getCharTokens(obj1);
-            tokens2 = getCharTokens(obj2);
-        } else {
-            tokens1 = getTokens(obj1);
-            tokens2 = getTokens(obj2);
-        }
-
-
+    public double distance(Set<String> tokens1, Set<String> tokens2) {
         if (tokens1 == null) {
             if (tokens2 == null) {
                 return 1;
