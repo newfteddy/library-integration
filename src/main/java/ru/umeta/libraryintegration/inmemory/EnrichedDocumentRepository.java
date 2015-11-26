@@ -203,7 +203,7 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
     public Number save(EnrichedDocument enrichedDocument) {
         //save enrichedDocument to the database
         Long id = enrichedDocumentDao.save(enrichedDocument);
-        putIntoMaps(enrichedDocument);
+        //putIntoMaps(enrichedDocument);
         return id;
     }
 
@@ -295,17 +295,17 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
     @Override
     public void getPersistedData() {
-        long cursor = 0;
-        int batchSize = 10000;
-        List<EnrichedDocument> batch;
-        while (true) {
-            batch = enrichedDocumentDao.getEnrichedDocumentForIdRange(cursor, batchSize);
-            if (batch == null || batch.isEmpty()) {
-                return;
-            }
-            batch.stream().forEach(this::putIntoMaps);
-            cursor = batch.get(batch.size() - 1).getId();
-        }
+//        long cursor = 0;
+//        int batchSize = 10000;
+//        List<EnrichedDocument> batch;
+//        while (true) {
+//            batch = enrichedDocumentDao.getEnrichedDocumentForIdRange(cursor, batchSize);
+//            if (batch == null || batch.isEmpty()) {
+//                return;
+//            }
+//            batch.stream().forEach(this::putIntoMaps);
+//            cursor = batch.get(batch.size() - 1).getId();
+//        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package ru.umeta.libraryintegration.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import ru.umeta.libraryintegration.inmemory.DocumentRepository;
+import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository;
 import ru.umeta.libraryintegration.inmemory.IEnrichedDocumentRepository;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
@@ -10,7 +11,6 @@ import ru.umeta.libraryintegration.json.UploadResult;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite;
-import ru.umeta.libraryintegration.model.EnrichedXmlBlob;
 import ru.umeta.libraryintegration.parser.ModsXMLParser;
 
 import java.io.ByteArrayOutputStream;
@@ -37,17 +37,16 @@ public class DocumentService {
 
     private final ModsXMLParser modsXMLParser;
 
+    private final EnrichedDocumentRepository enrichedDocumentDao;
+
     @Autowired
-    public DocumentService(StringHashService stringHashService,
-                           ProtocolService protocolService,
-                           IEnrichedDocumentRepository enrichedDocumentRepository,
-                           DocumentRepository documentRepository,
-                           ModsXMLParser modsXMLParser) {
+    public DocumentService(StringHashService stringHashService, ProtocolService protocolService, IEnrichedDocumentRepository enrichedDocumentRepository, DocumentRepository documentRepository, ModsXMLParser modsXMLParser, EnrichedDocumentRepository enrichedDocumentDao) {
         this.stringHashService = stringHashService;
         this.protocolService = protocolService;
         this.enrichedDocumentRepository = enrichedDocumentRepository;
         this.documentRepository = documentRepository;
         this.modsXMLParser = modsXMLParser;
+        this.enrichedDocumentDao = enrichedDocumentDao;
     }
 
     public UploadResult processDocumentList(List<ParseResult> resultList, String protocolName) {
@@ -57,7 +56,7 @@ public class DocumentService {
         for (ParseResult parseResult : checkNotNull(resultList)) {
             if (parseResult instanceof ModsParseResult) {
                 try {
-                    Document document = new Document();
+                    EnrichedDocument document = new EnrichedDocument();
                     ModsParseResult modsParseResult = (ModsParseResult) parseResult;
 
                     document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
@@ -68,39 +67,54 @@ public class DocumentService {
                         isbn = null;
                     }
                     document.setIsbn(isbn);
-                    document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
                     document.setPublishYear(modsParseResult.getPublishYear());
-                    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                        modsParseResult.getModsDefinition().save(outputStream);
-                        document.setXml(new String(outputStream.toByteArray(), "UTF-8"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-                    EnrichedDocument enrichedDocument = findEnrichedDocument(document);
-                    if (enrichedDocument != null) {
-                        if (enrichedDocument.getPublishYear() == null) {
-                            enrichedDocument.setPublishYear(document.getPublishYear());
-                        }
-                        if (enrichedDocument.getIsbn() == null) {
-                            enrichedDocument.setIsbn(document.getIsbn());
-                        }
-                        //mergeDocuments(modsParseResult, enrichedDocument);
-                        enrichedDocumentRepository.update(enrichedDocument);
-                    } else {
-                        enrichedDocument = new EnrichedDocument();
-                        enrichedDocument.setAuthor(document.getAuthor());
-                        enrichedDocument.setTitle(document.getTitle());
-                        enrichedDocument.setIsbn(document.getIsbn());
-                        enrichedDocument.setXml(document.getXml());
-                        enrichedDocument.setCreationTime(document.getCreationTime());
-                        enrichedDocument.setPublishYear(document.getPublishYear());
-                        enrichedDocument.setId(enrichedDocumentRepository.save(enrichedDocument).longValue());
-                        newEnriched++;
-                        document.setDistance(1.);
-                    }
-                    document.setEnrichedDocument(enrichedDocument);
-                    documentRepository.save(document);
+                    document.setXml(null);
+                    enrichedDocumentDao.save(document);
+//
+//
+//                    ModsParseResult modsParseResult = (ModsParseResult) parseResult;
+//
+//                    document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
+//                    document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
+//                    document.setCreationTime(new Date());
+//                    String isbn = modsParseResult.getIsbn();
+//                    if (StringUtils.isEmpty(isbn)) {
+//                        isbn = null;
+//                    }
+//                    document.setIsbn(isbn);
+//                    document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
+//                    document.setPublishYear(modsParseResult.getPublishYear());
+//                    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+//                        modsParseResult.getModsDefinition().save(outputStream);
+//                        document.setXml(new String(outputStream.toByteArray(), "UTF-8"));
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                        continue;
+//                    }
+//                    EnrichedDocument enrichedDocument = findEnrichedDocument(document);
+//                    if (enrichedDocument != null) {
+//                        if (enrichedDocument.getPublishYear() == null) {
+//                            enrichedDocument.setPublishYear(document.getPublishYear());
+//                        }
+//                        if (enrichedDocument.getIsbn() == null) {
+//                            enrichedDocument.setIsbn(document.getIsbn());
+//                        }
+//                        mergeDocuments(modsParseResult, enrichedDocument);
+//                        enrichedDocumentRepository.update(enrichedDocument);
+//                    } else {
+//                        enrichedDocument = new EnrichedDocument();
+//                        enrichedDocument.setAuthor(document.getAuthor());
+//                        enrichedDocument.setTitle(document.getTitle());
+//                        enrichedDocument.setIsbn(document.getIsbn());
+//                        enrichedDocument.setXml(document.getXml());
+//                        enrichedDocument.setCreationTime(document.getCreationTime());
+//                        enrichedDocument.setPublishYear(document.getPublishYear());
+//                        enrichedDocument.setId(enrichedDocumentRepository.save(enrichedDocument).longValue());
+//                        newEnriched++;
+//                        document.setDistance(1.);
+//                    }
+//                    document.setEnrichedDocument(enrichedDocument);
+//                    documentRepository.save(document);
                     parsedDocs++;
                 } catch (Exception e) {
 //                    System.err.println("ERROR. Failed to add a document with title {" +
@@ -200,11 +214,11 @@ public class DocumentService {
                 StringBuilder newTitle = new StringBuilder(title);
                 for (int j = 0; j < saltLevel; j++) {
                     Random rnd = new Random();
-                    int saltIndex = rnd.nextInt(authorLength);
-                    newAuthor.setCharAt(saltIndex, '#');
+                    int noiseIndex = rnd.nextInt(authorLength);
+                    newAuthor.setCharAt(noiseIndex, '#');
 
-                    saltIndex = new Random().nextInt(titleLength);
-                    newTitle.setCharAt(saltIndex, '#');
+                    noiseIndex = new Random().nextInt(titleLength);
+                    newTitle.setCharAt(noiseIndex, '#');
                 }
                 newParseResult.setAuthor(newAuthor.toString());
                 newParseResult.setTitle(newTitle.toString());

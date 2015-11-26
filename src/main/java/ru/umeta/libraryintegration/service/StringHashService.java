@@ -6,6 +6,8 @@ import ru.umeta.libraryintegration.model.StringHash;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by k.kosolapov on 14.05.2015.
@@ -13,6 +15,8 @@ import java.util.*;
 public class StringHashService {
 
     private final StringHashRepository stringHashRepository;
+
+    private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     @Autowired
     public StringHashService(StringHashRepository stringHashRepository) {
@@ -132,8 +136,9 @@ public class StringHashService {
 
         StringHash repoStringHash = stringHashRepository.get(string);
         if (repoStringHash == null) {
+
             StringHash stringHash = getStringHash(string);
-            stringHash.setId((Long) stringHashRepository.save(stringHash));
+            executorService.execute(() -> stringHashRepository.save(stringHash));
             repoStringHash = stringHash;
         }
         return repoStringHash;

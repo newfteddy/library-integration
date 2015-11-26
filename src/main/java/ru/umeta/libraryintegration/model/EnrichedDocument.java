@@ -27,7 +27,7 @@ public class EnrichedDocument {
     @Column(name = "isbn")
     private String isbn;
 
-    @Column(name = "xml", columnDefinition = "TEXT")
+    @Column(name = "xml", columnDefinition = "BLOB")
     private String xml;
 
     @Column(name = "creation_time")

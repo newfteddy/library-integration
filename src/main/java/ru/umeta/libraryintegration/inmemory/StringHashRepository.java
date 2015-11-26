@@ -22,9 +22,6 @@ public class StringHashRepository {
 
     private TIntLongMap map = new TIntLongHashMap();
 
-    private Map<Long, Set<String>> titleTokenMap = new HashMap<>();
-    private Map<Long, Set<String>> authorTokenMap = new HashMap<>();
-
     private final StringHashDao stringHashDao;
 
     @Autowired
@@ -44,7 +41,7 @@ public class StringHashRepository {
 
     public Number save(StringHash stringHash) {
         Long id = stringHashDao.save(stringHash);
-        map.putIfAbsent(stringHash.getValue().hashCode(), id);
+        //map.putIfAbsent(stringHash.getValue().hashCode(), id);
         return id;
     }
 }
