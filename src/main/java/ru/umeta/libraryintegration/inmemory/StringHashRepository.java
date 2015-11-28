@@ -8,9 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.umeta.libraryintegration.dao.StringHashDao;
 import ru.umeta.libraryintegration.model.StringHash;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -20,7 +18,13 @@ import java.util.concurrent.ConcurrentMap;
 @Repository
 public class StringHashRepository {
 
-    private TIntLongMap map = new TIntLongHashMap();
+    private Map<String, StringHash> map = new HashMap<>();
+
+    private Map<String, Set<String>> tokens = new HashMap<>();
+
+    private List<StringHash> toBePersisted = new ArrayList<>();
+
+    private static final int HIBERNATE_BATCH_SIZE = 10000;
 
     private final StringHashDao stringHashDao;
 
@@ -30,18 +34,25 @@ public class StringHashRepository {
     }
 
     public StringHash get(String string) {
-        long id = map.get(string.hashCode());
-        if (id == map.getNoEntryValue()) {
-            return stringHashDao.get(string);
-        } else {
-            return stringHashDao.getById(id);
+        return map.get(string);
+    }
+
+    public void save(StringHash stringHash) {
+        toBePersisted.add(stringHash);
+        if (HIBERNATE_BATCH_SIZE <= toBePersisted.size()) {
+            persistTransient();
         }
+        map.put(stringHash.getValue(), stringHash);
 
     }
 
-    public Number save(StringHash stringHash) {
-        Long id = stringHashDao.save(stringHash);
-        //map.putIfAbsent(stringHash.getValue().hashCode(), id);
-        return id;
+    public void persistTransient() {
+        try {
+            stringHashDao.persistBatch(toBePersisted);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        toBePersisted = new ArrayList<>();
     }
 }

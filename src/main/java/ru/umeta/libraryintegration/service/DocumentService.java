@@ -59,8 +59,16 @@ public class DocumentService {
                     EnrichedDocument document = new EnrichedDocument();
                     ModsParseResult modsParseResult = (ModsParseResult) parseResult;
 
-                    document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
-                    document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
+                    String author = modsParseResult.getAuthor();
+                    if (author.length() > 255) {
+                        author = author.substring(0, 255);
+                    }
+                    String title = modsParseResult.getTitle();
+                    if (title.length() > 255) {
+                        title = title.substring(0, 255);
+                    }
+                    document.setAuthor(stringHashService.getFromRepository(author));
+                    document.setTitle(stringHashService.getFromRepository(title));
                     document.setCreationTime(new Date());
                     String isbn = modsParseResult.getIsbn();
                     if (StringUtils.isEmpty(isbn)) {

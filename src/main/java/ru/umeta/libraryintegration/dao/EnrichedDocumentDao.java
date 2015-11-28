@@ -17,7 +17,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by k.kosolapov on 05/05/2015.
  */
-@Transactional
 @Repository
 public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
 
@@ -26,6 +25,7 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
     }
 
     @SuppressWarnings("unchecked")
+    @Transactional
     public List<EnrichedDocument> getNearDuplicates(Document document) {
         Criteria c = getEmptyCriteria();
         c = getNearDuplicateCriteria(document, c);
@@ -67,6 +67,7 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
         return c;
     }
 
+    @Transactional
     public List<EnrichedDocument> getNearDuplicatesWithIsbn(Document document) {
         Criteria c = getEmptyCriteria();
         c.add(Restrictions.eq("enriched.isbn", document.getIsbn()));
@@ -75,6 +76,7 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
 
     }
 
+    @Transactional
     public List<EnrichedDocument> getNearDuplicatesWithNullIsbn(Document document) {
         Criteria c = getEmptyCriteria();
         c.add(Restrictions.isNull("enriched.isbn"));
@@ -83,6 +85,7 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
 
     }
 
+    @Transactional
     public List<EnrichedDocument> getNearDuplicatesWithPublishYear(Document document) {
         Criteria c = getEmptyCriteria();
         c.add(Restrictions.or(
@@ -92,6 +95,7 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
         return c.list();
     }
 
+    @Transactional
     public List<EnrichedDocument> getNearDuplicatesWithIsbnAndPublishYear(Document document) {
         Criteria c = getEmptyCriteria();
         c.add(Restrictions.and(
@@ -101,6 +105,7 @@ public class EnrichedDocumentDao  extends AbstractDao<EnrichedDocument> {
         return c.list();
     }
 
+    @Transactional
     public List<EnrichedDocument> getEnrichedDocumentForIdRange(long start, int limit) {
         Criteria c = currentSession().createCriteria(EnrichedDocument.class, "enriched");
         c.add(Restrictions.gt("enriched.id", start));

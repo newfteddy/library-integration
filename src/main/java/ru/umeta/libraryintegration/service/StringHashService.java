@@ -16,8 +16,6 @@ public class StringHashService {
 
     private final StringHashRepository stringHashRepository;
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(10);
-
     @Autowired
     public StringHashService(StringHashRepository stringHashRepository) {
         this.stringHashRepository = stringHashRepository;
@@ -56,7 +54,7 @@ public class StringHashService {
             return 0;
         }
 
-        Set<String> tokens = getTokens(string);
+        Set<String> tokens = getSimHashTokens(string);
         /**
          *  32 is hash size
          */
@@ -99,7 +97,7 @@ public class StringHashService {
         }
     }
 
-    public Set<String> getTokens(String string) {
+    public Set<String> getSimHashTokens(String string) {
         if (string == null) {
             return Collections.emptySet();
         }
@@ -108,6 +106,13 @@ public class StringHashService {
         } else {
             return getLongTokens(string);
         }
+    }
+
+    public Set<String> getTokens(String string) {
+        if (string == null) {
+            return Collections.emptySet();
+        }
+        return getShortTokens(string);
     }
 
     private Set<String> getShortTokens(String string) {
@@ -126,7 +131,18 @@ public class StringHashService {
     }
 
     private Set<String> getLongTokens(String string) {
-        return getShortTokens(string);
+        if (string == null || string.length() == 0) {
+            return null;
+        }
+
+        Set<String> tokens = new HashSet<>();
+        for (int i = 0; i < string.length() - 3; i++) {
+            final String token = string.substring(i, i + 4);
+            if (!tokens.contains(token)) {
+                tokens.add(token);
+            }
+        }
+        return tokens;
     }
 
     public StringHash getFromRepository(String string) {
@@ -138,7 +154,7 @@ public class StringHashService {
         if (repoStringHash == null) {
 
             StringHash stringHash = getStringHash(string);
-            executorService.execute(() -> stringHashRepository.save(stringHash));
+            stringHashRepository.save(stringHash);
             repoStringHash = stringHash;
         }
         return repoStringHash;

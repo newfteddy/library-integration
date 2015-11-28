@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 @Repository
 public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
+    private static final int BATCH_SIZE = 10000;
+
     Multimap<String, EnrichedDocumentLite> isbnMap = ArrayListMultimap.create();
 
     //no year maps
@@ -68,11 +70,17 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
     private final EnrichedDocumentDao enrichedDocumentDao;
     private final StringHashService stringHashService;
+    private final StringHashRepository stringHashRepository;
+
+
+    private List<EnrichedDocument> toBePersisted = new ArrayList<>(BATCH_SIZE);
+
 
     @Autowired
-    public EnrichedDocumentRepository(EnrichedDocumentDao enrichedDocumentDao, StringHashService stringHashService) {
+    public EnrichedDocumentRepository(EnrichedDocumentDao enrichedDocumentDao, StringHashService stringHashService, StringHashRepository stringHashRepository) {
         this.enrichedDocumentDao = enrichedDocumentDao;
         this.stringHashService = stringHashService;
+        this.stringHashRepository = stringHashRepository;
     }
 
     @Override
@@ -200,11 +208,14 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
     }
 
     @Override
-    public Number save(EnrichedDocument enrichedDocument) {
-        //save enrichedDocument to the database
-        Long id = enrichedDocumentDao.save(enrichedDocument);
-        //putIntoMaps(enrichedDocument);
-        return id;
+    public void save(EnrichedDocument enrichedDocument) {
+        toBePersisted.add(enrichedDocument);
+        if (BATCH_SIZE <= toBePersisted.size()) {
+            stringHashRepository.persistTransient();
+            enrichedDocumentDao.persistBatch(toBePersisted);
+            toBePersisted = new ArrayList<>();
+        }
+
     }
 
     private void putIntoMaps(EnrichedDocument enrichedDocument) {

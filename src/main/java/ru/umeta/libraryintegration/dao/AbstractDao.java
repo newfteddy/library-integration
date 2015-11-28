@@ -1,6 +1,10 @@
 package ru.umeta.libraryintegration.dao;
 
 import org.hibernate.*;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 import ru.umeta.libraryintegration.util.Generics;
 
 import javax.transaction.Transactional;
@@ -12,11 +16,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by k.kosolapov on 30.04.2015.
  */
-@Transactional
 public abstract class AbstractDao<E> {
 
     private final SessionFactory sessionFactory;
     private final Class<?> entityClass;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * Creates a new DAO with a given session provider.
@@ -26,6 +30,8 @@ public abstract class AbstractDao<E> {
     protected AbstractDao(SessionFactory sessionFactory) {
         this.sessionFactory = checkNotNull(sessionFactory);
         this.entityClass = Generics.getTypeParameter(getClass());
+        transactionTemplate = new TransactionTemplate(new HibernateTransactionManager(sessionFactory),
+                new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
     }
 
     /**
@@ -177,6 +183,11 @@ public abstract class AbstractDao<E> {
     @SuppressWarnings("unchecked")
     public E getById(Long id) {
         return (E) currentSession().get(entityClass, id);
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void persistBatch(List<E> toBePersisted) {
+        toBePersisted.forEach(currentSession()::save);
     }
 
 }

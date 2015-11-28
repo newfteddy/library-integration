@@ -17,8 +17,7 @@ public class StringHash {
     @GeneratedValue
     private Long id;
 
-    @NaturalId(mutable = false)
-    @Column(name = "value", nullable = false, unique = true)
+    @Column(name = "value", nullable = false)
     private String value;
 
     @Column(name = "hash_part_1", nullable = false)

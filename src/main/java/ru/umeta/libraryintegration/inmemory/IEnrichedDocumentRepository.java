@@ -19,7 +19,7 @@ public interface IEnrichedDocumentRepository {
 
     List<EnrichedDocumentLite> getNearDuplicatesWithPublishYear(Document document);
 
-    Number save(EnrichedDocument enrichedDocument);
+    void save(EnrichedDocument enrichedDocument);
 
     void getPersistedData();
 
