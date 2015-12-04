@@ -1,6 +1,9 @@
 package ru.umeta.libraryintegration.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.umeta.libraryintegration.json.ParseResult;
@@ -29,16 +32,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Service
 public class MainService {
 
-    private final IXMLParser parser;
+    @Autowired
+    private IXMLParser parser;
 
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     @Autowired
     private DocumentService documentService;
-
-    public MainService(IXMLParser parser) {
-        this.parser = parser;
-    }
 
     public UploadResult parseDirectory(String path) throws InterruptedException {
 
@@ -128,26 +128,14 @@ public class MainService {
     }
 
     public static void main(String[] args) {
-        Map<Long, Document> documents = new HashMap<>();
-        long i = 0L;
+        ApplicationContext context = new FileSystemXmlApplicationContext("/META-INF/standalone-context"
+                + ".xml");
+
+        MainService bean = context.getBean(MainService.class);
         try {
-            for (; i < 200000000; i++) {
-                Document document = new Document();
-
-                //document.setAuthor(stringHashService.getFromRepository(modsParseResult.getAuthor()));
-                //document.setTitle(stringHashService.getFromRepository(modsParseResult.getTitle()));
-                document.setCreationTime(new Date());
-                String isbn = "12331232313";
-                document.setIsbn(isbn);
-                //                    document.setProtocol(protocolService.getFromRepository(protocolName == null ? DEFAULT_PROTOCOL : protocolName));
-                document.setPublishYear(null);
-            }
-
-        } catch (Exception e) {
+            bean.parseDirectory("C:\\work\\repos\\zharvester\\ZHarvester\\out\\results");
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
-        scanner.close();
     }
 }

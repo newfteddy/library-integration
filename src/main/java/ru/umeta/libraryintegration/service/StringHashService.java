@@ -16,6 +16,8 @@ public class StringHashService {
 
     private final StringHashRepository stringHashRepository;
 
+    private final Map<String, Integer> tokenMap = new HashMap<>();
+
     @Autowired
     public StringHashService(StringHashRepository stringHashRepository) {
         this.stringHashRepository = stringHashRepository;
@@ -50,7 +52,7 @@ public class StringHashService {
             return 0;
         }
 
-        if (string.length() < 4) {
+        if (string.length() < 2) {
             return 0;
         }
 
@@ -84,12 +86,21 @@ public class StringHashService {
     }
 
     private int getHash(String value) {
+        Integer tokenValue = tokenMap.get(value);
+        if (tokenValue != null) {
+            return tokenValue;
+        }
         try {
             byte[] bytes = value.getBytes("UTF-8");
             int result = 0;
             for (byte oneByte : bytes) {
                 result = result*31 + (oneByte & 0xFF);
             }
+            //if the last bit is one shift it to the left on 16 bits.
+            if ((result & 1) == 1) {
+                result = result << 16;
+            }
+            tokenMap.put(value, result);
             return result;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -98,14 +109,7 @@ public class StringHashService {
     }
 
     public Set<String> getSimHashTokens(String string) {
-        if (string == null) {
-            return Collections.emptySet();
-        }
-        if (string.length() < 12) {
-            return getShortTokens(string);
-        } else {
-            return getLongTokens(string);
-        }
+        return getTokens(string);
     }
 
     public Set<String> getTokens(String string) {
@@ -123,21 +127,6 @@ public class StringHashService {
         Set<String> tokens = new HashSet<>();
         for (int i = 0; i < string.length() - 1; i++) {
             final String token = string.substring(i, i + 2);
-            if (!tokens.contains(token)) {
-                tokens.add(token);
-            }
-        }
-        return tokens;
-    }
-
-    private Set<String> getLongTokens(String string) {
-        if (string == null || string.length() == 0) {
-            return null;
-        }
-
-        Set<String> tokens = new HashSet<>();
-        for (int i = 0; i < string.length() - 3; i++) {
-            final String token = string.substring(i, i + 4);
             if (!tokens.contains(token)) {
                 tokens.add(token);
             }
@@ -179,19 +168,5 @@ public class StringHashService {
         intersection.retainAll(tokens2);
 
         return (intersection.size()*1.)/(union.size()*1.);
-    }
-
-    private Set<String> getCharTokens(String string) {
-        Set<String> charTokens = new HashSet<>();
-
-        int length = string.length();
-        for (int i = 0; i < length; i++) {
-            String charToken = String.valueOf(string.charAt(i));
-            if (!charTokens.contains(charToken)) {
-                charTokens.add(charToken);
-            }
-        }
-
-        return charTokens;
     }
 }

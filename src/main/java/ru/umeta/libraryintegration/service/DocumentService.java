@@ -77,7 +77,7 @@ public class DocumentService {
                     document.setIsbn(isbn);
                     document.setPublishYear(modsParseResult.getPublishYear());
                     document.setXml(null);
-                    enrichedDocumentDao.save(document);
+                    enrichedDocumentRepository.save(document);
 //
 //
 //                    ModsParseResult modsParseResult = (ModsParseResult) parseResult;

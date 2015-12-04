@@ -209,12 +209,12 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
     @Override
     public void save(EnrichedDocument enrichedDocument) {
-        toBePersisted.add(enrichedDocument);
-        if (BATCH_SIZE <= toBePersisted.size()) {
-            stringHashRepository.persistTransient();
-            enrichedDocumentDao.persistBatch(toBePersisted);
-            toBePersisted = new ArrayList<>();
-        }
+//        toBePersisted.add(enrichedDocument);
+//        if (BATCH_SIZE <= toBePersisted.size()) {
+//            stringHashRepository.persistTransient();
+//            enrichedDocumentDao.persistBatch(toBePersisted);
+//            toBePersisted = new ArrayList<>();
+//        }
 
     }
 
