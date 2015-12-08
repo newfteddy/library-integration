@@ -61,4 +61,6 @@ war {
 jettyRunWar {
     reload = 'automatic'
     scanIntervalSeconds = 10
+    httpPort = 8083
 }
+

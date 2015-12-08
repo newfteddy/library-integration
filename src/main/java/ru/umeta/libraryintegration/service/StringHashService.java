@@ -3,6 +3,7 @@ package ru.umeta.libraryintegration.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.umeta.libraryintegration.inmemory.StringHashRepository;
 import ru.umeta.libraryintegration.model.StringHash;
+import ru.umeta.libraryintegration.util.ByteTo32SpreadAlgorithm;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
@@ -62,7 +63,11 @@ public class StringHashService {
         Arrays.fill(preHash, 0);
 
         for (String token : tokens) {
-            int tokenHash = getHash(token);
+            Integer tokenHash = tokenMap.get(token);
+            if (tokenHash == null) {
+                tokenHash = ByteTo32SpreadAlgorithm.getHash(token);
+                tokenMap.put(token, tokenHash);
+            }
             if (((tokenHash >>> 16) & 1) == 1) {
                 tokenHash >>>= 16;
                 for (int i = 16; i < 32; i++) {
@@ -96,23 +101,7 @@ public class StringHashService {
         return result;
     }
 
-    private int getHash(String value) {
-        Integer tokenValue = tokenMap.get(value);
-        if (tokenValue != null) {
-            return tokenValue;
-        }
-        char[] chars = value.toCharArray();
-        int result = 0;
-        for (char character : chars) {
-            result = result*31 + (byte) character;
-        }
-        //if the last bit is one shift it to the left on 16 bits.
-        if ((result & 1) == 1) {
-            result = result << 16;
-        }
-        tokenMap.put(value, result);
-        return result;
-    }
+
 
     public Set<String> getSimHashTokens(String string) {
         return getTokens(string);
