@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
-import ru.umeta.libraryintegration.dao.EnrichedDocumentDao;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite;
@@ -68,19 +67,11 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
     Multimap<Integer, EnrichedDocumentLite> yt3t4a2Map = ArrayListMultimap.create();
 
 
-    private final EnrichedDocumentDao enrichedDocumentDao;
     private final StringHashService stringHashService;
-    private final StringHashRepository stringHashRepository;
-
-
-    private List<EnrichedDocument> toBePersisted = new ArrayList<>(BATCH_SIZE);
-
 
     @Autowired
-    public EnrichedDocumentRepository(EnrichedDocumentDao enrichedDocumentDao, StringHashService stringHashService, StringHashRepository stringHashRepository) {
-        this.enrichedDocumentDao = enrichedDocumentDao;
+    public EnrichedDocumentRepository(StringHashService stringHashService) {
         this.stringHashService = stringHashService;
-        this.stringHashRepository = stringHashRepository;
     }
 
     @Override
@@ -321,11 +312,12 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
     @Override
     public void update(EnrichedDocument enrichedDocument) {
-        enrichedDocumentDao.saveOrUpdate(enrichedDocument);
+        //TODO
     }
 
     @Override
     public EnrichedDocument getById(long id) {
-        return enrichedDocumentDao.getById(id);
+        //TODO
+        return null;
     }
 }

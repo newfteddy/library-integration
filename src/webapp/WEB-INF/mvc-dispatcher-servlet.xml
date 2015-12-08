@@ -42,10 +42,7 @@
     <bean id="jsonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
     </bean>
 
-    <bean class="ru.umeta.libraryintegration.service.MainService">
-        <constructor-arg ref="modsXMLParser" />
-    </bean>
-
+    <bean class="ru.umeta.libraryintegration.service.MainService"/>
     <bean class="ru.umeta.libraryintegration.service.DocumentService"/>
     <bean class="ru.umeta.libraryintegration.service.StringHashService"/>
     <bean class="ru.umeta.libraryintegration.service.ProtocolService"/>

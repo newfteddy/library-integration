@@ -24,9 +24,19 @@ public class StringHashFsSaver {
 
     private final BlockingQueue<StringHash> queue = new LinkedBlockingQueue<>();
 
-    private final File storageFile = new File("//Storage//stringHash.blob");
+    private final File storageFile = new File("stringHash.blob");
+
+
 
     public StringHashFsSaver() {
+        //storageFile.mkdirs();
+        if (!storageFile.exists()) {
+            try {
+                storageFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         executorService.execute(() -> {
             try (FileWriterWithEncoding writerWithEncoding = new FileWriterWithEncoding(storageFile, Charsets.UTF_8)) {
                 while (true) {

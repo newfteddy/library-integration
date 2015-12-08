@@ -29,24 +29,15 @@ public class DocumentService {
 
     private final StringHashService stringHashService;
 
-    private final ProtocolService protocolService;
-
     private final IEnrichedDocumentRepository enrichedDocumentRepository;
 
-    private final DocumentRepository documentRepository;
-
     private final ModsXMLParser modsXMLParser;
-
-    private final EnrichedDocumentRepository enrichedDocumentDao;
 
     @Autowired
     public DocumentService(StringHashService stringHashService, ProtocolService protocolService, IEnrichedDocumentRepository enrichedDocumentRepository, DocumentRepository documentRepository, ModsXMLParser modsXMLParser, EnrichedDocumentRepository enrichedDocumentDao) {
         this.stringHashService = stringHashService;
-        this.protocolService = protocolService;
         this.enrichedDocumentRepository = enrichedDocumentRepository;
-        this.documentRepository = documentRepository;
         this.modsXMLParser = modsXMLParser;
-        this.enrichedDocumentDao = enrichedDocumentDao;
     }
 
     public UploadResult processDocumentList(List<ParseResult> resultList, String protocolName) {

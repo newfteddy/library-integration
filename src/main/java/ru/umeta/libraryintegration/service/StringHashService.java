@@ -6,8 +6,6 @@ import ru.umeta.libraryintegration.model.StringHash;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by k.kosolapov on 14.05.2015.
@@ -65,14 +63,27 @@ public class StringHashService {
 
         for (String token : tokens) {
             int tokenHash = getHash(token);
-            for (int i = 0; i < 32; i++) {
-                if (tokenHash % 2 != 0) {
-                    preHash[i]++;
-                } else {
-                    preHash[i]--;
+            if (((tokenHash >>> 16) & 1) == 1) {
+                tokenHash >>>= 16;
+                for (int i = 16; i < 32; i++) {
+                    if (tokenHash % 2 != 0) {
+                        preHash[i]++;
+                    } else {
+                        preHash[i]--;
+                    }
+                    tokenHash = tokenHash >>> 1;
                 }
-                tokenHash = tokenHash >>> 1;
+            } else {
+                for (int i = 0; i < 16; i++) {
+                    if (tokenHash % 2 != 0) {
+                        preHash[i]++;
+                    } else {
+                        preHash[i]--;
+                    }
+                    tokenHash = tokenHash >>> 1;
+                }
             }
+
         }
 
         int result = 0;
@@ -90,22 +101,17 @@ public class StringHashService {
         if (tokenValue != null) {
             return tokenValue;
         }
-        try {
-            byte[] bytes = value.getBytes("UTF-8");
-            int result = 0;
-            for (byte oneByte : bytes) {
-                result = result*31 + (oneByte & 0xFF);
-            }
-            //if the last bit is one shift it to the left on 16 bits.
-            if ((result & 1) == 1) {
-                result = result << 16;
-            }
-            tokenMap.put(value, result);
-            return result;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return 0;
+        char[] chars = value.toCharArray();
+        int result = 0;
+        for (char character : chars) {
+            result = result*31 + (byte) character;
         }
+        //if the last bit is one shift it to the left on 16 bits.
+        if ((result & 1) == 1) {
+            result = result << 16;
+        }
+        tokenMap.put(value, result);
+        return result;
     }
 
     public Set<String> getSimHashTokens(String string) {
