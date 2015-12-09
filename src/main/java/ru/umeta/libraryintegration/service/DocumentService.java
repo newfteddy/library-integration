@@ -67,7 +67,6 @@ public class DocumentService {
                     }
                     document.setIsbn(isbn);
                     document.setPublishYear(modsParseResult.getPublishYear());
-                    document.setXml(null);
                     enrichedDocumentRepository.save(document);
 //
 //
@@ -225,9 +224,5 @@ public class DocumentService {
             }
             return resultList;
         }
-    }
-
-    public void getPersistedData() {
-        enrichedDocumentRepository.getPersistedData();
     }
 }

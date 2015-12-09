@@ -21,8 +21,6 @@ public interface IEnrichedDocumentRepository {
 
     void save(EnrichedDocument enrichedDocument);
 
-    void getPersistedData();
-
     void update(EnrichedDocument enrichedDocument);
 
     EnrichedDocument getById(long id);

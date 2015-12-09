@@ -42,8 +42,6 @@ public class MainService {
 
     public UploadResult parseDirectory(String path) throws InterruptedException {
 
-        documentService.getPersistedData();
-
         List<File> fileList = getFilesToParse(path);
         int total = 0;
         UploadResult result = new UploadResult(0, 0);

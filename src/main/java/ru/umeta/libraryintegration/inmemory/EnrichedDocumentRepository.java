@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import ru.umeta.libraryintegration.fs.EnrichedDocumentFsPersister;
 import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite;
@@ -13,6 +14,7 @@ import ru.umeta.libraryintegration.service.StringHashService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -68,10 +70,16 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
 
     private final StringHashService stringHashService;
+    private final EnrichedDocumentFsPersister fsPersister;
+
+    private final AtomicLong identity = new AtomicLong(0);
 
     @Autowired
-    public EnrichedDocumentRepository(StringHashService stringHashService) {
+    public EnrichedDocumentRepository(StringHashService stringHashService, EnrichedDocumentFsPersister fsPersister) {
         this.stringHashService = stringHashService;
+        this.fsPersister = fsPersister;
+        long lastId = fsPersister.applyToPeristed(this::putIntoMaps);
+        identity.set(lastId + 1);
     }
 
     @Override
@@ -192,20 +200,17 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
     private Integer getHashWithYear(int year, byte hash1, byte hash2, byte hash3) {
         int shift = 8;
         int result = year;
-        result = (result << shift) + hash1;
-        result = (result << shift) + hash2;
-        result = (result << shift) + hash3;
+        result = ((result << shift) + (hash1 & 0xff));
+        result = (result << shift) + (hash2 & 0xff);
+        result = (result << shift) + (hash3 & 0xff);
         return result;
     }
 
     @Override
     public void save(EnrichedDocument enrichedDocument) {
-//        toBePersisted.add(enrichedDocument);
-//        if (BATCH_SIZE <= toBePersisted.size()) {
-//            stringHashRepository.persistTransient();
-//            enrichedDocumentDao.persistBatch(toBePersisted);
-//            toBePersisted = new ArrayList<>();
-//        }
+        enrichedDocument.setId(identity.getAndIncrement());
+        putIntoMaps(enrichedDocument);
+        fsPersister.save(enrichedDocument);
 
     }
 
@@ -293,21 +298,6 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
         t3t4a1Map.put(t3t4a1Hash, lite);
         t3t4a2Map.put(t3t4a2Hash, lite);
 
-    }
-
-    @Override
-    public void getPersistedData() {
-//        long cursor = 0;
-//        int batchSize = 10000;
-//        List<EnrichedDocument> batch;
-//        while (true) {
-//            batch = enrichedDocumentDao.getEnrichedDocumentForIdRange(cursor, batchSize);
-//            if (batch == null || batch.isEmpty()) {
-//                return;
-//            }
-//            batch.stream().forEach(this::putIntoMaps);
-//            cursor = batch.get(batch.size() - 1).getId();
-//        }
     }
 
     @Override

@@ -9,7 +9,7 @@ public class ByteTo32SpreadAlgorithm {
         int result = 0;
         for (char character : chars) {
             byte b;
-            result = (result << 8) + ((b = (byte) character) ^ (b >>> 4));
+            result = (result << 8) + (byte) character;
         }
         //if the last bit is one shift it to the left on 16 bits.
         if ((result & 1) == 1) {
