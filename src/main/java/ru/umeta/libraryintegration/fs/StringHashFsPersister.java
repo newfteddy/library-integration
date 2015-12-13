@@ -86,6 +86,10 @@ public class StringHashFsPersister {
                         String line = it.nextLine();
                         String[] splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR);
 
+                        if (splitStrings.length != 3) {
+                            continue;
+                        }
+
                         byte[] bytes = Hex.decodeHex(splitStrings[0].toCharArray());
                         if (bytes.length < 4) {
                             continue;

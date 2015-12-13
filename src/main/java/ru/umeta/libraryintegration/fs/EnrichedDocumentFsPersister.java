@@ -63,7 +63,7 @@ public class EnrichedDocumentFsPersister {
                     writerWithEncoding.write(SEPARATOR);
                     writerWithEncoding.write(String.valueOf(document.getTitle().getId()));
                     writerWithEncoding.write(SEPARATOR);
-                    writerWithEncoding.write(document.getIsbn());
+                    writerWithEncoding.write(String.valueOf(document.getIsbn()));
                     writerWithEncoding.write(SEPARATOR);
                     writerWithEncoding.write(String.valueOf(document.getPublishYear()));
 //                    writerWithEncoding.write(SEPARATOR);
@@ -109,6 +109,11 @@ public class EnrichedDocumentFsPersister {
                     EnrichedDocument document = new EnrichedDocument();
                     String line = it.nextLine();
                     String[] splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR);
+
+                    if (splitStrings.length != 5) {
+                        continue;
+                    }
+
                     long id = Long.parseLong(splitStrings[0]);
                     document.setId(id);
                     document.setAuthor(stringHashRepository.getById(Long.parseLong(splitStrings[1])));
