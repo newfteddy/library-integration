@@ -21,13 +21,13 @@ public class StringHashRepository {
 
     private final StringHashFsPersister fsPersister;
 
-    private AtomicLong identity = new AtomicLong();
+    private long identity = 0;
 
     @Autowired
     public StringHashRepository(StringHashFsPersister fsPersister) {
         this.fsPersister = fsPersister;
         long lastId = fsPersister.fillMaps(map, idMap);
-        identity.set(lastId + 1);
+        identity = lastId + 1;
         //        fsPersister.fillMap(tokens);
     }
 
@@ -40,7 +40,7 @@ public class StringHashRepository {
     }
 
     public void save(StringHash stringHash) {
-        stringHash.setId(identity.getAndIncrement());
+        stringHash.setId(identity++);
         map.put(stringHash.getValue(), stringHash);
         idMap.put(stringHash.getId(), stringHash);
         fsPersister.save(stringHash);

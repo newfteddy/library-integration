@@ -118,8 +118,11 @@ public class EnrichedDocumentFsPersister {
                     document.setId(id);
                     document.setAuthor(stringHashRepository.getById(Long.parseLong(splitStrings[1])));
                     document.setTitle(stringHashRepository.getById(Long.parseLong(splitStrings[2])));
+                    if (document.getAuthor() == null || document.getTitle() == null) {
+                        continue;
+                    }
                     document.setIsbn(splitStrings[3]);
-                    document.setPublishYear(Integer.parseInt(splitStrings[4]));
+                    document.setPublishYear("null".equals(splitStrings[4]) ? null : Integer.parseInt(splitStrings[4]));
                     lastId = Math.max(id, lastId);
                     consumer.accept(document);
                 }

@@ -72,14 +72,14 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
     private final StringHashService stringHashService;
     private final EnrichedDocumentFsPersister fsPersister;
 
-    private final AtomicLong identity = new AtomicLong(0);
+    private long identity = 0L;
 
     @Autowired
     public EnrichedDocumentRepository(StringHashService stringHashService, EnrichedDocumentFsPersister fsPersister) {
         this.stringHashService = stringHashService;
         this.fsPersister = fsPersister;
         long lastId = fsPersister.applyToPeristed(this::putIntoMaps);
-        identity.set(lastId + 1);
+        identity  = lastId + 1;
     }
 
     @Override
@@ -208,7 +208,7 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
 
     @Override
     public void save(EnrichedDocument enrichedDocument) {
-        enrichedDocument.setId(identity.getAndIncrement());
+        enrichedDocument.setId(identity++);
         putIntoMaps(enrichedDocument);
         fsPersister.save(enrichedDocument);
 

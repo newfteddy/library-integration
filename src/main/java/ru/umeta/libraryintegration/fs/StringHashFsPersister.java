@@ -87,7 +87,15 @@ public class StringHashFsPersister {
                         String[] splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR);
 
                         if (splitStrings.length != 3) {
-                            continue;
+                            if (splitStrings.length == 2 && "00000000".equals(splitStrings[0])) {
+                                String[] newSplitStrings = new String[3];
+                                newSplitStrings[0] = splitStrings[0];
+                                newSplitStrings[1] = splitStrings[1];
+                                newSplitStrings[2] = "";
+                                splitStrings = newSplitStrings;
+                            } else {
+                                continue;
+                            }
                         }
 
                         byte[] bytes = Hex.decodeHex(splitStrings[0].toCharArray());
