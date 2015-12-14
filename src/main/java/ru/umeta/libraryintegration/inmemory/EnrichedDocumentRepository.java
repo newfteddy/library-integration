@@ -14,7 +14,6 @@ import ru.umeta.libraryintegration.service.StringHashService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -78,7 +77,7 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
     public EnrichedDocumentRepository(StringHashService stringHashService, EnrichedDocumentFsPersister fsPersister) {
         this.stringHashService = stringHashService;
         this.fsPersister = fsPersister;
-        long lastId = fsPersister.applyToPeristed(this::putIntoMaps);
+        long lastId = fsPersister.applyToPersisted(this::putIntoMaps);
         identity  = lastId + 1;
     }
 

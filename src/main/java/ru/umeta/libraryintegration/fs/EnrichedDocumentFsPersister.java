@@ -100,7 +100,7 @@ public class EnrichedDocumentFsPersister {
         documentQueue.add(document);
     }
 
-    public long applyToPeristed(Consumer<EnrichedDocument> consumer) {
+    public long applyToPersisted(Consumer<EnrichedDocument> consumer) {
         long lastId = 0;
         try {
             LineIterator it = FileUtils.lineIterator(documentStorageFile, UTF_8);
