@@ -65,7 +65,7 @@ public class StringHashService {
         for (String token : tokens) {
             Integer tokenHash = tokenMap.get(token);
             if (tokenHash == null) {
-                tokenHash = ByteTo32SpreadAlgorithm.getHash(token);
+                tokenHash = ByteTo32SpreadAlgorithm.INSTANCE.getHash(token);
                 tokenMap.put(token, tokenHash);
             }
             if (((tokenHash >>> 16) & 1) == 1) {

@@ -219,12 +219,12 @@ public class EnrichedDocumentRepository implements IEnrichedDocumentRepository {
         EnrichedDocumentLite lite = new EnrichedDocumentLite();
         StringHash author = enrichedDocument.getAuthor();
         StringHash title = enrichedDocument.getTitle();
-        lite.id = id;
-        lite.authorTokens = stringHashService.getTokens(author.getValue());
-        lite.titleTokens = stringHashService.getTokens(title.getValue());
+        lite.setId(id);
+        lite.setAuthorTokens(stringHashService.getTokens(author.getValue()));
+        lite.setTitleTokens(stringHashService.getTokens(title.getValue()));
 
         if (isbn != null ) {
-            lite.nullIsbn = false;
+            lite.setNullIsbn(false);
             isbnMap.put(isbn, lite);
         }
 

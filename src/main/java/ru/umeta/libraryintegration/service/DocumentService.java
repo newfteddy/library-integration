@@ -173,9 +173,9 @@ public class DocumentService {
 
             for (EnrichedDocumentLite nearDuplicate : nearDuplicates) {
 
-                double titleDistance = stringHashService.distance(titleTokens, nearDuplicate.titleTokens);
+                double titleDistance = stringHashService.distance(titleTokens, nearDuplicate.getTitleTokens());
 
-                double authorDistance = stringHashService.distance(authorTokens, nearDuplicate.authorTokens);
+                double authorDistance = stringHashService.distance(authorTokens, nearDuplicate.getAuthorTokens());
 
                 double resultDistance = (titleDistance + authorDistance) / 2;
 
@@ -187,7 +187,7 @@ public class DocumentService {
             }
             document.setDistance(maxDistance);
             if (closestDocument != null) {
-                return enrichedDocumentRepository.getById(closestDocument.id);
+                return enrichedDocumentRepository.getById(closestDocument.getId());
             }
         }
 

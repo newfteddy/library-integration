@@ -1,0 +1,109 @@
+package ru.umeta.libraryintegration.fs
+
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.LineIterator
+import org.apache.commons.io.output.FileWriterWithEncoding
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import org.springframework.util.StringUtils
+import ru.umeta.libraryintegration.inmemory.StringHashRepository
+import ru.umeta.libraryintegration.model.EnrichedDocument
+
+import java.io.File
+import java.io.IOException
+import java.nio.charset.Charset
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.function.Consumer
+
+
+/**
+ * File system persister for [EnrichedDocument].
+ * @author Kirill Kosolapov
+ */
+@Component
+class EnrichedDocumentFsPersister
+@Autowired
+constructor(private val stringHashRepository: StringHashRepository) {
+
+    private val executorService = Executors.newSingleThreadExecutor();
+    private val documentStorageFile = File("enrichedDocument.blob")
+    private val mutex = Object()
+
+    init {
+        if (!documentStorageFile.exists()) {
+            try {
+                documentStorageFile.createNewFile()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun save(document: EnrichedDocument) {
+        executorService.execute {
+            synchronized (mutex) {
+                try {
+                    FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
+                        writerWithEncoding.write(document.id!!.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.author!!.id!!.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.title!!.id!!.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.isbn.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.publishYear!!.toString())
+                        writerWithEncoding.write(SEPARATOR + "\n")
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+
+            }
+        }
+    }
+
+    fun applyToPersisted(consumer: (EnrichedDocument) -> Unit): Long {
+        var lastId: Long = 0
+        try {
+            val it = FileUtils.lineIterator(documentStorageFile, UTF_8)
+            try {
+                while (it.hasNext()) {
+                    val document = EnrichedDocument()
+                    val line = it.nextLine()
+                    val splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR)
+
+                    if (splitStrings.size != 5) {
+                        continue
+                    }
+
+                    val id = java.lang.Long.parseLong(splitStrings[0])
+                    document.id = id
+                    document.author = stringHashRepository.getById(java.lang.Long.parseLong(splitStrings[1]))
+                    document.title = stringHashRepository.getById(java.lang.Long.parseLong(splitStrings[2]))
+                    if (document.author == null || document.title == null) {
+                        continue
+                    }
+                    document.isbn = splitStrings[3]
+                    document.publishYear = if ("null" == splitStrings[4]) null else Integer.parseInt(splitStrings[4])
+                    lastId = Math.max(id, lastId)
+                    consumer(document)
+                }
+            } finally {
+                LineIterator.closeQuietly(it)
+            }
+        } catch (e: IOException) {
+            println("Cannot open the storage file")
+        }
+
+        return lastId
+    }
+
+    companion object {
+        const val SEPARATOR = "|"
+        const val UTF_8 = "UTF-8"
+    }
+}
