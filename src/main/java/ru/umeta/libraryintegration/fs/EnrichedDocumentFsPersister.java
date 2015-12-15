@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import ru.umeta.libraryintegration.inmemory.StringHashRepository;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
-import ru.umeta.libraryintegration.model.XmlBlob;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,23 +19,24 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 /**
- * Created by k.kosolapov on 12/2/2015.
+ * File system persister for {@link EnrichedDocument}.
+ * @author Kirill Kosolapov
  */
 @Component
 public class EnrichedDocumentFsPersister {
 
     private static final String SEPARATOR = "|";
     private static final String UTF_8 = "UTF-8";
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     private final BlockingQueue<EnrichedDocument> documentQueue = new LinkedBlockingQueue<>();
-    private final BlockingQueue<XmlBlob> xmlQueue = new LinkedBlockingQueue<>();
+//    private final BlockingQueue<XmlBlob> xmlQueue = new LinkedBlockingQueue<>();
 
     private final File documentStorageFile = new File("enrichedDocument.blob");
 //    private final File xmlStorageFile = new File("xml.blob");
     private final StringHashRepository stringHashRepository;
 
-
+    private final Object mutex = new Object();
     @Autowired
     public EnrichedDocumentFsPersister(StringHashRepository stringHashRepository) {
         this.stringHashRepository = stringHashRepository;
@@ -57,18 +57,7 @@ public class EnrichedDocumentFsPersister {
                         e.printStackTrace();
                         return;
                     }
-                    writerWithEncoding.write(String.valueOf(document.getId()));
-                    writerWithEncoding.write(SEPARATOR);
-                    writerWithEncoding.write(String.valueOf(document.getAuthor().getId()));
-                    writerWithEncoding.write(SEPARATOR);
-                    writerWithEncoding.write(String.valueOf(document.getTitle().getId()));
-                    writerWithEncoding.write(SEPARATOR);
-                    writerWithEncoding.write(String.valueOf(document.getIsbn()));
-                    writerWithEncoding.write(SEPARATOR);
-                    writerWithEncoding.write(String.valueOf(document.getPublishYear()));
-//                    writerWithEncoding.write(SEPARATOR);
-//                    writerWithEncoding.write(String.valueOf(document.getXmlBlob().getId()));
-                    writerWithEncoding.write(SEPARATOR + "\n");
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -97,7 +86,26 @@ public class EnrichedDocumentFsPersister {
     }
 
     public void save(EnrichedDocument document) {
-        documentQueue.add(document);
+        executorService.execute(() -> {
+            synchronized (mutex) {
+                try (FileWriterWithEncoding writerWithEncoding = new FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true)) {
+                    writerWithEncoding.write(String.valueOf(document.getId()));
+                    writerWithEncoding.write(SEPARATOR);
+                    writerWithEncoding.write(String.valueOf(document.getAuthor().getId()));
+                    writerWithEncoding.write(SEPARATOR);
+                    writerWithEncoding.write(String.valueOf(document.getTitle().getId()));
+                    writerWithEncoding.write(SEPARATOR);
+                    writerWithEncoding.write(String.valueOf(document.getIsbn()));
+                    writerWithEncoding.write(SEPARATOR);
+                    writerWithEncoding.write(String.valueOf(document.getPublishYear()));
+//                    writerWithEncoding.write(SEPARATOR);
+//                    writerWithEncoding.write(String.valueOf(document.getXmlBlob().getId()));
+                    writerWithEncoding.write(SEPARATOR + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public long applyToPersisted(Consumer<EnrichedDocument> consumer) {
