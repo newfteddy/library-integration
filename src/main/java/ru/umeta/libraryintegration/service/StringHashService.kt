@@ -64,7 +64,7 @@ constructor(private val stringHashRepository: StringHashRepository) {
                 }
             } else {
                 for (i in 0..15) {
-                    if (tokenHash!! % 2 != 0) {
+                    if (tokenHash % 2 != 0) {
                         preHash[i]++
                     } else {
                         preHash[i]--

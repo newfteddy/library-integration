@@ -23,8 +23,6 @@ class StringHashFsPersister {
 
     private val executorService = Executors.newSingleThreadExecutor()
 
-    private val queue = LinkedBlockingQueue<StringHash>()
-
     private val storageFile = File("stringHash.blob")
 
 
@@ -42,9 +40,9 @@ class StringHashFsPersister {
         executorService.execute {
             try {
                 FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
-                    writerWithEncoding.write(Hex.encodeHexString(byteArrayOf(stringHash.hashPart1!!, stringHash.hashPart2!!, stringHash.hashPart3!!, stringHash.hashPart4!!)))
+                    writerWithEncoding.write(Hex.encodeHexString(byteArrayOf(stringHash.hashPart1, stringHash.hashPart2, stringHash.hashPart3, stringHash.hashPart4)))
                     writerWithEncoding.write(SEPARATOR)
-                    writerWithEncoding.write(stringHash.id!!.toString())
+                    writerWithEncoding.write(stringHash.id.toString())
                     writerWithEncoding.write(SEPARATOR)
                     writerWithEncoding.write(stringHash.value)
                     writerWithEncoding.write(SEPARATOR + "\n")
@@ -62,7 +60,7 @@ class StringHashFsPersister {
             try {
                 while (it.hasNext()) {
                     try {
-                        val stringHash = StringHash()
+
                         val line = it.nextLine()
                         var splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR)
 
@@ -79,20 +77,24 @@ class StringHashFsPersister {
                         }
 
                         val bytes = Hex.decodeHex(splitStrings[0].toCharArray())
+                        val hashPart1: Byte
+                        val hashPart2: Byte
+                        val hashPart3: Byte
+                        val hashPart4: Byte
+
                         if (bytes.size < 4) {
                             continue
                         } else {
-                            stringHash.hashPart1 = bytes[0]
-                            stringHash.hashPart2 = bytes[1]
-                            stringHash.hashPart3 = bytes[2]
-                            stringHash.hashPart4 = bytes[3]
+                            hashPart1 = bytes[0]
+                            hashPart2 = bytes[1]
+                            hashPart3 = bytes[2]
+                            hashPart4 = bytes[3]
                         }
-                        val id = java.lang.Long.parseLong(splitStrings[1])
-                        stringHash.id = id
+                        val id = splitStrings[1].toLong()
                         lastId = Math.max(id, lastId)
                         val value = splitStrings[2]
-                        stringHash.value = value
 
+                        val stringHash = StringHash(id, value, hashPart1, hashPart2, hashPart3, hashPart4)
                         map.put(value, stringHash)
                         idMap.put(id, stringHash)
 

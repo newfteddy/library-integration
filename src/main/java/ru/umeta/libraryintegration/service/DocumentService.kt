@@ -38,8 +38,6 @@ constructor(val stringHashService: StringHashService,
         for (parseResult in resultList) {
             if (parseResult is ModsParseResult) {
                 try {
-                    val document = EnrichedDocument()
-
                     var author = parseResult.author
                     if (author.length > 255) {
                         author = author.substring(0, 255)
@@ -48,15 +46,15 @@ constructor(val stringHashService: StringHashService,
                     if (title.length > 255) {
                         title = title.substring(0, 255)
                     }
-                    document.author = stringHashService.getFromRepository(author)
-                    document.title = stringHashService.getFromRepository(title)
-                    document.creationTime = Date()
+
+                    val docAuthor = stringHashService.getFromRepository(author)
+                    val docTitle = stringHashService.getFromRepository(title)
                     var isbn: String? = parseResult.isbn
                     if (isbn.isNullOrEmpty()) {
                         isbn = null
                     }
-                    document.isbn = isbn
-                    document.publishYear = parseResult.publishYear
+
+                    val document = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear)
                     enrichedDocumentRepository.save(document)
                     //
                     //

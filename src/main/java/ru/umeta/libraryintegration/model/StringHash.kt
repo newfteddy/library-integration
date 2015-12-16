@@ -1,14 +1,21 @@
 package ru.umeta.libraryintegration.model
 
-import org.hibernate.annotations.NaturalId
-
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
 
 /**
  * Created by ctash on 29.04.2015.
  */
 @Entity
-class StringHash constructor(
+data class StringHash (
+
+        @Id
+        @Column(name = "id")
+        @GeneratedValue
+        var id: Long,
+
         @Column(name = "value", nullable = false)
         val value: String,
 
@@ -22,10 +29,4 @@ class StringHash constructor(
         var hashPart3: Byte,
 
         @Column(name = "hash_part_4", nullable = false)
-        var hashPart4: Byte) {
-
-    @Id
-    @Column(name = "id")
-    @GeneratedValue
-    var id: Long? = null
-}
+        var hashPart4: Byte)

@@ -12,6 +12,7 @@ import ru.umeta.libraryintegration.model.EnrichedDocument
 import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
+import java.util.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -47,15 +48,15 @@ constructor(private val stringHashRepository: StringHashRepository) {
             synchronized (mutex) {
                 try {
                     FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
-                        writerWithEncoding.write(document.id!!.toString())
+                        writerWithEncoding.write(document.id.toString())
                         writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.author!!.id!!.toString())
+                        writerWithEncoding.write(document.author.id.toString())
                         writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.title!!.id!!.toString())
+                        writerWithEncoding.write(document.title.id.toString())
                         writerWithEncoding.write(SEPARATOR)
                         writerWithEncoding.write(document.isbn.toString())
                         writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.publishYear!!.toString())
+                        writerWithEncoding.write(document.publishYear.toString())
                         writerWithEncoding.write(SEPARATOR + "\n")
                     }
                 } catch (e: IOException) {
@@ -72,7 +73,6 @@ constructor(private val stringHashRepository: StringHashRepository) {
             val it = FileUtils.lineIterator(documentStorageFile, UTF_8)
             try {
                 while (it.hasNext()) {
-                    val document = EnrichedDocument()
                     val line = it.nextLine()
                     val splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR)
 
@@ -80,15 +80,15 @@ constructor(private val stringHashRepository: StringHashRepository) {
                         continue
                     }
 
-                    val id = java.lang.Long.parseLong(splitStrings[0])
-                    document.id = id
-                    document.author = stringHashRepository.getById(java.lang.Long.parseLong(splitStrings[1]))
-                    document.title = stringHashRepository.getById(java.lang.Long.parseLong(splitStrings[2]))
-                    if (document.author == null || document.title == null) {
+                    val id = splitStrings[0].toLong()
+                    val author = stringHashRepository.getById(splitStrings[1].toLong())
+                    val title = stringHashRepository.getById(splitStrings[2].toLong())
+                    if (author == null || title == null) {
                         continue
                     }
-                    document.isbn = splitStrings[3]
-                    document.publishYear = if ("null" == splitStrings[4]) null else Integer.parseInt(splitStrings[4])
+                    val isbn = splitStrings[3]
+                    val publishYear = if ("null" == splitStrings[4]) null else splitStrings[4].toInt()
+                    val document = EnrichedDocument(id, title, author, isbn, null, Date(), publishYear)
                     lastId = Math.max(id, lastId)
                     consumer(document)
                 }
