@@ -53,12 +53,12 @@ class MainService
         val result = UploadResult(0, 0)
         for (file in fileList) {
             val startTime = System.nanoTime()
-            val resultList = parser!!.parse(file)
+            val resultList = parser.parse(file)
             val parseTime = System.nanoTime()
             println("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
             println("resultList size is " + resultList.size)
             for (parseResult in resultList) {
-                val saltedResult = documentService!!.addNoise(parseResult, saltLevel)
+                val saltedResult = documentService.addNoise(parseResult, saltLevel)
                 if (saltedResult == null) {
                     println("The parsed result either had no authors or the title was blank.")
                     continue
@@ -70,28 +70,6 @@ class MainService
 
         }
         return result
-    }
-
-    companion object {
-
-
-
-        @Throws(InterruptedException::class)
-        fun parseDirectoryStatic(path: String): UploadResult {
-
-            val fileList = getFilesToParse(path)
-            val result = UploadResult(0, 0)
-            for (file in fileList) {
-                val startTime = System.nanoTime()
-                val resultList = ModsXMLParser().parse(file)
-                val parseTime = System.nanoTime()
-                println("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
-                println("resultList size is " + resultList.size)
-            }
-            return result
-        }
-
-
     }
 }
 
@@ -111,6 +89,19 @@ fun getFilesToParse(path: String): List<File> {
         }
     }
     return emptyList()
+}
+
+fun parseDirectoryStatic(path: String): UploadResult {
+    val fileList = getFilesToParse(path)
+    val result = UploadResult(0, 0)
+    for (file in fileList) {
+        val startTime = System.nanoTime()
+        val resultList = ModsXMLParser().parse(file)
+        val parseTime = System.nanoTime()
+        println("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
+        println("resultList size is " + resultList.size)
+    }
+    return result
 }
 
 fun main(args: Array<String>) {
