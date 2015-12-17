@@ -47,80 +47,80 @@ public class ModsXMLParser implements IXMLParser {
         return resultList;
     }
 
-    public EnrichedDocument enrich(ModsDefinition definition, EnrichedDocument enrichedDocument) {
-        try {
-            ModsDefinition enrichedDefinition = ModsDefinition.Factory.parse(enrichedDocument.getXml());
-            //abstract
-            AbstractDefinition[] newAbstractArray = mergeSimpleProperty(definition.getAbstractArray(), enrichedDefinition.getAbstractArray());
-            enrichedDefinition.setAbstractArray(newAbstractArray);
-            //classification
-            List<ClassificationDefinition> enrichedClassificationArray = mergeComplexProperty(definition.getClassificationArray(), enrichedDefinition.getClassificationArray());
-            enrichedDefinition.setClassificationArray(enrichedClassificationArray.toArray(new ClassificationDefinition[enrichedClassificationArray.size()]));
-
-            //genre
-            List<GenreDefinition> enrichedGenreArray = mergeComplexProperty(definition.getGenreArray(), enrichedDefinition.getGenreArray());
-            enrichedDefinition.setGenreArray(enrichedGenreArray.toArray(new GenreDefinition[enrichedGenreArray.size()]));
-
-            //identifier
-            List<IdentifierDefinition> enrichedIdentifierArray = mergeComplexProperty(definition.getIdentifierArray(), enrichedDefinition.getIdentifierArray());
-            enrichedDefinition.setIdentifierArray(enrichedIdentifierArray.toArray(new IdentifierDefinition[enrichedIdentifierArray.size()]));
-
-            //language
-            List<LanguageDefinition> enrichedLanguageArray = mergeComplexProperty(definition.getLanguageArray(), enrichedDefinition.getLanguageArray());
-            enrichedDefinition.setLanguageArray(enrichedLanguageArray.toArray(new LanguageDefinition[enrichedLanguageArray.size()]));
-
-            //location
-            List<LocationDefinition> enrichedLocationArray = mergeComplexProperty(definition.getLocationArray(), enrichedDefinition.getLocationArray());
-            enrichedDefinition.setLocationArray(enrichedLocationArray.toArray(new LocationDefinition[enrichedLocationArray.size()]));
-
-            //note
-            NoteDefinition[] newNoteArray = mergeSimpleProperty(definition.getNoteArray(), enrichedDefinition.getNoteArray());
-            enrichedDefinition.setNoteArray(newNoteArray);
-
-            //originInfo
-            OriginInfoDefinition[] newOriginInfoArray = mergeSimpleProperty(definition.getOriginInfoArray(), enrichedDefinition.getOriginInfoArray());
-            enrichedDefinition.setOriginInfoArray(newOriginInfoArray);
-
-            //part
-            PartDefinition[] newPartArray = mergeSimpleProperty(definition.getPartArray(), enrichedDefinition.getPartArray());
-            enrichedDefinition.setPartArray(newPartArray);
-
-            //physicalDescription
-            PhysicalDescriptionDefinition[] newPhysicalDescriptionArray = mergeSimpleProperty(definition.getPhysicalDescriptionArray(), enrichedDefinition.getPhysicalDescriptionArray());
-            enrichedDefinition.setPhysicalDescriptionArray(newPhysicalDescriptionArray);
-
-            //recordInfo
-            RecordInfoDefinition[] newRecordInfoArray = mergeSimpleProperty(definition.getRecordInfoArray(), enrichedDefinition.getRecordInfoArray());
-            enrichedDefinition.setRecordInfoArray(newRecordInfoArray);
-
-            //relatedItem
-            List<RelatedItemDefinition> enrichedRelatedItemArray = mergeComplexProperty(definition.getRelatedItemArray(), enrichedDefinition.getRelatedItemArray());
-            enrichedDefinition.setRelatedItemArray(enrichedRelatedItemArray.toArray(new RelatedItemDefinition[enrichedRelatedItemArray.size()]));
-
-            //subject
-            List<SubjectDefinition> enrichedSubjectArray = mergeComplexProperty(definition.getSubjectArray(), enrichedDefinition.getSubjectArray());
-            enrichedDefinition.setSubjectArray(enrichedSubjectArray.toArray(new SubjectDefinition[enrichedSubjectArray.size()]));
-
-            //tableOfContents
-            TableOfContentsDefinition[] newTableOfContentsArray = mergeSimpleProperty(definition.getTableOfContentsArray(), enrichedDefinition.getTableOfContentsArray());
-            enrichedDefinition.setTableOfContentsArray(newTableOfContentsArray);
-
-            //targetAudience
-            TargetAudienceDefinition[] newTargetAudienceArray = mergeSimpleProperty(definition.getTargetAudienceArray(), enrichedDefinition.getTargetAudienceArray());
-            enrichedDefinition.setTargetAudienceArray(newTargetAudienceArray);
-
-            //typeOfResource
-            TypeOfResourceDefinition[] newTypeOfResourceArray = mergeSimpleProperty(definition.getTypeOfResourceArray(), enrichedDefinition.getTypeOfResourceArray());
-            enrichedDefinition.setTypeOfResourceArray(newTypeOfResourceArray);
-
-            enrichedDocument.setXml(enrichedDefinition.xmlText());
-
-            return enrichedDocument;
-        } catch (XmlException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    public EnrichedDocument enrich(ModsDefinition definition, EnrichedDocument enrichedDocument) {
+//        try {
+//            ModsDefinition enrichedDefinition = ModsDefinition.Factory.parse(enrichedDocument.getXml());
+//            //abstract
+//            AbstractDefinition[] newAbstractArray = mergeSimpleProperty(definition.getAbstractArray(), enrichedDefinition.getAbstractArray());
+//            enrichedDefinition.setAbstractArray(newAbstractArray);
+//            //classification
+//            List<ClassificationDefinition> enrichedClassificationArray = mergeComplexProperty(definition.getClassificationArray(), enrichedDefinition.getClassificationArray());
+//            enrichedDefinition.setClassificationArray(enrichedClassificationArray.toArray(new ClassificationDefinition[enrichedClassificationArray.size()]));
+//
+//            //genre
+//            List<GenreDefinition> enrichedGenreArray = mergeComplexProperty(definition.getGenreArray(), enrichedDefinition.getGenreArray());
+//            enrichedDefinition.setGenreArray(enrichedGenreArray.toArray(new GenreDefinition[enrichedGenreArray.size()]));
+//
+//            //identifier
+//            List<IdentifierDefinition> enrichedIdentifierArray = mergeComplexProperty(definition.getIdentifierArray(), enrichedDefinition.getIdentifierArray());
+//            enrichedDefinition.setIdentifierArray(enrichedIdentifierArray.toArray(new IdentifierDefinition[enrichedIdentifierArray.size()]));
+//
+//            //language
+//            List<LanguageDefinition> enrichedLanguageArray = mergeComplexProperty(definition.getLanguageArray(), enrichedDefinition.getLanguageArray());
+//            enrichedDefinition.setLanguageArray(enrichedLanguageArray.toArray(new LanguageDefinition[enrichedLanguageArray.size()]));
+//
+//            //location
+//            List<LocationDefinition> enrichedLocationArray = mergeComplexProperty(definition.getLocationArray(), enrichedDefinition.getLocationArray());
+//            enrichedDefinition.setLocationArray(enrichedLocationArray.toArray(new LocationDefinition[enrichedLocationArray.size()]));
+//
+//            //note
+//            NoteDefinition[] newNoteArray = mergeSimpleProperty(definition.getNoteArray(), enrichedDefinition.getNoteArray());
+//            enrichedDefinition.setNoteArray(newNoteArray);
+//
+//            //originInfo
+//            OriginInfoDefinition[] newOriginInfoArray = mergeSimpleProperty(definition.getOriginInfoArray(), enrichedDefinition.getOriginInfoArray());
+//            enrichedDefinition.setOriginInfoArray(newOriginInfoArray);
+//
+//            //part
+//            PartDefinition[] newPartArray = mergeSimpleProperty(definition.getPartArray(), enrichedDefinition.getPartArray());
+//            enrichedDefinition.setPartArray(newPartArray);
+//
+//            //physicalDescription
+//            PhysicalDescriptionDefinition[] newPhysicalDescriptionArray = mergeSimpleProperty(definition.getPhysicalDescriptionArray(), enrichedDefinition.getPhysicalDescriptionArray());
+//            enrichedDefinition.setPhysicalDescriptionArray(newPhysicalDescriptionArray);
+//
+//            //recordInfo
+//            RecordInfoDefinition[] newRecordInfoArray = mergeSimpleProperty(definition.getRecordInfoArray(), enrichedDefinition.getRecordInfoArray());
+//            enrichedDefinition.setRecordInfoArray(newRecordInfoArray);
+//
+//            //relatedItem
+//            List<RelatedItemDefinition> enrichedRelatedItemArray = mergeComplexProperty(definition.getRelatedItemArray(), enrichedDefinition.getRelatedItemArray());
+//            enrichedDefinition.setRelatedItemArray(enrichedRelatedItemArray.toArray(new RelatedItemDefinition[enrichedRelatedItemArray.size()]));
+//
+//            //subject
+//            List<SubjectDefinition> enrichedSubjectArray = mergeComplexProperty(definition.getSubjectArray(), enrichedDefinition.getSubjectArray());
+//            enrichedDefinition.setSubjectArray(enrichedSubjectArray.toArray(new SubjectDefinition[enrichedSubjectArray.size()]));
+//
+//            //tableOfContents
+//            TableOfContentsDefinition[] newTableOfContentsArray = mergeSimpleProperty(definition.getTableOfContentsArray(), enrichedDefinition.getTableOfContentsArray());
+//            enrichedDefinition.setTableOfContentsArray(newTableOfContentsArray);
+//
+//            //targetAudience
+//            TargetAudienceDefinition[] newTargetAudienceArray = mergeSimpleProperty(definition.getTargetAudienceArray(), enrichedDefinition.getTargetAudienceArray());
+//            enrichedDefinition.setTargetAudienceArray(newTargetAudienceArray);
+//
+//            //typeOfResource
+//            TypeOfResourceDefinition[] newTypeOfResourceArray = mergeSimpleProperty(definition.getTypeOfResourceArray(), enrichedDefinition.getTypeOfResourceArray());
+//            enrichedDefinition.setTypeOfResourceArray(newTypeOfResourceArray);
+//
+//            enrichedDocument.setXml(enrichedDefinition.xmlText());
+//
+//            return enrichedDocument;
+//        } catch (XmlException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
     private <T extends XmlObject> T[] mergeSimpleProperty(T[] propertyArray, T[] enrichedPropertyArray) {
         if (enrichedPropertyArray.length == 0 && propertyArray.length > 0) {

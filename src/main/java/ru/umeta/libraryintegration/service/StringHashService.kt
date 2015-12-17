@@ -26,7 +26,7 @@ constructor(private val stringHashRepository: StringHashRepository) {
         simHash = simHash.ushr(8)
         val simHashPart1 = (simHash % 256).toByte()
 
-        return StringHash(string, simHashPart1, simHashPart2, simHashPart3, simHashPart4)
+        return StringHash(-1, string, simHashPart1, simHashPart2, simHashPart3, simHashPart4)
     }
 
     /**
@@ -110,7 +110,7 @@ constructor(private val stringHashRepository: StringHashRepository) {
             string = string.substring(0, 255)
         }
 
-        var repoStringHash: StringHash? = stringHashRepository.get(string)
+        var repoStringHash: StringHash? = stringHashRepository[string]
         if (repoStringHash == null) {
 
             val stringHash = getStringHash(string)

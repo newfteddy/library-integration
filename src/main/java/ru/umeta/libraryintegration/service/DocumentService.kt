@@ -25,13 +25,10 @@ import com.google.common.base.Preconditions.checkNotNull
 class DocumentService
 @Autowired
 constructor(val stringHashService: StringHashService,
-            val protocolService: ProtocolService,
             val enrichedDocumentRepository: IEnrichedDocumentRepository,
-            val documentRepository: DocumentRepository,
-            val modsXMLParser: ModsXMLParser,
-            val enrichedDocumentDao: EnrichedDocumentRepository) {
+            val modsXMLParser: ModsXMLParser) {
 
-    fun processDocumentList(resultList: List<ParseResult>, protocolName: String): UploadResult {
+    fun processDocumentList(resultList: List<ParseResult>, protocolName: String?): UploadResult {
         val newEnriched = 0
         var parsedDocs = 0
 
@@ -114,73 +111,73 @@ constructor(val stringHashService: StringHashService,
         return UploadResult(parsedDocs, newEnriched)
     }
 
-    private fun mergeDocuments(modsParseResult: ModsParseResult, enrichedDocument: EnrichedDocument) {
-        modsXMLParser.enrich(modsParseResult.modsDefinition, enrichedDocument)
-    }
+//    private fun mergeDocuments(modsParseResult: ModsParseResult, enrichedDocument: EnrichedDocument) {
+//        modsXMLParser.enrich(modsParseResult.modsDefinition, enrichedDocument)
+//    }
 
-    private fun findEnrichedDocument(document: Document): EnrichedDocument? {
-
-        //first check whether the document has isbn or not
-        val isbn = document.isbn
-        val publishYear = document.publishYear
-        var nearDuplicates: List<EnrichedDocumentLite>?
-        if (isbn == null && publishYear == null) {
-            // if it's null, we search through every record in the storage
-            nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document)
-        } else {
-
-            // if it's not null, we search through record where isbn is the same
-            if (publishYear == null) {
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
-
-                if (nearDuplicates == null || nearDuplicates.size == 0) {
-                    // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document)
-                }
-            } else if (isbn == null) {
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
-
-            } else {
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
-
-                if (nearDuplicates == null || nearDuplicates.size == 0) {
-                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
-                }
-            }
-
-        }
-
-        if (nearDuplicates != null && nearDuplicates.size > 0) {
-
-            var maxDistance = 0.0
-            val minDistance = 0.7
-            var closestDocument: EnrichedDocumentLite? = null
-
-            val titleTokens = stringHashService.getTokens(document.title!!.value)
-            val authorTokens = stringHashService.getTokens(document.author!!.value)
-
-            for (nearDuplicate in nearDuplicates) {
-
-                val titleDistance = stringHashService.distance(titleTokens, nearDuplicate.titleTokens)
-
-                val authorDistance = stringHashService.distance(authorTokens, nearDuplicate.authorTokens)
-
-                val resultDistance = (titleDistance + authorDistance) / 2
-
-                if (resultDistance > maxDistance && resultDistance > minDistance) {
-                    maxDistance = resultDistance
-                    closestDocument = nearDuplicate
-                }
-
-            }
-            document.distance = maxDistance
-            if (closestDocument != null) {
-                return enrichedDocumentRepository.getById(closestDocument.id)
-            }
-        }
-
-        return null
-    }
+//    private fun findEnrichedDocument(document: Document): EnrichedDocument? {
+//
+//        //first check whether the document has isbn or not
+//        val isbn = document.isbn
+//        val publishYear = document.publishYear
+//        var nearDuplicates: List<EnrichedDocumentLite>?
+//        if (isbn == null && publishYear == null) {
+//            // if it's null, we search through every record in the storage
+//            nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document)
+//        } else {
+//
+//            // if it's not null, we search through record where isbn is the same
+//            if (publishYear == null) {
+//                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
+//
+//                if (nearDuplicates == null || nearDuplicates.size == 0) {
+//                    // if it didn't find anything, search through record with null isbn.
+//                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document)
+//                }
+//            } else if (isbn == null) {
+//                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
+//
+//            } else {
+//                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
+//
+//                if (nearDuplicates == null || nearDuplicates.size == 0) {
+//                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
+//                }
+//            }
+//
+//        }
+//
+//        if (nearDuplicates != null && nearDuplicates.size > 0) {
+//
+//            var maxDistance = 0.0
+//            val minDistance = 0.7
+//            var closestDocument: EnrichedDocumentLite? = null
+//
+//            val titleTokens = stringHashService.getTokens(document.title!!.value)
+//            val authorTokens = stringHashService.getTokens(document.author!!.value)
+//
+//            for (nearDuplicate in nearDuplicates) {
+//
+//                val titleDistance = stringHashService.distance(titleTokens, nearDuplicate.titleTokens)
+//
+//                val authorDistance = stringHashService.distance(authorTokens, nearDuplicate.authorTokens)
+//
+//                val resultDistance = (titleDistance + authorDistance) / 2
+//
+//                if (resultDistance > maxDistance && resultDistance > minDistance) {
+//                    maxDistance = resultDistance
+//                    closestDocument = nearDuplicate
+//                }
+//
+//            }
+//            document.distance = maxDistance
+//            if (closestDocument != null) {
+//                return enrichedDocumentRepository.getById(closestDocument.id)
+//            }
+//        }
+//
+//        return null
+//    }
 
     fun addNoise(parseResult: ParseResult, saltLevel: Int): List<ParseResult>? {
         val author = parseResult.author
