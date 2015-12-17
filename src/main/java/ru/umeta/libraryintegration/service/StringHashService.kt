@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import ru.umeta.libraryintegration.inmemory.StringHashRepository
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.util.ByteTo32SpreadAlgorithm
+import ru.umeta.libraryintegration.util.MD5To32Algorithm
 import java.util.*
 
 /**
@@ -47,30 +48,21 @@ constructor(private val stringHashRepository: StringHashRepository) {
         Arrays.fill(preHash, 0)
 
         for (token in tokens) {
-            var tokenHash: Int = tokenMap[token]
-            if (tokenHash == null) {
-                tokenHash = ByteTo32SpreadAlgorithm.getHash(token)
+            var tokenHash: Int
+            var mapTokenHash: Int? = tokenMap[token]
+            if (mapTokenHash == null) {
+                tokenHash = MD5To32Algorithm.getHash(token)
                 tokenMap.put(token, tokenHash)
-            }
-            if (((tokenHash.ushr(16)) and 1) == 1) {
-                tokenHash = tokenHash ushr 16
-                for (i in 16..31) {
-                    if (tokenHash!! % 2 != 0) {
-                        preHash[i]++
-                    } else {
-                        preHash[i]--
-                    }
-                    tokenHash = tokenHash.ushr(1)
-                }
             } else {
-                for (i in 0..15) {
-                    if (tokenHash % 2 != 0) {
-                        preHash[i]++
-                    } else {
-                        preHash[i]--
-                    }
-                    tokenHash = tokenHash.ushr(1)
+                tokenHash = mapTokenHash
+            }
+            for (i in 0..31) {
+                if (tokenHash % 2 != 0) {
+                    preHash[i]++
+                } else {
+                    preHash[i]--
                 }
+                tokenHash = tokenHash.ushr(1)
             }
 
         }
