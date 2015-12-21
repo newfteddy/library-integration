@@ -8,6 +8,7 @@ import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.service.MainService
 import ru.umeta.libraryintegration.service.StringHashService
+import ru.umeta.libraryintegration.service.getTokens
 import ru.umeta.libraryintegration.service.parseDirectoryStatic
 import java.util.*
 
@@ -42,7 +43,7 @@ class MainRestController @Autowired constructor(
             println(rightBorder + 1)
             val subString = str.subSequence(0..rightBorder) as String
             val stringHash = stringHashService.getStringHash(subString)
-            val stringHashTokens = stringHashService.getTokens(subString)
+            val stringHashTokens = getTokens(subString)
             var subStringMut:StringBuilder = StringBuilder(subString)
             val shuffleOrder = ArrayList<Int>()
             for (j in 0..rightBorder/2) {

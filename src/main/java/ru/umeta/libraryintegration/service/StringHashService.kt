@@ -72,28 +72,6 @@ constructor(private val stringHashRepository: StringHashRepository) {
         return getTokens(string)
     }
 
-    fun getTokens(string: String?): Set<String> {
-        if (string == null) {
-            return emptySet()
-        }
-        return getShortTokens(string)
-    }
-
-    private fun getShortTokens(string: String?): Set<String> {
-        if (string == null || string.length == 0) {
-            return emptySet();
-        }
-
-        val tokens = HashSet<String>()
-        for (i in 0..string.length - 1 - 1) {
-            val token = string.substring(i, i + 2)
-            if (!tokens.contains(token)) {
-                tokens.add(token)
-            }
-        }
-        return tokens
-    }
-
     fun getFromRepository(string: String): StringHash {
         var string = string
         if (string.length > 255) {
@@ -119,4 +97,19 @@ constructor(private val stringHashRepository: StringHashRepository) {
 
         return (intersection.size * 1.0) / (union.size * 1.0)
     }
+}
+
+public fun getTokens(string: String?): Set<String> {
+    if (string == null || string.length == 0) {
+        return emptySet()
+    }
+
+    val tokens = HashSet<String>()
+    for (i in 0..string.length - 1 - 1) {
+        val token = string.substring(i, i + 2)
+        if (!tokens.contains(token)) {
+            tokens.add(token)
+        }
+    }
+    return tokens
 }

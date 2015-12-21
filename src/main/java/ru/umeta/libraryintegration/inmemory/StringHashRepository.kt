@@ -30,7 +30,7 @@ constructor(//    private Map<String, Set<String>> tokens = new HashMap<>();
     }
 
     operator fun get(string: String): StringHash? {
-        return map[string]
+        return map[string.hashCode()]
     }
 
     fun getById(id: Long?): StringHash? {

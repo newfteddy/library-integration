@@ -5,25 +5,21 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
 import org.apache.commons.io.output.FileWriterWithEncoding
 import org.apache.commons.codec.binary.Hex
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.model.StringHash
-import ru.umeta.libraryintegration.service.StringHashService
+import ru.umeta.libraryintegration.service.getTokens
 
 import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
 import java.util.concurrent.Executors
-import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * Created by k.kosolapov on 12/2/2015.
  */
 @Component
-class StringHashFsPersister
-@Autowired
-constructor(val stringHashService: StringHashService) {
+class StringHashFsPersister {
 
     private val executorService = Executors.newSingleThreadExecutor()
 
@@ -41,20 +37,20 @@ constructor(val stringHashService: StringHashService) {
     }
 
     fun save(stringHash: StringHash, value: String) {
-        executorService.execute {
-            try {
-                FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
-                    writerWithEncoding.write(Hex.encodeHexString(byteArrayOf(stringHash.hashPart1, stringHash.hashPart2, stringHash.hashPart3, stringHash.hashPart4)))
-                    writerWithEncoding.write(SEPARATOR)
-                    writerWithEncoding.write(stringHash.id.toString())
-                    writerWithEncoding.write(SEPARATOR)
-                    writerWithEncoding.write(value)
-                    writerWithEncoding.write(SEPARATOR + "\n")
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
+//        executorService.execute {
+//            try {
+//                FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
+//                    writerWithEncoding.write(Hex.encodeHexString(byteArrayOf(stringHash.hashPart1, stringHash.hashPart2, stringHash.hashPart3, stringHash.hashPart4)))
+//                    writerWithEncoding.write(SEPARATOR)
+//                    writerWithEncoding.write(stringHash.id.toString())
+//                    writerWithEncoding.write(SEPARATOR)
+//                    writerWithEncoding.write(value)
+//                    writerWithEncoding.write(SEPARATOR + "\n")
+//                }
+//            } catch (e: IOException) {
+//                e.printStackTrace()
+//            }
+//        }
     }
 
     fun fillMaps(map: MutableMap<Int, StringHash>, idMap: MutableMap<Long, StringHash>): Long {
@@ -97,7 +93,7 @@ constructor(val stringHashService: StringHashService) {
                         val id = splitStrings[1].toLong()
                         lastId = Math.max(id, lastId)
                         val value = splitStrings[2]
-                        val tokens = stringHashService.getSimHashTokens(value)
+                        val tokens = getTokens(value)
                         val stringHash = StringHash(id, tokens, hashPart1, hashPart2, hashPart3, hashPart4)
                         map.put(value.hashCode(), stringHash)
                         idMap.put(id, stringHash)

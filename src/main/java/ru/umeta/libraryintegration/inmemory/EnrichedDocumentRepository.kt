@@ -33,7 +33,7 @@ class EnrichedDocumentRepository
 @Autowired
 constructor(private val stringHashService: StringHashService, private val fsPersister: EnrichedDocumentFsPersister) : IEnrichedDocumentRepository {
 
-    internal var isbnMap: Multimap<String, EnrichedDocumentLite> = ArrayListMultimap.create<String, EnrichedDocumentLite>()
+    internal var isbnMap: Multimap<Int, EnrichedDocumentLite> = ArrayListMultimap.create<String, EnrichedDocumentLite>()
 
     //no year maps
     internal var t1t2a1Map: Multimap<Int, EnrichedDocumentLite> = ArrayListMultimap.create<Int, EnrichedDocumentLite>()
