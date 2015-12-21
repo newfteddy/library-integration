@@ -57,7 +57,7 @@ class MainRestController @Autowired constructor(
                     subStringMut = StringBuilder(subString)
                     Collections.shuffle(shuffleOrder)
                     for (k in 0..j) {
-                        subStringMut.setCharAt(shuffleOrder[k], 'ð' + j)
+                        subStringMut.setCharAt(shuffleOrder[k], 'ð' + k)
                     }
                     val subStringMutated = subStringMut.toString()
                     val tokens = stringHashService.getSimHashTokens(subStringMutated)

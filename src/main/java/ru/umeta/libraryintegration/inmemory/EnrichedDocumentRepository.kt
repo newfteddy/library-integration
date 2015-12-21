@@ -199,8 +199,8 @@ constructor(private val stringHashService: StringHashService, private val fsPers
         val isbn = enrichedDocument.isbn
         val author = enrichedDocument.author
         val title = enrichedDocument.title
-        val authorTokens = stringHashService.getTokens(author.value)
-        val titleTokens = stringHashService.getTokens(title.value)
+        val authorTokens = author.tokens
+        val titleTokens = title.tokens
         val lite = EnrichedDocumentLite(id, authorTokens, titleTokens)
         if (isbn != null) {
             lite.nullIsbn = false

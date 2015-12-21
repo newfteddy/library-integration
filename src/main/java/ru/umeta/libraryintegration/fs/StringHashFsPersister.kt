@@ -5,9 +5,11 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
 import org.apache.commons.io.output.FileWriterWithEncoding
 import org.apache.commons.codec.binary.Hex
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.model.StringHash
+import ru.umeta.libraryintegration.service.StringHashService
 
 import java.io.File
 import java.io.IOException
@@ -19,7 +21,9 @@ import java.util.concurrent.LinkedBlockingQueue
  * Created by k.kosolapov on 12/2/2015.
  */
 @Component
-class StringHashFsPersister {
+class StringHashFsPersister
+@Autowired
+constructor(val stringHashService: StringHashService) {
 
     private val executorService = Executors.newSingleThreadExecutor()
 
@@ -36,7 +40,7 @@ class StringHashFsPersister {
         }
     }
 
-    fun save(stringHash: StringHash) {
+    fun save(stringHash: StringHash, value: String) {
         executorService.execute {
             try {
                 FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
@@ -44,7 +48,7 @@ class StringHashFsPersister {
                     writerWithEncoding.write(SEPARATOR)
                     writerWithEncoding.write(stringHash.id.toString())
                     writerWithEncoding.write(SEPARATOR)
-                    writerWithEncoding.write(stringHash.value)
+                    writerWithEncoding.write(value)
                     writerWithEncoding.write(SEPARATOR + "\n")
                 }
             } catch (e: IOException) {
@@ -53,7 +57,7 @@ class StringHashFsPersister {
         }
     }
 
-    fun fillMaps(map: MutableMap<String, StringHash>, idMap: MutableMap<Long, StringHash>): Long {
+    fun fillMaps(map: MutableMap<Int, StringHash>, idMap: MutableMap<Long, StringHash>): Long {
         var lastId: Long = 0
         try {
             val it = FileUtils.lineIterator(storageFile, UTF_8)
@@ -93,9 +97,9 @@ class StringHashFsPersister {
                         val id = splitStrings[1].toLong()
                         lastId = Math.max(id, lastId)
                         val value = splitStrings[2]
-
-                        val stringHash = StringHash(id, value, hashPart1, hashPart2, hashPart3, hashPart4)
-                        map.put(value, stringHash)
+                        val tokens = stringHashService.getSimHashTokens(value)
+                        val stringHash = StringHash(id, tokens, hashPart1, hashPart2, hashPart3, hashPart4)
+                        map.put(value.hashCode(), stringHash)
                         idMap.put(id, stringHash)
 
                     } catch (e: DecoderException) {

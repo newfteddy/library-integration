@@ -16,8 +16,7 @@ data class StringHash (
         @GeneratedValue
         var id: Long,
 
-        @Column(name = "value", nullable = false)
-        val value: String,
+        val tokens: Set<String>,
 
         @Column(name = "hash_part_1", nullable = false)
         val hashPart1: Byte,

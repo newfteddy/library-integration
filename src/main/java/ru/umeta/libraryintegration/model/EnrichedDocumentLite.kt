@@ -1,11 +1,9 @@
 package ru.umeta.libraryintegration.model
 
-import java.util.HashSet
-
 /**
  * Created by k.kosolapov on 11/26/2015.
  */
-class EnrichedDocumentLite(
+data class EnrichedDocumentLite(
         val id: Long,
         val authorTokens: Set<String>,
         val titleTokens: Set<String>,

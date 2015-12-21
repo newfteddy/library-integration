@@ -18,7 +18,7 @@ constructor(//    private Map<String, Set<String>> tokens = new HashMap<>();
 
         private val fsPersister: StringHashFsPersister) {
 
-    private val map = HashMap<String, StringHash>()
+    private val map = HashMap<Int, StringHash>()
     private val idMap = HashMap<Long, StringHash>()
 
     private var identity: Long = 0
@@ -37,10 +37,10 @@ constructor(//    private Map<String, Set<String>> tokens = new HashMap<>();
         return idMap[id]
     }
 
-    fun save(stringHash: StringHash) {
+    fun save(stringHash: StringHash, value: String) {
         stringHash.id = identity++
-        map.put(stringHash.value, stringHash)
+        map.put(value.hashCode(), stringHash)
         idMap.put(stringHash.id, stringHash)
-        fsPersister.save(stringHash)
+        fsPersister.save(stringHash, value)
     }
 }
