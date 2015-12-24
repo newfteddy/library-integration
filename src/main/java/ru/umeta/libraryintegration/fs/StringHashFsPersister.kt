@@ -94,7 +94,10 @@ class StringHashFsPersister {
                         lastId = Math.max(id, lastId)
                         val value = splitStrings[2]
                         val tokens = getTokens(value)
-                        val stringHash = StringHash(id, tokens, hashPart1, hashPart2, hashPart3, hashPart4)
+                        val simHash = StringHash.Util.collectParts(hashPart1, hashPart2, hashPart3, hashPart4)
+
+                        val stringHash = StringHash(id, tokens, simHash)
+
                         map.put(value.hashCode(), stringHash)
                         idMap.put(id, stringHash)
 

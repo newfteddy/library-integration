@@ -1,21 +1,49 @@
 package ru.umeta.libraryintegration.model
 
-import javax.persistence.Column
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
 
 /**
  * Created by ctash on 29.04.2015.
  */
 @Entity
-data class StringHash (
+data class StringHash (var id: Long,
+                       val tokens: Set<Int>,
+                       val simHash: Int) {
 
-        @Id
-        @Column(name = "id")
-        @GeneratedValue
-        var id: Long,
+    fun hashPart1(): Byte {
+        return ((simHash and 0xff000000.toInt()) ushr 24).toByte()
+    }
 
-        val tokens: Set<Bigramm>,
+    fun hashPart2(): Byte {
+        return ((simHash and 0x00ff0000) ushr 16).toByte()
+    }
 
-        val simHash: Int)
+    fun hashPart3(): Byte {
+        return ((simHash and 0x0000ff00) ushr 8).toByte()
+    }
+
+    fun hashPart4(): Byte {
+        return (simHash and 0x000000ff).toByte()
+    }
+
+    object Util {
+        fun collectParts(vararg bytes: Byte): Int {
+            if (bytes.size != 4) {
+                throw IllegalArgumentException("The size of byte array is not 4.")
+            }
+
+            val hashPart1 = bytes[0]
+            val hashPart2 = bytes[1]
+            val hashPart3 = bytes[2]
+            val hashPart4 = bytes[3]
+
+            var result: Int = 0;
+            result = (result shl 8) + hashPart1.toInt()
+            result = (result shl 8) + hashPart2.toInt()
+            result = (result shl 8) + hashPart3.toInt()
+            result = (result shl 8) + hashPart4.toInt()
+
+            return result
+        }
+    }
+}

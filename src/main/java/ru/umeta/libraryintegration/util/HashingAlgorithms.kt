@@ -1,5 +1,6 @@
 package ru.umeta.libraryintegration.util
 
+import java.nio.ByteBuffer
 import java.security.MessageDigest
 
 /**
@@ -21,9 +22,9 @@ object ByteTo32SpreadAlgorithm {
 }
 
 object MD5To32Algorithm {
-    fun getHash(value: String): Int {
+    fun getHash(value: Int): Int {
         val messageDigest = MessageDigest.getInstance("MD5")
-        val bytes = messageDigest.digest(value.toByteArray("UTF-8"))
+        val bytes = messageDigest.digest(ByteBuffer.allocate(4).putInt(value).array())
         var result = 0;
         for (byte in bytes) {
             result = (result shl 8) + byte;

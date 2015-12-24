@@ -3,6 +3,8 @@ package ru.umeta.libraryintegration.service
 import org.springframework.beans.factory.annotation.Autowired
 import ru.umeta.libraryintegration.inmemory.StringHashRepository
 import ru.umeta.libraryintegration.model.StringHash
+import ru.umeta.libraryintegration.model.bigrammToInt
+import ru.umeta.libraryintegration.model.getBigrammChars
 import ru.umeta.libraryintegration.util.MD5To32Algorithm
 import java.util.*
 
@@ -13,11 +15,11 @@ class StringHashService
 @Autowired
 constructor(private val stringHashRepository: StringHashRepository) {
 
-    private val tokenMap = HashMap<String, Int>()
+    private val tokenMap = HashMap<Int, Int>()
 
     fun getStringHash(string: String): StringHash {
         var simHash = 0
-        val tokens: Set<String>
+        val tokens: Set<Int>
         if (string.length < 2) {
             simHash = 0
             tokens = emptySet()
@@ -57,18 +59,11 @@ constructor(private val stringHashRepository: StringHashRepository) {
             }
         }
 
-        val simHashPart4 = (simHash % 256).toByte()
-        simHash = simHash.ushr(8)
-        val simHashPart3 = (simHash % 256).toByte()
-        simHash = simHash.ushr(8)
-        val simHashPart2 = (simHash % 256).toByte()
-        simHash = simHash.ushr(8)
-        val simHashPart1 = (simHash % 256).toByte()
 
-        return StringHash(-1, tokens, simHashPart1, simHashPart2, simHashPart3, simHashPart4)
+        return StringHash(-1, tokens, simHash)
     }
 
-    fun getSimHashTokens(string: String): Set<String> {
+    fun getSimHashTokens(string: String): Set<Int> {
         return getTokens(string)
     }
 
@@ -88,7 +83,7 @@ constructor(private val stringHashRepository: StringHashRepository) {
         return repoStringHash
     }
 
-    fun distance(tokens1: Set<String>, tokens2: Set<String>): Double {
+    fun distance(tokens1: Set<Int>, tokens2: Set<Int>): Double {
         val union = HashSet(tokens1)
         val intersection = HashSet(tokens1)
 
@@ -99,16 +94,16 @@ constructor(private val stringHashRepository: StringHashRepository) {
     }
 }
 
-public fun getTokens(string: String?): Set<String> {
+public fun getTokens(string: String?): Set<Int> {
     if (string == null || string.length == 0) {
         return emptySet()
     }
 
-    val tokens = HashSet<String>()
+    val tokens = HashSet<Int>()
     for (i in 0..string.length - 1 - 1) {
-        val token = string.substring(i, i + 2)
-        if (!tokens.contains(token)) {
-            tokens.add(token)
+        val bigramm = bigrammToInt(string.substring(i, i + 2));
+        if (!tokens.contains(bigramm)) {
+            tokens.add(bigramm)
         }
     }
     return tokens

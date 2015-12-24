@@ -36,15 +36,14 @@ class MainRestController @Autowired constructor(
 
     @RequestMapping("/bench")
     fun benchmark() {
-        val str = "Россолимо Т. Е. Рыбалов Л. Б. Москвина-Тарханова И. А. Акад. пед. и социал. наук Моск. психол.-социа"
+        val str: String = "Россолимо Т. Е. Рыбалов Л. Б. Москвина-Тарханова И. А. Акад. пед. и социал. наук Моск. психол.-социа"
         var rightBorder = 9;
         while (rightBorder < 100) {
             println("__________________________________")
             println(rightBorder + 1)
-            val subString = str.subSequence(0..rightBorder) as String
+            val subString = str.substring(0..rightBorder)
             val stringHash = stringHashService.getStringHash(subString)
             val stringHashTokens = getTokens(subString)
-            var subStringMut:StringBuilder = StringBuilder(subString)
             val shuffleOrder = ArrayList<Int>()
             for (j in 0..rightBorder/2) {
                 shuffleOrder.add(j)
@@ -55,7 +54,7 @@ class MainRestController @Autowired constructor(
                 var sameHashCount3 = 0;
                 var dist = 0.0;
                 for (i in 0..999) {
-                    subStringMut = StringBuilder(subString)
+                    var subStringMut = StringBuilder(subString)
                     Collections.shuffle(shuffleOrder)
                     for (k in 0..j) {
                         subStringMut.setCharAt(shuffleOrder[k], 'ð' + k)
@@ -66,16 +65,16 @@ class MainRestController @Autowired constructor(
                     dist += stringHashService.distance(stringHashTokens, tokens)
 
                     var partsSame = 0;
-                    if (stringHash.hashPart1 == mutStringHash.hashPart1) {
+                    if (stringHash.hashPart1() == mutStringHash.hashPart1()) {
                         partsSame++;
                     }
-                    if (stringHash.hashPart2 == mutStringHash.hashPart2) {
+                    if (stringHash.hashPart2() == mutStringHash.hashPart2()) {
                         partsSame++;
                     }
-                    if (stringHash.hashPart3 == mutStringHash.hashPart3) {
+                    if (stringHash.hashPart3() == mutStringHash.hashPart3()) {
                         partsSame++;
                     }
-                    if (stringHash.hashPart4 == mutStringHash.hashPart4) {
+                    if (stringHash.hashPart4() == mutStringHash.hashPart4()) {
                         partsSame++;
                     }
                     if (partsSame >= 1) {

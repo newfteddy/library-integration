@@ -74,13 +74,13 @@ constructor(private val stringHashService: StringHashService, private val fsPers
 //        val author = document.author
 //        val title = document.title
 //
-//        val a1 = author.hashPart1
-//        val a2 = author.hashPart2
+//        val a1 = author.hashPart1()
+//        val a2 = author.hashPart2()
 //
-//        val t1 = title.hashPart1
-//        val t2 = title.hashPart2
-//        val t3 = title.hashPart3
-//        val t4 = title.hashPart4
+//        val t1 = title.hashPart1()
+//        val t2 = title.hashPart2()
+//        val t3 = title.hashPart3()
+//        val t4 = title.hashPart4()
 //
 //        val yt1t2a1Hash = getHashWithoutYear(t1, t2, a1)
 //        val yt1t2a2Hash = getHashWithoutYear(t1, t2, a2)
@@ -137,13 +137,13 @@ constructor(private val stringHashService: StringHashService, private val fsPers
 //        val title = document.title
 //        val year = document.publishYear
 //
-//        val a1 = author.hashPart1
-//        val a2 = author.hashPart2
+//        val a1 = author.hashPart1()
+//        val a2 = author.hashPart2()
 //
-//        val t1 = title.hashPart1
-//        val t2 = title.hashPart2
-//        val t3 = title.hashPart3
-//        val t4 = title.hashPart4
+//        val t1 = title.hashPart1()
+//        val t2 = title.hashPart2()
+//        val t3 = title.hashPart3()
+//        val t4 = title.hashPart4()
 //
 //        val yt1t2a1Hash = getHashWithYear(year!!, t1, t2, a1)
 //        val yt1t2a2Hash = getHashWithYear(year, t1, t2, a2)
@@ -210,13 +210,13 @@ constructor(private val stringHashService: StringHashService, private val fsPers
 
         val year = enrichedDocument.publishYear
 
-        val a1 = author.hashPart1
-        val a2 = author.hashPart2
+        val a1 = author.hashPart1()
+        val a2 = author.hashPart2()
 
-        val t1 = title.hashPart1
-        val t2 = title.hashPart2
-        val t3 = title.hashPart3
-        val t4 = title.hashPart4
+        val t1 = title.hashPart1()
+        val t2 = title.hashPart2()
+        val t3 = title.hashPart3()
+        val t4 = title.hashPart4()
 
         val t1t2a1Hash = getHashWithoutYear(t1, t2, a1)
         val t1t2a2Hash = getHashWithoutYear(t1, t2, a2)

@@ -48,11 +48,11 @@ constructor(val stringHashService: StringHashService,
                     val docTitle = stringHashService.getFromRepository(title)
                     var isbn: String? = parseResult.isbn
                     if (isbn.isNullOrEmpty()) {
-                        isbn = null
                     }
+                    isbn = null
 
-//                    val document = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear)
-//                    enrichedDocumentRepository.save(document)
+                    val document = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear)
+                    enrichedDocumentRepository.save(document)
                     //
                     //
                     //                    ModsParseResult modsParseResult = (ModsParseResult) parseResult;
