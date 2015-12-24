@@ -51,8 +51,8 @@ constructor(val stringHashService: StringHashService,
                         isbn = null
                     }
 
-                    val document = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear)
-                    enrichedDocumentRepository.save(document)
+//                    val document = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear)
+//                    enrichedDocumentRepository.save(document)
                     //
                     //
                     //                    ModsParseResult modsParseResult = (ModsParseResult) parseResult;

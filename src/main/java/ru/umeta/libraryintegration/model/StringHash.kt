@@ -16,16 +16,6 @@ data class StringHash (
         @GeneratedValue
         var id: Long,
 
-        val tokens: Set<String>,
+        val tokens: Set<Bigramm>,
 
-        @Column(name = "hash_part_1", nullable = false)
-        val hashPart1: Byte,
-
-        @Column(name = "hash_part_2", nullable = false)
-        var hashPart2: Byte,
-
-        @Column(name = "hash_part_3", nullable = false)
-        var hashPart3: Byte,
-
-        @Column(name = "hash_part_4", nullable = false)
-        var hashPart4: Byte)
+        val simHash: Int)

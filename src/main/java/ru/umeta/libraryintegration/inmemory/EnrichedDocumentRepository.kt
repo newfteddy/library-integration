@@ -33,7 +33,7 @@ class EnrichedDocumentRepository
 @Autowired
 constructor(private val stringHashService: StringHashService, private val fsPersister: EnrichedDocumentFsPersister) : IEnrichedDocumentRepository {
 
-    internal var isbnMap: Multimap<Int, EnrichedDocumentLite> = ArrayListMultimap.create<String, EnrichedDocumentLite>()
+    internal var isbnMap: Multimap<Int, EnrichedDocumentLite> = ArrayListMultimap.create<Int, EnrichedDocumentLite>()
 
     //no year maps
     internal var t1t2a1Map: Multimap<Int, EnrichedDocumentLite> = ArrayListMultimap.create<Int, EnrichedDocumentLite>()
@@ -124,7 +124,7 @@ constructor(private val stringHashService: StringHashService, private val fsPers
     }
 
     override fun getNearDuplicatesWithIsbn(document: Document): List<EnrichedDocumentLite> {
-        return isbnMap.get(document.isbn).toList();
+        return isbnMap.get(document.isbn?.hashCode()).toList();
     }
 
 //    override fun getNearDuplicatesWithNullIsbn(document: Document): List<EnrichedDocumentLite> {
@@ -204,7 +204,7 @@ constructor(private val stringHashService: StringHashService, private val fsPers
         val lite = EnrichedDocumentLite(id, authorTokens, titleTokens)
         if (isbn != null) {
             lite.nullIsbn = false
-            isbnMap.put(isbn, lite)
+            isbnMap.put(isbn.hashCode(), lite)
         }
 
 
