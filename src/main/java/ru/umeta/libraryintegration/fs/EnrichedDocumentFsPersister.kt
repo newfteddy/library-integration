@@ -44,27 +44,27 @@ constructor(private val stringHashRepository: StringHashRepository) {
     }
 
     fun save(document: EnrichedDocument) {
-//        executorService.execute {
-//            synchronized (mutex) {
-//                try {
-//                    FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
-//                        writerWithEncoding.write(document.id.toString())
-//                        writerWithEncoding.write(SEPARATOR)
-//                        writerWithEncoding.write(document.author.id.toString())
-//                        writerWithEncoding.write(SEPARATOR)
-//                        writerWithEncoding.write(document.title.id.toString())
-//                        writerWithEncoding.write(SEPARATOR)
-//                        writerWithEncoding.write(document.isbn.toString())
-//                        writerWithEncoding.write(SEPARATOR)
-//                        writerWithEncoding.write(document.publishYear.toString())
-//                        writerWithEncoding.write(SEPARATOR + "\n")
-//                    }
-//                } catch (e: IOException) {
-//                    e.printStackTrace()
-//                }
-//
-//            }
-//        }
+        executorService.execute {
+            synchronized (mutex) {
+                try {
+                    FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
+                        writerWithEncoding.write(document.id.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.author.id.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.title.id.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.isbn.toString())
+                        writerWithEncoding.write(SEPARATOR)
+                        writerWithEncoding.write(document.publishYear.toString())
+                        writerWithEncoding.write(SEPARATOR + "\n")
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+
+            }
+        }
     }
 
     fun applyToPersisted(consumer: (EnrichedDocument) -> Unit): Long {

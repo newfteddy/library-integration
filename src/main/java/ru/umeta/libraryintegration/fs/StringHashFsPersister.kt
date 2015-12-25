@@ -37,20 +37,24 @@ class StringHashFsPersister {
     }
 
     fun save(stringHash: StringHash, value: String) {
-//        executorService.execute {
-//            try {
-//                FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
-//                    writerWithEncoding.write(Hex.encodeHexString(byteArrayOf(stringHash.hashPart1, stringHash.hashPart2, stringHash.hashPart3, stringHash.hashPart4)))
-//                    writerWithEncoding.write(SEPARATOR)
-//                    writerWithEncoding.write(stringHash.id.toString())
-//                    writerWithEncoding.write(SEPARATOR)
-//                    writerWithEncoding.write(value)
-//                    writerWithEncoding.write(SEPARATOR + "\n")
-//                }
-//            } catch (e: IOException) {
-//                e.printStackTrace()
-//            }
-//        }
+        executorService.execute {
+            try {
+                FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
+                    writerWithEncoding.write(Hex.encodeHexString(
+                            byteArrayOf(stringHash.hashPart1(),
+                                        stringHash.hashPart2(),
+                                        stringHash.hashPart3(),
+                                        stringHash.hashPart4())))
+                    writerWithEncoding.write(SEPARATOR)
+                    writerWithEncoding.write(stringHash.id.toString())
+                    writerWithEncoding.write(SEPARATOR)
+                    writerWithEncoding.write(value)
+                    writerWithEncoding.write(SEPARATOR + "\n")
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun fillMaps(map: MutableMap<Int, StringHash>, idMap: MutableMap<Long, StringHash>): Long {
