@@ -70,49 +70,49 @@ constructor(private val stringHashService: StringHashService, private val fsPers
         identity = lastId + 1
     }
 
-//    override fun getNearDuplicates(document: Document): List<EnrichedDocumentLite> {
-//        val author = document.author
-//        val title = document.title
-//
-//        val a1 = author.hashPart1()
-//        val a2 = author.hashPart2()
-//
-//        val t1 = title.hashPart1()
-//        val t2 = title.hashPart2()
-//        val t3 = title.hashPart3()
-//        val t4 = title.hashPart4()
-//
-//        val yt1t2a1Hash = getHashWithoutYear(t1, t2, a1)
-//        val yt1t2a2Hash = getHashWithoutYear(t1, t2, a2)
-//        val yt1t3a1Hash = getHashWithoutYear(t1, t3, a1)
-//        val yt1t3a2Hash = getHashWithoutYear(t1, t3, a2)
-//        val yt1t4a1Hash = getHashWithoutYear(t1, t4, a1)
-//        val yt1t4a2Hash = getHashWithoutYear(t1, t4, a2)
-//
-//        val yt2t3a1Hash = getHashWithoutYear(t2, t3, a1)
-//        val yt2t3a2Hash = getHashWithoutYear(t2, t3, a2)
-//        val yt2t4a1Hash = getHashWithoutYear(t2, t4, a1)
-//        val yt2t4a2Hash = getHashWithoutYear(t2, t4, a2)
-//
-//        val yt3t4a1Hash = getHashWithoutYear(t3, t4, a1)
-//        val yt3t4a2Hash = getHashWithoutYear(t3, t4, a2)
-//
-//        val result = ArrayList<EnrichedDocumentLite>()
-//
-//        result.addAll(t1t2a1Map.get(yt1t2a1Hash))
-//        result.addAll(t1t2a2Map.get(yt1t2a2Hash))
-//        result.addAll(t1t3a1Map.get(yt1t3a1Hash))
-//        result.addAll(t1t3a2Map.get(yt1t3a2Hash))
-//        result.addAll(t1t4a1Map.get(yt1t4a1Hash))
-//        result.addAll(t1t4a2Map.get(yt1t4a2Hash))
-//        result.addAll(t2t3a1Map.get(yt2t3a1Hash))
-//        result.addAll(t2t3a2Map.get(yt2t3a2Hash))
-//        result.addAll(t2t4a1Map.get(yt2t4a1Hash))
-//        result.addAll(t2t4a2Map.get(yt2t4a2Hash))
-//        result.addAll(t3t4a1Map.get(yt3t4a1Hash))
-//        result.addAll(t3t4a2Map.get(yt3t4a2Hash))
-//        return result.distinct().toList();
-//    }
+    override fun getNearDuplicates(document: Document): List<EnrichedDocumentLite> {
+        val author = document.author
+        val title = document.title
+
+        val a1 = author.hashPart1()
+        val a2 = author.hashPart2()
+
+        val t1 = title.hashPart1()
+        val t2 = title.hashPart2()
+        val t3 = title.hashPart3()
+        val t4 = title.hashPart4()
+
+        val yt1t2a1Hash = getHashWithoutYear(t1, t2, a1)
+        val yt1t2a2Hash = getHashWithoutYear(t1, t2, a2)
+        val yt1t3a1Hash = getHashWithoutYear(t1, t3, a1)
+        val yt1t3a2Hash = getHashWithoutYear(t1, t3, a2)
+        val yt1t4a1Hash = getHashWithoutYear(t1, t4, a1)
+        val yt1t4a2Hash = getHashWithoutYear(t1, t4, a2)
+
+        val yt2t3a1Hash = getHashWithoutYear(t2, t3, a1)
+        val yt2t3a2Hash = getHashWithoutYear(t2, t3, a2)
+        val yt2t4a1Hash = getHashWithoutYear(t2, t4, a1)
+        val yt2t4a2Hash = getHashWithoutYear(t2, t4, a2)
+
+        val yt3t4a1Hash = getHashWithoutYear(t3, t4, a1)
+        val yt3t4a2Hash = getHashWithoutYear(t3, t4, a2)
+
+        val result = ArrayList<EnrichedDocumentLite>()
+
+        result.addAll(t1t2a1Map.get(yt1t2a1Hash))
+        result.addAll(t1t2a2Map.get(yt1t2a2Hash))
+        result.addAll(t1t3a1Map.get(yt1t3a1Hash))
+        result.addAll(t1t3a2Map.get(yt1t3a2Hash))
+        result.addAll(t1t4a1Map.get(yt1t4a1Hash))
+        result.addAll(t1t4a2Map.get(yt1t4a2Hash))
+        result.addAll(t2t3a1Map.get(yt2t3a1Hash))
+        result.addAll(t2t3a2Map.get(yt2t3a2Hash))
+        result.addAll(t2t4a1Map.get(yt2t4a1Hash))
+        result.addAll(t2t4a2Map.get(yt2t4a2Hash))
+        result.addAll(t3t4a1Map.get(yt3t4a1Hash))
+        result.addAll(t3t4a2Map.get(yt3t4a2Hash))
+        return result.distinct().toList();
+    }
 
     private fun getHashWithoutYear(hash1: Byte, hash2: Byte, hash3: Byte): Int {
         //shift is of the size of a byte
@@ -127,55 +127,55 @@ constructor(private val stringHashService: StringHashService, private val fsPers
         return isbnMap.get(document.isbn?.hashCode()).toList();
     }
 
-//    override fun getNearDuplicatesWithNullIsbn(document: Document): List<EnrichedDocumentLite> {
-//        val nearDuplicates = getNearDuplicates(document)
-//        return nearDuplicates.filter(EnrichedDocumentLite::isbnIsNull);
-//    }
+    override fun getNearDuplicatesWithNullIsbn(document: Document): List<EnrichedDocumentLite> {
+        val nearDuplicates = getNearDuplicates(document)
+        return nearDuplicates.filter(EnrichedDocumentLite::isbnIsNull);
+    }
 
-//    override fun getNearDuplicatesWithPublishYear(document: Document): List<EnrichedDocumentLite> {
-//        val author = document.author
-//        val title = document.title
-//        val year = document.publishYear
-//
-//        val a1 = author.hashPart1()
-//        val a2 = author.hashPart2()
-//
-//        val t1 = title.hashPart1()
-//        val t2 = title.hashPart2()
-//        val t3 = title.hashPart3()
-//        val t4 = title.hashPart4()
-//
-//        val yt1t2a1Hash = getHashWithYear(year!!, t1, t2, a1)
-//        val yt1t2a2Hash = getHashWithYear(year, t1, t2, a2)
-//        val yt1t3a1Hash = getHashWithYear(year, t1, t3, a1)
-//        val yt1t3a2Hash = getHashWithYear(year, t1, t3, a2)
-//        val yt1t4a1Hash = getHashWithYear(year, t1, t4, a1)
-//        val yt1t4a2Hash = getHashWithYear(year, t1, t4, a2)
-//
-//        val yt2t3a1Hash = getHashWithYear(year, t2, t3, a1)
-//        val yt2t3a2Hash = getHashWithYear(year, t2, t3, a2)
-//        val yt2t4a1Hash = getHashWithYear(year, t2, t4, a1)
-//        val yt2t4a2Hash = getHashWithYear(year, t2, t4, a2)
-//
-//        val yt3t4a1Hash = getHashWithYear(year, t3, t4, a1)
-//        val yt3t4a2Hash = getHashWithYear(year, t3, t4, a2)
-//
-//        val result = ArrayList<EnrichedDocumentLite>()
-//
-//        result.addAll(yt1t2a1Map.get(yt1t2a1Hash))
-//        result.addAll(yt1t2a2Map.get(yt1t2a2Hash))
-//        result.addAll(yt1t3a1Map.get(yt1t3a1Hash))
-//        result.addAll(yt1t3a2Map.get(yt1t3a2Hash))
-//        result.addAll(yt1t4a1Map.get(yt1t4a1Hash))
-//        result.addAll(yt1t4a2Map.get(yt1t4a2Hash))
-//        result.addAll(yt2t3a1Map.get(yt2t3a1Hash))
-//        result.addAll(yt2t3a2Map.get(yt2t3a2Hash))
-//        result.addAll(yt2t4a1Map.get(yt2t4a1Hash))
-//        result.addAll(yt2t4a2Map.get(yt2t4a2Hash))
-//        result.addAll(yt3t4a1Map.get(yt3t4a1Hash))
-//        result.addAll(yt3t4a2Map.get(yt3t4a2Hash))
-//        return result.distinct();
-//    }
+    override fun getNearDuplicatesWithPublishYear(document: Document): List<EnrichedDocumentLite> {
+        val author = document.author
+        val title = document.title
+        val year = document.publishYear
+
+        val a1 = author.hashPart1()
+        val a2 = author.hashPart2()
+
+        val t1 = title.hashPart1()
+        val t2 = title.hashPart2()
+        val t3 = title.hashPart3()
+        val t4 = title.hashPart4()
+
+        val yt1t2a1Hash = getHashWithYear(year!!, t1, t2, a1)
+        val yt1t2a2Hash = getHashWithYear(year, t1, t2, a2)
+        val yt1t3a1Hash = getHashWithYear(year, t1, t3, a1)
+        val yt1t3a2Hash = getHashWithYear(year, t1, t3, a2)
+        val yt1t4a1Hash = getHashWithYear(year, t1, t4, a1)
+        val yt1t4a2Hash = getHashWithYear(year, t1, t4, a2)
+
+        val yt2t3a1Hash = getHashWithYear(year, t2, t3, a1)
+        val yt2t3a2Hash = getHashWithYear(year, t2, t3, a2)
+        val yt2t4a1Hash = getHashWithYear(year, t2, t4, a1)
+        val yt2t4a2Hash = getHashWithYear(year, t2, t4, a2)
+
+        val yt3t4a1Hash = getHashWithYear(year, t3, t4, a1)
+        val yt3t4a2Hash = getHashWithYear(year, t3, t4, a2)
+
+        val result = ArrayList<EnrichedDocumentLite>()
+
+        result.addAll(yt1t2a1Map.get(yt1t2a1Hash))
+        result.addAll(yt1t2a2Map.get(yt1t2a2Hash))
+        result.addAll(yt1t3a1Map.get(yt1t3a1Hash))
+        result.addAll(yt1t3a2Map.get(yt1t3a2Hash))
+        result.addAll(yt1t4a1Map.get(yt1t4a1Hash))
+        result.addAll(yt1t4a2Map.get(yt1t4a2Hash))
+        result.addAll(yt2t3a1Map.get(yt2t3a1Hash))
+        result.addAll(yt2t3a2Map.get(yt2t3a2Hash))
+        result.addAll(yt2t4a1Map.get(yt2t4a1Hash))
+        result.addAll(yt2t4a2Map.get(yt2t4a2Hash))
+        result.addAll(yt3t4a1Map.get(yt3t4a1Hash))
+        result.addAll(yt3t4a2Map.get(yt3t4a2Hash))
+        return result.distinct();
+    }
 
     private fun getHashWithYear(year: Int, hash1: Byte, hash2: Byte, hash3: Byte): Int {
         val shift = 8

@@ -23,7 +23,7 @@ data class EnrichedDocument(
         val author: StringHash,
 
         @Column(name = "isbn")
-        val isbn: String? = null,
+        var isbn: String? = null,
 
         @Column(name = "xml", columnDefinition = "BLOB")
         val xml: String? = null,
@@ -32,5 +32,5 @@ data class EnrichedDocument(
         val creationTime: Date,
 
         @Column(name = "publish_year")
-        val publishYear: Int? = null)
+        var publishYear: Int? = null)
 

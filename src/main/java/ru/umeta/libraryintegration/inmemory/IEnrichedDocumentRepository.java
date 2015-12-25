@@ -11,13 +11,13 @@ import java.util.List;
  */
 public interface IEnrichedDocumentRepository {
 
-    //List<EnrichedDocumentLite> getNearDuplicates(Document document);
+    List<EnrichedDocumentLite> getNearDuplicates(Document document);
 
     List<EnrichedDocumentLite> getNearDuplicatesWithIsbn(Document document);
 
-    //List<EnrichedDocumentLite> getNearDuplicatesWithNullIsbn(Document document);
+    List<EnrichedDocumentLite> getNearDuplicatesWithNullIsbn(Document document);
 
-    //List<EnrichedDocumentLite> getNearDuplicatesWithPublishYear(Document document);
+    List<EnrichedDocumentLite> getNearDuplicatesWithPublishYear(Document document);
 
     void save(EnrichedDocument enrichedDocument);
 
