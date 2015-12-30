@@ -1,5 +1,8 @@
 package ru.umeta.libraryintegration.fs
 
+import gnu.trove.map.hash.TIntIntHashMap
+import gnu.trove.map.hash.TLongIntHashMap
+import gnu.trove.set.hash.TIntHashSet
 import org.apache.commons.codec.DecoderException
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
@@ -13,6 +16,7 @@ import ru.umeta.libraryintegration.service.getTokens
 import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
+import java.util.*
 import java.util.concurrent.Executors
 
 /**
@@ -57,7 +61,7 @@ class StringHashFsPersister {
         }
     }
 
-    fun fillMaps(map: MutableMap<Int, StringHash>, idMap: MutableMap<Long, StringHash>): Long {
+    fun fillMaps(mapHashCodeToSimHash: TIntIntHashMap, mapIdToSimHash: TLongIntHashMap, mapIdToTokens: HashMap<Long, TIntHashSet>): Long {
         var lastId: Long = 0
         try {
             val it = FileUtils.lineIterator(storageFile, UTF_8)

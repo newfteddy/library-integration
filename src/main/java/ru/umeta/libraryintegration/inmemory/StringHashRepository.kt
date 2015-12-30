@@ -1,5 +1,11 @@
 package ru.umeta.libraryintegration.inmemory
 
+import gnu.trove.map.hash.TIntIntHashMap
+import gnu.trove.map.hash.TIntLongHashMap
+import gnu.trove.map.hash.TLongIntHashMap
+import gnu.trove.map.hash.TLongLongHashMap
+import gnu.trove.set.TIntSet
+import gnu.trove.set.hash.TIntHashSet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
 import ru.umeta.libraryintegration.fs.StringHashFsPersister
@@ -14,33 +20,32 @@ import java.util.concurrent.atomic.AtomicLong
 @Repository
 class StringHashRepository
 @Autowired
-constructor(//    private Map<String, Set<String>> tokens = new HashMap<>();
+constructor(private val fsPersister: StringHashFsPersister) {
 
-        private val fsPersister: StringHashFsPersister) {
-
-    private val map = HashMap<Int, StringHash>()
-    private val idMap = HashMap<Long, StringHash>()
+    private val mapHashCodeToId = TIntLongHashMap();
+    private val mapIdToSimHash = TLongIntHashMap();
+    private val mapIdToTokens = HashMap<Long, TIntHashSet>();
 
     private var identity: Long = 0
 
     init {
-        val lastId = fsPersister.fillMaps(map, idMap)
+        val lastId = fsPersister.fillMaps(mapHashCodeToId, mapIdToSimHash, mapIdToTokens)
         identity = lastId + 1
         //        fsPersister.fillMap(tokens);
     }
 
-    operator fun get(string: String): StringHash? {
-        return map[string.hashCode()]
+    fun getByHashCode(string: String): Long {
+        return mapHashCodeToSimHash[string.hashCode()]
     }
 
-    fun getById(id: Long?): StringHash? {
-        return idMap[id]
+    fun getSimHashById(id: Long): Int {
+        return mapIdToSimHash[id]
     }
 
     fun save(stringHash: StringHash, value: String) {
         stringHash.id = identity++
-        map.put(value.hashCode(), stringHash)
-        idMap.put(stringHash.id, stringHash)
+        mapHashCodeToSimHash.put(value.hashCode(), stringHash)
+        mapIdToSimHash.put(stringHash.id, stringHash)
         fsPersister.save(stringHash, value)
     }
 }

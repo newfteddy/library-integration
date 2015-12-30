@@ -1,5 +1,6 @@
 package ru.umeta.libraryintegration.service
 
+import gnu.trove.map.hash.TIntIntHashMap
 import org.springframework.beans.factory.annotation.Autowired
 import ru.umeta.libraryintegration.inmemory.StringHashRepository
 import ru.umeta.libraryintegration.model.StringHash
@@ -15,7 +16,7 @@ class StringHashService
 @Autowired
 constructor(private val stringHashRepository: StringHashRepository) {
 
-    private val tokenMap = HashMap<Int, Int>()
+    private val tokenMap = TIntIntHashMap();
 
     fun getStringHash(string: String): StringHash {
         var simHash = 0
@@ -73,7 +74,7 @@ constructor(private val stringHashRepository: StringHashRepository) {
             string = string.substring(0, 255)
         }
 
-        var repoStringHash: StringHash? = stringHashRepository[string]
+        var repoStringHash: StringHash? = stringHashRepository.getByHashCode(string)
         if (repoStringHash == null) {
 
             val stringHash = getStringHash(string)

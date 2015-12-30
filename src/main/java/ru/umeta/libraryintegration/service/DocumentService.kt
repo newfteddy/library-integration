@@ -2,8 +2,6 @@ package ru.umeta.libraryintegration.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.util.StringUtils
-import ru.umeta.libraryintegration.inmemory.DocumentRepository
-import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository
 import ru.umeta.libraryintegration.inmemory.IEnrichedDocumentRepository
 import ru.umeta.libraryintegration.json.ModsParseResult
 import ru.umeta.libraryintegration.json.ParseResult
@@ -13,13 +11,11 @@ import ru.umeta.libraryintegration.model.EnrichedDocument
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite
 import ru.umeta.libraryintegration.parser.ModsXMLParser
 
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.util.*
 
-import com.google.common.base.Preconditions.checkNotNull
 
 /**
+ * Service for operating with [Document] and [EnrichedDocument]
  * Created by ctash on 28.04.2015.
  */
 class DocumentService

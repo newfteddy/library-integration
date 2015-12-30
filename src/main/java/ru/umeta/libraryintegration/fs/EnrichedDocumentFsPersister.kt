@@ -81,8 +81,8 @@ constructor(private val stringHashRepository: StringHashRepository) {
                     }
 
                     val id = splitStrings[0].toLong()
-                    val author = stringHashRepository.getById(splitStrings[1].toLong())
-                    val title = stringHashRepository.getById(splitStrings[2].toLong())
+                    val author = stringHashRepository.getSimHashById(splitStrings[1].toLong())
+                    val title = stringHashRepository.getSimHashById(splitStrings[2].toLong())
                     if (author == null || title == null) {
                         continue
                     }
