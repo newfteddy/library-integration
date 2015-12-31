@@ -1,6 +1,9 @@
 package ru.umeta.libraryintegration.service
 
+import com.google.common.base.Strings
+import gnu.trove.TCollections
 import gnu.trove.map.hash.TIntIntHashMap
+import gnu.trove.set.hash.TIntHashSet
 import org.springframework.beans.factory.annotation.Autowired
 import ru.umeta.libraryintegration.inmemory.StringHashRepository
 import ru.umeta.libraryintegration.model.StringHash
@@ -20,10 +23,10 @@ constructor(private val stringHashRepository: StringHashRepository) {
 
     fun getStringHash(string: String): StringHash {
         var simHash = 0
-        val tokens: Set<Int>
+        val tokens: TIntHashSet
         if (string.length < 2) {
             simHash = 0
-            tokens = emptySet()
+            tokens = TIntHashSet(0)
         } else {
             tokens = getSimHashTokens(string)
             /**
@@ -64,7 +67,7 @@ constructor(private val stringHashRepository: StringHashRepository) {
         return StringHash(-1, tokens, simHash)
     }
 
-    fun getSimHashTokens(string: String): Set<Int> {
+    fun getSimHashTokens(string: String): TIntHashSet {
         return getTokens(string)
     }
 
@@ -74,14 +77,18 @@ constructor(private val stringHashRepository: StringHashRepository) {
             string = string.substring(0, 255)
         }
 
-        var repoStringHash: StringHash? = stringHashRepository.getByHashCode(string)
-        if (repoStringHash == null) {
-
+        var stringHashId = stringHashRepository.getByHashCode(string)
+        if (stringHashId != TROVE_NO_VALUE) {
             val stringHash = getStringHash(string)
             stringHashRepository.save(stringHash, string)
-            repoStringHash = stringHash
+            return stringHash
+        } else {
+            return stringHashRepository.getStringHashById(stringHashId)
         }
-        return repoStringHash
+    }
+
+    fun getById(id: Long): StringHash {
+        return stringHashRepository.getStringHashById(id);
     }
 
     fun distance(tokens1: Set<Int>, tokens2: Set<Int>): Double {
@@ -93,14 +100,18 @@ constructor(private val stringHashRepository: StringHashRepository) {
 
         return (intersection.size * 1.0) / (union.size * 1.0)
     }
+
+    companion object {
+        public val TROVE_NO_VALUE = 0L
+    }
 }
 
-public fun getTokens(string: String?): Set<Int> {
-    if (string == null || string.length == 0) {
-        return emptySet()
+public fun getTokens(string: String): TIntHashSet {
+    if (Strings.isNullOrEmpty(string)) {
+        return TIntHashSet()
     }
 
-    val tokens = HashSet<Int>()
+    val tokens = TIntHashSet()
     for (i in 0..string.length - 1 - 1) {
         val bigramm = bigrammToInt(string.substring(i, i + 2));
         if (!tokens.contains(bigramm)) {

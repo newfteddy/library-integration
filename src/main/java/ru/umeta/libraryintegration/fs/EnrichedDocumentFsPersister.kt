@@ -50,9 +50,9 @@ constructor(private val stringHashRepository: StringHashRepository) {
                     FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
                         writerWithEncoding.write(document.id.toString())
                         writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.author.id.toString())
+                        writerWithEncoding.write(document.author.toString())
                         writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.title.id.toString())
+                        writerWithEncoding.write(document.title.toString())
                         writerWithEncoding.write(SEPARATOR)
                         writerWithEncoding.write(document.isbn.toString())
                         writerWithEncoding.write(SEPARATOR)
@@ -73,24 +73,25 @@ constructor(private val stringHashRepository: StringHashRepository) {
             val it = FileUtils.lineIterator(documentStorageFile, UTF_8)
             try {
                 while (it.hasNext()) {
-                    val line = it.nextLine()
-                    val splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR)
+                    try {
+                        val line = it.nextLine()
+                        val splitStrings = StringUtils.tokenizeToStringArray(line, SEPARATOR)
 
-                    if (splitStrings.size != 5) {
-                        continue
-                    }
+                        if (splitStrings.size != 5) {
+                            continue
+                        }
 
-                    val id = splitStrings[0].toLong()
-                    val author = stringHashRepository.getSimHashById(splitStrings[1].toLong())
-                    val title = stringHashRepository.getSimHashById(splitStrings[2].toLong())
-                    if (author == null || title == null) {
-                        continue
+                        val id = splitStrings[0].toLong()
+                        val author = splitStrings[1].toLong()
+                        val title = splitStrings[2].toLong()
+                        val isbn = splitStrings[3]
+                        val publishYear = if ("null" == splitStrings[4]) null else splitStrings[4].toInt()
+                        val document = EnrichedDocument(id, title, author, isbn, null, Date(), publishYear)
+                        lastId = Math.max(id, lastId)
+                        consumer(document)
+                    } catch (e: NumberFormatException) {
+                        println("One of the number ids is not a number.")
                     }
-                    val isbn = splitStrings[3]
-                    val publishYear = if ("null" == splitStrings[4]) null else splitStrings[4].toInt()
-                    val document = EnrichedDocument(id, title, author, isbn, null, Date(), publishYear)
-                    lastId = Math.max(id, lastId)
-                    consumer(document)
                 }
             } finally {
                 LineIterator.closeQuietly(it)

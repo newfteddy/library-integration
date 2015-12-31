@@ -199,15 +199,13 @@ constructor(private val stringHashService: StringHashService, private val fsPers
         val isbn = enrichedDocument.isbn
         val author = enrichedDocument.author
         val title = enrichedDocument.title
-        val authorTokens = author.tokens
-        val titleTokens = title.tokens
-        val lite = EnrichedDocumentLite(id, authorTokens, titleTokens)
+        val lite = EnrichedDocumentLite(id, author, title)
         if (isbn != null) {
             lite.nullIsbn = false
             isbnMap.put(isbn.hashCode(), lite)
         }
 
-
+        stringHashService.getById(author)
         val year = enrichedDocument.publishYear
 
         val a1 = author.hashPart1()

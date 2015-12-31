@@ -1,6 +1,6 @@
 package ru.umeta.libraryintegration.model
 
-import gnu.trove.set.TIntSet
+import gnu.trove.set.hash.TIntHashSet
 import javax.persistence.Entity
 
 /**
@@ -8,7 +8,7 @@ import javax.persistence.Entity
  */
 @Entity
 data class StringHash (var id: Long,
-                       val tokens: TIntSet,
+                       val tokens: TIntHashSet,
                        val simHash: Int) {
 
     fun hashPart1(): Byte {

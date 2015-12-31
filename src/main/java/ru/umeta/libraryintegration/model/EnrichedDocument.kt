@@ -16,11 +16,11 @@ data class EnrichedDocument(
 
         @ManyToOne
         @JoinColumn(name = "title_string_id")
-        val title: StringHash,
+        val title: Long,
 
         @ManyToOne
         @JoinColumn(name = "author_string_id")
-        val author: StringHash,
+        val author: Long,
 
         @Column(name = "isbn")
         var isbn: String? = null,

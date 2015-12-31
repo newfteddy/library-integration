@@ -1,18 +1,17 @@
 package ru.umeta.libraryintegration.fs
 
-import gnu.trove.map.hash.TIntIntHashMap
+import gnu.trove.map.hash.TIntLongHashMap
 import gnu.trove.map.hash.TLongIntHashMap
 import gnu.trove.set.hash.TIntHashSet
 import org.apache.commons.codec.DecoderException
+import org.apache.commons.codec.binary.Hex
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
 import org.apache.commons.io.output.FileWriterWithEncoding
-import org.apache.commons.codec.binary.Hex
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.service.getTokens
-
 import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
@@ -61,7 +60,7 @@ class StringHashFsPersister {
         }
     }
 
-    fun fillMaps(mapHashCodeToSimHash: TIntIntHashMap, mapIdToSimHash: TLongIntHashMap, mapIdToTokens: HashMap<Long, TIntHashSet>): Long {
+    fun fillMaps(mapHashCodeToId: TIntLongHashMap, mapIdToSimHash: TLongIntHashMap, mapIdToTokens: HashMap<Long, TIntHashSet>): Long {
         var lastId: Long = 0
         try {
             val it = FileUtils.lineIterator(storageFile, UTF_8)
@@ -104,10 +103,9 @@ class StringHashFsPersister {
                         val tokens = getTokens(value)
                         val simHash = StringHash.Util.collectParts(hashPart1, hashPart2, hashPart3, hashPart4)
 
-                        val stringHash = StringHash(id, tokens, simHash)
-
-                        map.put(value.hashCode(), stringHash)
-                        idMap.put(id, stringHash)
+                        mapHashCodeToId.put(value.hashCode(), id)
+                        mapIdToSimHash.put(id, simHash)
+                        mapIdToTokens.put(id, tokens)
 
                     } catch (e: DecoderException) {
                         e.printStackTrace()

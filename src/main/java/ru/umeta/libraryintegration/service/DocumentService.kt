@@ -51,7 +51,8 @@ constructor(val stringHashService: StringHashService,
 
                     val enrichedDocument = findEnrichedDocument(document)
                     if (enrichedDocument == null) {
-                        val enrichedDocument = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear)
+                        val enrichedDocument = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(),
+                                parseResult.publishYear)
                         enrichedDocumentRepository.save(enrichedDocument)
                         newEnriched++;
                     }
@@ -111,9 +112,9 @@ constructor(val stringHashService: StringHashService,
 
             for (nearDuplicate in nearDuplicates) {
 
-                val titleDistance = stringHashService.distance(titleTokens, nearDuplicate.titleTokens)
+                val titleDistance = stringHashService.distance(titleTokens, nearDuplicate.titleId)
 
-                val authorDistance = stringHashService.distance(authorTokens, nearDuplicate.authorTokens)
+                val authorDistance = stringHashService.distance(authorTokens, nearDuplicate.authorId)
 
                 val resultDistance = (titleDistance + authorDistance) / 2
 

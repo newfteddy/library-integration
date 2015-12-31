@@ -22,9 +22,9 @@ class StringHashRepository
 @Autowired
 constructor(private val fsPersister: StringHashFsPersister) {
 
-    private val mapHashCodeToId = TIntLongHashMap();
-    private val mapIdToSimHash = TLongIntHashMap();
-    private val mapIdToTokens = HashMap<Long, TIntHashSet>();
+    private val mapHashCodeToId = TIntLongHashMap()
+    private val mapIdToSimHash = TLongIntHashMap()
+    private val mapIdToTokens = HashMap<Long, TIntHashSet>()
 
     private var identity: Long = 0
 
@@ -35,7 +35,7 @@ constructor(private val fsPersister: StringHashFsPersister) {
     }
 
     fun getByHashCode(string: String): Long {
-        return mapHashCodeToSimHash[string.hashCode()]
+        return mapHashCodeToId[string.hashCode()]
     }
 
     fun getSimHashById(id: Long): Int {
@@ -43,9 +43,17 @@ constructor(private val fsPersister: StringHashFsPersister) {
     }
 
     fun save(stringHash: StringHash, value: String) {
-        stringHash.id = identity++
-        mapHashCodeToSimHash.put(value.hashCode(), stringHash)
-        mapIdToSimHash.put(stringHash.id, stringHash)
+        val id = identity++
+        stringHash.id = id
+        mapHashCodeToId.put(value.hashCode(), id)
+        mapIdToSimHash.put(id, stringHash.simHash)
+        mapIdToTokens.put(id, stringHash.tokens)
         fsPersister.save(stringHash, value)
+    }
+
+    fun getStringHashById(id: Long): StringHash {
+        val simHash = mapIdToSimHash[id]
+        val tokens = mapIdToTokens[id] ?: throw RuntimeException("token set for simHash with id=\"$id\" is null.")
+        return StringHash(id, tokens, simHash)
     }
 }
