@@ -31,17 +31,12 @@ class MainService
             val resultList = parser.parse(file)
             val size = resultList.size
             total += size
-            //            long parseTime = System.nanoTime();
-            //            System.out.println("The documents bulk parsed in " +
-            //                    (double) (parseTime - startTime) / 1000000000.0);
             println("resultList size is " + size)
             val uploadResult = documentService.processDocumentList(resultList, null)
             val endTime = System.nanoTime()
             println("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
             result.parsedDocs = result.parsedDocs + uploadResult.parsedDocs
             result.newEnriched = result.newEnriched + uploadResult.newEnriched
-
-
         }
 
         return result

@@ -205,16 +205,17 @@ constructor(private val stringHashService: StringHashService, private val fsPers
             isbnMap.put(isbn.hashCode(), lite)
         }
 
-        stringHashService.getById(author)
+        val authorHash = stringHashService.getById(author)
+        val titleHash = stringHashService.getById(title)
         val year = enrichedDocument.publishYear
 
-        val a1 = author.hashPart1()
-        val a2 = author.hashPart2()
+        val a1 = authorHash.hashPart1()
+        val a2 = authorHash.hashPart2()
 
-        val t1 = title.hashPart1()
-        val t2 = title.hashPart2()
-        val t3 = title.hashPart3()
-        val t4 = title.hashPart4()
+        val t1 = titleHash.hashPart1()
+        val t2 = titleHash.hashPart2()
+        val t3 = titleHash.hashPart3()
+        val t4 = titleHash.hashPart4()
 
         val t1t2a1Hash = getHashWithoutYear(t1, t2, a1)
         val t1t2a2Hash = getHashWithoutYear(t1, t2, a2)

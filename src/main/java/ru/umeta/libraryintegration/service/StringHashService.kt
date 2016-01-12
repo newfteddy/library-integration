@@ -78,7 +78,7 @@ constructor(private val stringHashRepository: StringHashRepository) {
         }
 
         var stringHashId = stringHashRepository.getByHashCode(string)
-        if (stringHashId != TROVE_NO_VALUE) {
+        if (stringHashId == TROVE_NO_VALUE) {
             val stringHash = getStringHash(string)
             stringHashRepository.save(stringHash, string)
             return stringHash
@@ -91,14 +91,25 @@ constructor(private val stringHashRepository: StringHashRepository) {
         return stringHashRepository.getStringHashById(id);
     }
 
-    fun distance(tokens1: Set<Int>, tokens2: Set<Int>): Double {
-        val union = HashSet(tokens1)
-        val intersection = HashSet(tokens1)
+    fun distance(tokens1: TIntHashSet, tokens2: TIntHashSet): Double {
+        val union = TIntHashSet(tokens1)
+        val intersection = TIntHashSet(tokens1)
 
         union.addAll(tokens2)
         intersection.retainAll(tokens2)
 
-        return (intersection.size * 1.0) / (union.size * 1.0)
+        return (intersection.size() * 1.0) / (union.size() * 1.0)
+    }
+
+    fun distance(stringId: Long, otherStringId: Long): Double {
+        val stringHash = getById(stringId)
+        val otherStringHash = getById(otherStringId)
+        return distance(stringHash.tokens, otherStringHash.tokens)
+    }
+
+    fun distance(stringHash: StringHash, otherStringId: Long): Double {
+        val otherStringHash = getById(otherStringId)
+        return distance(stringHash.tokens, otherStringHash.tokens)
     }
 
     companion object {

@@ -49,18 +49,16 @@ constructor(val stringHashService: StringHashService,
 
                     val document = Document(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear, null)
 
-                    val enrichedDocument = findEnrichedDocument(document)
+                    var enrichedDocument = findEnrichedDocument(document)
                     if (enrichedDocument == null) {
-                        val enrichedDocument = EnrichedDocument(-1, docAuthor, docTitle, isbn, null, Date(),
+                        enrichedDocument = EnrichedDocument(-1, docAuthor.id, docTitle.id, isbn, null, Date(),
                                 parseResult.publishYear)
                         enrichedDocumentRepository.save(enrichedDocument)
                         newEnriched++;
                     }
                     parsedDocs++
                 } catch (e: Exception) {
-                    System.err.println("ERROR. Failed to add a document with title {" +
-                            parseResult.getTitle() + "}, author {" +
-                            parseResult.getAuthor() + "}")
+                    throw e
                 }
 
 
@@ -107,14 +105,14 @@ constructor(val stringHashService: StringHashService,
             val minDistance = 0.7
             var closestDocument: EnrichedDocumentLite? = null
 
-            val titleTokens = document.title.tokens
-            val authorTokens = document.author.tokens
+            val title = document.title
+            val author = document.author
 
             for (nearDuplicate in nearDuplicates) {
 
-                val titleDistance = stringHashService.distance(titleTokens, nearDuplicate.titleId)
+                val titleDistance = stringHashService.distance(title, nearDuplicate.titleId)
 
-                val authorDistance = stringHashService.distance(authorTokens, nearDuplicate.authorId)
+                val authorDistance = stringHashService.distance(author, nearDuplicate.authorId)
 
                 val resultDistance = (titleDistance + authorDistance) / 2
 
