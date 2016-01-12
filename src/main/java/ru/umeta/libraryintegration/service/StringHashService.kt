@@ -16,8 +16,7 @@ import java.util.*
  * Created by k.kosolapov on 14.05.2015.
  */
 class StringHashService
-@Autowired
-constructor(private val stringHashRepository: StringHashRepository) {
+constructor(private val stringHashRepository: StringHashRepository = StringHashRepository()) {
 
     private val tokenMap = TIntIntHashMap();
 

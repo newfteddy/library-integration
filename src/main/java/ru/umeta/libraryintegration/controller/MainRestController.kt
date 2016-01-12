@@ -20,8 +20,8 @@ import java.util.*
 @RequestMapping("/rest")
 
 class MainRestController @Autowired constructor(
-        val mainService: MainService,
-        val stringHashService: StringHashService) {
+        val mainService: MainService = MainService(),
+        val stringHashService: StringHashService = StringHashService()) {
 
     @RequestMapping("/upload")
     fun upload(@RequestParam(value = "path", defaultValue = "default path") path: String): UploadResult {
@@ -94,4 +94,8 @@ class MainRestController @Autowired constructor(
         }
     }
 
+}
+
+fun main(args: Array<String>) {
+    MainRestController()
 }

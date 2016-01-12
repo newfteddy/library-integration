@@ -16,8 +16,8 @@ import java.util.*
 @Service
 class MainService
 @Autowired constructor(
-        private val parser: IXMLParser,
-        private val documentService: DocumentService) {
+        private val parser: IXMLParser = ModsXMLParser(),
+        private val documentService: DocumentService = DocumentService()) {
 
 
     @Throws(InterruptedException::class)

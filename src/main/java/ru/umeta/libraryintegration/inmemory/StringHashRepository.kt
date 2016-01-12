@@ -19,8 +19,7 @@ import java.util.concurrent.atomic.AtomicLong
  */
 @Repository
 class StringHashRepository
-@Autowired
-constructor(private val fsPersister: StringHashFsPersister) {
+constructor(private val fsPersister: StringHashFsPersister = StringHashFsPersister()) {
 
     private val mapHashCodeToId = TIntLongHashMap()
     private val mapIdToSimHash = TLongIntHashMap()

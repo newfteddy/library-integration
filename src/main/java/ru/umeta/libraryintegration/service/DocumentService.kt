@@ -20,8 +20,8 @@ import java.util.*
  */
 class DocumentService
 @Autowired
-constructor(val stringHashService: StringHashService,
-            val enrichedDocumentRepository: IEnrichedDocumentRepository,
+constructor(val stringHashService: StringHashService = StringHashService(),
+            val enrichedDocumentRepository: IEnrichedDocumentRepository =
             val modsXMLParser: ModsXMLParser) {
 
     fun processDocumentList(resultList: List<ParseResult>, protocolName: String?): UploadResult {
