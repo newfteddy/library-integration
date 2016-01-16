@@ -1,7 +1,7 @@
 package ru.umeta.libraryintegration.service
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.util.StringUtils
+import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository
 import ru.umeta.libraryintegration.inmemory.IEnrichedDocumentRepository
 import ru.umeta.libraryintegration.json.ModsParseResult
 import ru.umeta.libraryintegration.json.ParseResult
@@ -18,11 +18,10 @@ import java.util.*
  * Service for operating with [Document] and [EnrichedDocument]
  * Created by ctash on 28.04.2015.
  */
-class DocumentService
-@Autowired
-constructor(val stringHashService: StringHashService = StringHashService(),
-            val enrichedDocumentRepository: IEnrichedDocumentRepository =
-            val modsXMLParser: ModsXMLParser) {
+object DocumentService {
+
+    private val DEFAULT_PROTOCOL = "Z39.50"
+    private val DUPLICATE_SIZE = 1000
 
     fun processDocumentList(resultList: List<ParseResult>, protocolName: String?): UploadResult {
         var newEnriched = 0
@@ -40,8 +39,8 @@ constructor(val stringHashService: StringHashService = StringHashService(),
                         title = title.substring(0, 255)
                     }
 
-                    val docAuthor = stringHashService.getFromRepository(author)
-                    val docTitle = stringHashService.getFromRepository(title)
+                    val docAuthor = StringHashService.getFromRepository(author)
+                    val docTitle = StringHashService.getFromRepository(title)
                     var isbn: String? = parseResult.isbn
                     if (isbn.isNullOrEmpty()) {
                     }
@@ -53,7 +52,7 @@ constructor(val stringHashService: StringHashService = StringHashService(),
                     if (enrichedDocument == null) {
                         enrichedDocument = EnrichedDocument(-1, docAuthor.id, docTitle.id, isbn, null, Date(),
                                 parseResult.publishYear)
-                        enrichedDocumentRepository.save(enrichedDocument)
+                        EnrichedDocumentRepository.save(enrichedDocument)
                         newEnriched++;
                     }
                     parsedDocs++
@@ -75,25 +74,25 @@ constructor(val stringHashService: StringHashService = StringHashService(),
         var nearDuplicates: List<EnrichedDocumentLite>
         if (isbn == null && publishYear == null) {
             // if it's null, we search through every record in the storage
-            nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document)
+            nearDuplicates = EnrichedDocumentRepository.getNearDuplicates(document)
         } else {
 
             // if it's not null, we search through record where isbn is the same
             if (publishYear == null) {
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
+                nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
 
                 if (nearDuplicates == null || nearDuplicates.size == 0) {
                     // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document)
+                    nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document)
                 }
             } else if (isbn == null) {
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
+                nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
 
             } else {
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
+                nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
 
                 if (nearDuplicates == null || nearDuplicates.size == 0) {
-                    nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
+                    nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
                 }
             }
 
@@ -110,9 +109,9 @@ constructor(val stringHashService: StringHashService = StringHashService(),
 
             for (nearDuplicate in nearDuplicates) {
 
-                val titleDistance = stringHashService.distance(title, nearDuplicate.titleId)
+                val titleDistance = StringHashService.distance(title, nearDuplicate.titleId)
 
-                val authorDistance = stringHashService.distance(author, nearDuplicate.authorId)
+                val authorDistance = StringHashService.distance(author, nearDuplicate.authorId)
 
                 val resultDistance = (titleDistance + authorDistance) / 2
 
@@ -122,9 +121,9 @@ constructor(val stringHashService: StringHashService = StringHashService(),
                 }
 
             }
-//            document.distance = maxDistance
+            //            document.distance = maxDistance
             if (closestDocument != null) {
-                return enrichedDocumentRepository.getById(closestDocument.id)
+                return EnrichedDocumentRepository.getById(closestDocument.id)
             }
         }
 
@@ -161,10 +160,5 @@ constructor(val stringHashService: StringHashService = StringHashService(),
             }
             return resultList
         }
-    }
-
-    companion object {
-        private val DEFAULT_PROTOCOL = "Z39.50"
-        private val DUPLICATE_SIZE = 1000
     }
 }

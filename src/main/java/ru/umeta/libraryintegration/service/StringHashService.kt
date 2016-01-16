@@ -1,22 +1,18 @@
 package ru.umeta.libraryintegration.service
 
 import com.google.common.base.Strings
-import gnu.trove.TCollections
 import gnu.trove.map.hash.TIntIntHashMap
 import gnu.trove.set.hash.TIntHashSet
-import org.springframework.beans.factory.annotation.Autowired
 import ru.umeta.libraryintegration.inmemory.StringHashRepository
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.model.bigrammToInt
-import ru.umeta.libraryintegration.model.getBigrammChars
 import ru.umeta.libraryintegration.util.MD5To32Algorithm
 import java.util.*
 
 /**
  * Created by k.kosolapov on 14.05.2015.
  */
-class StringHashService
-constructor(private val stringHashRepository: StringHashRepository = StringHashRepository()) {
+object StringHashService {
 
     private val tokenMap = TIntIntHashMap();
 
@@ -36,8 +32,8 @@ constructor(private val stringHashRepository: StringHashRepository = StringHashR
 
             for (token in tokens) {
                 var tokenHash: Int
-                var mapTokenHash: Int? = tokenMap[token]
-                if (mapTokenHash == null) {
+                var mapTokenHash: Int = tokenMap[token]
+                if (mapTokenHash == TROVE_NO_VALUE_INT) {
                     tokenHash = MD5To32Algorithm.getHash(token)
                     tokenMap.put(token, tokenHash)
                 } else {
@@ -76,18 +72,18 @@ constructor(private val stringHashRepository: StringHashRepository = StringHashR
             string = string.substring(0, 255)
         }
 
-        var stringHashId = stringHashRepository.getByHashCode(string)
-        if (stringHashId == TROVE_NO_VALUE) {
+        var stringHashId = StringHashRepository.getByHashCode(string)
+        if (stringHashId == TROVE_NO_VALUE_LONG) {
             val stringHash = getStringHash(string)
-            stringHashRepository.save(stringHash, string)
+            StringHashRepository.save(stringHash, string)
             return stringHash
         } else {
-            return stringHashRepository.getStringHashById(stringHashId)
+            return StringHashRepository.getStringHashById(stringHashId)
         }
     }
 
     fun getById(id: Long): StringHash {
-        return stringHashRepository.getStringHashById(id);
+        return StringHashRepository.getStringHashById(id);
     }
 
     fun distance(tokens1: TIntHashSet, tokens2: TIntHashSet): Double {
@@ -111,9 +107,8 @@ constructor(private val stringHashRepository: StringHashRepository = StringHashR
         return distance(stringHash.tokens, otherStringHash.tokens)
     }
 
-    companion object {
-        public val TROVE_NO_VALUE = 0L
-    }
+    public val TROVE_NO_VALUE_LONG = 0L
+    public val TROVE_NO_VALUE_INT = 0
 }
 
 public fun getTokens(string: String): TIntHashSet {

@@ -3,32 +3,21 @@ package ru.umeta.libraryintegration.fs
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
 import org.apache.commons.io.output.FileWriterWithEncoding
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.inmemory.StringHashRepository
 import ru.umeta.libraryintegration.model.EnrichedDocument
-
 import java.io.File
 import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
-import java.util.concurrent.BlockingQueue
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.function.Consumer
 
 
 /**
  * File system persister for [EnrichedDocument].
  * @author Kirill Kosolapov
  */
-@Component
-class EnrichedDocumentFsPersister
-@Autowired
-constructor(private val stringHashRepository: StringHashRepository) {
-
+object EnrichedDocumentFsPersister {
     private val executorService = Executors.newSingleThreadExecutor();
     private val documentStorageFile = File("enrichedDocument.blob")
     private val mutex = Object()

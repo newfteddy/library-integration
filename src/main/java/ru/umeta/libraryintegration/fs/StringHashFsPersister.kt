@@ -8,7 +8,6 @@ import org.apache.commons.codec.binary.Hex
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
 import org.apache.commons.io.output.FileWriterWithEncoding
-import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.service.getTokens
@@ -21,13 +20,14 @@ import java.util.concurrent.Executors
 /**
  * Created by k.kosolapov on 12/2/2015.
  */
-@Component
-class StringHashFsPersister {
+object StringHashFsPersister {
+
+    const val SEPARATOR = "|"
+    const val UTF_8 = "UTF-8"
 
     private val executorService = Executors.newSingleThreadExecutor()
 
     private val storageFile = File("stringHash.blob")
-
 
     init {
         if (!storageFile.exists()) {
@@ -45,9 +45,9 @@ class StringHashFsPersister {
                 FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
                     writerWithEncoding.write(Hex.encodeHexString(
                             byteArrayOf(stringHash.hashPart1(),
-                                        stringHash.hashPart2(),
-                                        stringHash.hashPart3(),
-                                        stringHash.hashPart4())))
+                                    stringHash.hashPart2(),
+                                    stringHash.hashPart3(),
+                                    stringHash.hashPart4())))
                     writerWithEncoding.write(SEPARATOR)
                     writerWithEncoding.write(stringHash.id.toString())
                     writerWithEncoding.write(SEPARATOR)
@@ -121,10 +121,5 @@ class StringHashFsPersister {
         }
 
         return lastId
-    }
-
-    companion object {
-        const val SEPARATOR = "|"
-        const val UTF_8 = "UTF-8"
     }
 }

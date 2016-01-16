@@ -1,7 +1,5 @@
 package ru.umeta.libraryintegration.model
 
-import gnu.trove.set.hash.TIntHashSet
-
 /**
  * Created by k.kosolapov on 11/26/2015.
  */

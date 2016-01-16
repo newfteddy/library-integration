@@ -2,18 +2,12 @@ package ru.umeta.libraryintegration.inmemory
 
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Primary
-import org.springframework.stereotype.Repository
 import ru.umeta.libraryintegration.fs.EnrichedDocumentFsPersister
 import ru.umeta.libraryintegration.model.Document
 import ru.umeta.libraryintegration.model.EnrichedDocument
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite
-import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.service.StringHashService
-
-import java.util.ArrayList
-import java.util.stream.Collectors
+import java.util.*
 
 /**
  * The repository consists of large amount of hashmaps to get fast access to near duplicates.
@@ -27,12 +21,7 @@ import java.util.stream.Collectors
  * ...
  * Created by Kirill Kosolapov (https://github.com/c-tash) on 12.11.2015.
  */
-@Primary
-@Repository
-class EnrichedDocumentRepository
-@Autowired
-constructor(private val stringHashService: StringHashService, private val fsPersister: EnrichedDocumentFsPersister) : IEnrichedDocumentRepository {
-
+object EnrichedDocumentRepository : IEnrichedDocumentRepository {
     internal var isbnMap: Multimap<Int, EnrichedDocumentLite> = ArrayListMultimap.create<Int, EnrichedDocumentLite>()
 
     //no year maps
