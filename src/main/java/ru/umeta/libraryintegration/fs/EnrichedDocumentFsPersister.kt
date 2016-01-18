@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
 import org.apache.commons.io.output.FileWriterWithEncoding
 import org.springframework.util.StringUtils
-import ru.umeta.libraryintegration.inmemory.StringHashRepository
 import ru.umeta.libraryintegration.model.EnrichedDocument
 import java.io.File
 import java.io.IOException
@@ -17,10 +16,15 @@ import java.util.concurrent.Executors
  * File system persister for [EnrichedDocument].
  * @author Kirill Kosolapov
  */
-object EnrichedDocumentFsPersister {
+object EnrichedDocumentFsPersister : AutoCloseable {
+
+    const val SEPARATOR = "|"
+    const val UTF_8 = "UTF-8"
+
     private val executorService = Executors.newSingleThreadExecutor();
     private val documentStorageFile = File("enrichedDocument.blob")
     private val mutex = Object()
+    private val writerWithEncoding: FileWriterWithEncoding
 
     init {
         if (!documentStorageFile.exists()) {
@@ -30,24 +34,23 @@ object EnrichedDocumentFsPersister {
                 e.printStackTrace()
             }
         }
+        writerWithEncoding = FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true)
     }
 
     fun save(document: EnrichedDocument) {
         executorService.execute {
             synchronized (mutex) {
                 try {
-                    FileWriterWithEncoding(documentStorageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
-                        writerWithEncoding.write(document.id.toString())
-                        writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.author.toString())
-                        writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.title.toString())
-                        writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.isbn.toString())
-                        writerWithEncoding.write(SEPARATOR)
-                        writerWithEncoding.write(document.publishYear.toString())
-                        writerWithEncoding.write(SEPARATOR + "\n")
-                    }
+                    writerWithEncoding.write(document.id.toString())
+                    writerWithEncoding.write(SEPARATOR)
+                    writerWithEncoding.write(document.author.toString())
+                    writerWithEncoding.write(SEPARATOR)
+                    writerWithEncoding.write(document.title.toString())
+                    writerWithEncoding.write(SEPARATOR)
+                    writerWithEncoding.write(document.isbn.toString())
+                    writerWithEncoding.write(SEPARATOR)
+                    writerWithEncoding.write(document.publishYear.toString())
+                    writerWithEncoding.write(SEPARATOR + "\n")
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
@@ -92,8 +95,7 @@ object EnrichedDocumentFsPersister {
         return lastId
     }
 
-    companion object {
-        const val SEPARATOR = "|"
-        const val UTF_8 = "UTF-8"
+    override fun close() {
+        writerWithEncoding.close()
     }
 }

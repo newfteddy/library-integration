@@ -12,9 +12,13 @@ import java.util.*
 /**
  * Created by k.kosolapov on 14.05.2015.
  */
-object StringHashService {
+object StringHashService : AutoCloseable {
+    
+    public val TROVE_NO_VALUE_LONG = 0L
+    public val TROVE_NO_VALUE_INT = 0
 
     private val tokenMap = TIntIntHashMap();
+    private val stringHashRepository = StringHashRepository
 
     fun getStringHash(string: String): StringHash {
         var simHash = 0
@@ -66,24 +70,24 @@ object StringHashService {
         return getTokens(string)
     }
 
-    fun getFromRepository(string: String): StringHash {
+    fun getFromRepository(string: String): Long {
         var string = string
         if (string.length > 255) {
             string = string.substring(0, 255)
         }
 
-        var stringHashId = StringHashRepository.getByHashCode(string)
+        var stringHashId = stringHashRepository.getByHashCode(string)
         if (stringHashId == TROVE_NO_VALUE_LONG) {
             val stringHash = getStringHash(string)
-            StringHashRepository.save(stringHash, string)
-            return stringHash
+            stringHashRepository.save(stringHash, string)
+            return stringHash.id
         } else {
-            return StringHashRepository.getStringHashById(stringHashId)
+            return stringHashId
         }
     }
 
     fun getById(id: Long): StringHash {
-        return StringHashRepository.getStringHashById(id);
+        return stringHashRepository.getStringHashById(id);
     }
 
     fun distance(tokens1: TIntHashSet, tokens2: TIntHashSet): Double {
@@ -107,8 +111,10 @@ object StringHashService {
         return distance(stringHash.tokens, otherStringHash.tokens)
     }
 
-    public val TROVE_NO_VALUE_LONG = 0L
-    public val TROVE_NO_VALUE_INT = 0
+    override fun close() {
+        stringHashRepository.close()
+    }
+    
 }
 
 public fun getTokens(string: String): TIntHashSet {

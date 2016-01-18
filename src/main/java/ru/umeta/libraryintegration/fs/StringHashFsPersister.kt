@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
 /**
  * Created by k.kosolapov on 12/2/2015.
  */
-object StringHashFsPersister {
+object StringHashFsPersister : AutoCloseable {
 
     const val SEPARATOR = "|"
     const val UTF_8 = "UTF-8"
@@ -28,6 +28,8 @@ object StringHashFsPersister {
     private val executorService = Executors.newSingleThreadExecutor()
 
     private val storageFile = File("stringHash.blob")
+
+    private val writerWithEncoding: FileWriterWithEncoding
 
     init {
         if (!storageFile.exists()) {
@@ -37,30 +39,30 @@ object StringHashFsPersister {
                 e.printStackTrace()
             }
         }
+        writerWithEncoding = FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true)
     }
 
     fun save(stringHash: StringHash, value: String) {
         executorService.execute {
             try {
-                FileWriterWithEncoding(storageFile, Charset.forName(UTF_8), true).use { writerWithEncoding ->
-                    writerWithEncoding.write(Hex.encodeHexString(
-                            byteArrayOf(stringHash.hashPart1(),
-                                    stringHash.hashPart2(),
-                                    stringHash.hashPart3(),
-                                    stringHash.hashPart4())))
-                    writerWithEncoding.write(SEPARATOR)
-                    writerWithEncoding.write(stringHash.id.toString())
-                    writerWithEncoding.write(SEPARATOR)
-                    writerWithEncoding.write(value)
-                    writerWithEncoding.write(SEPARATOR + "\n")
-                }
+                writerWithEncoding.write(Hex.encodeHexString(
+                        byteArrayOf(stringHash.hashPart1(),
+                                stringHash.hashPart2(),
+                                stringHash.hashPart3(),
+                                stringHash.hashPart4())))
+                writerWithEncoding.write(SEPARATOR)
+                writerWithEncoding.write(stringHash.id.toString())
+                writerWithEncoding.write(SEPARATOR)
+                writerWithEncoding.write(value)
+                writerWithEncoding.write(SEPARATOR + "\n")
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun fillMaps(mapHashCodeToId: TIntLongHashMap, mapIdToSimHash: TLongIntHashMap, mapIdToTokens: HashMap<Long, TIntHashSet>): Long {
+    fun fillMaps(mapHashCodeToId: TIntLongHashMap, mapIdToSimHash: TLongIntHashMap,
+                 mapIdToTokens: HashMap<Long, String>): Long {
         var lastId: Long = 0
         try {
             val it = FileUtils.lineIterator(storageFile, UTF_8)
@@ -100,12 +102,12 @@ object StringHashFsPersister {
                         val id = splitStrings[1].toLong()
                         lastId = Math.max(id, lastId)
                         val value = splitStrings[2]
-                        val tokens = getTokens(value)
+                        //val tokens = getTokens(value)
                         val simHash = StringHash.Util.collectParts(hashPart1, hashPart2, hashPart3, hashPart4)
 
                         mapHashCodeToId.put(value.hashCode(), id)
                         mapIdToSimHash.put(id, simHash)
-                        mapIdToTokens.put(id, tokens)
+                        mapIdToTokens.put(id, value)
 
                     } catch (e: DecoderException) {
                         e.printStackTrace()
@@ -121,5 +123,9 @@ object StringHashFsPersister {
         }
 
         return lastId
+    }
+
+    override fun close() {
+        writerWithEncoding.close()
     }
 }

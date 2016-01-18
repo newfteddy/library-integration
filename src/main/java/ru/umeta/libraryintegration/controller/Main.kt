@@ -1,10 +1,6 @@
 package ru.umeta.libraryintegration.controller
 
-import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.service.MainService
-import ru.umeta.libraryintegration.service.StringHashService
-import ru.umeta.libraryintegration.service.getTokens
-import java.util.*
 
 /**
  * The Main Rest Controller
@@ -12,5 +8,7 @@ import java.util.*
  */
 
 fun main(args: Array<String>) {
-    MainService().parseDirectory(args[0])
+    MainService.use {
+        it.parseDirectory(args[0])
+    }
 }

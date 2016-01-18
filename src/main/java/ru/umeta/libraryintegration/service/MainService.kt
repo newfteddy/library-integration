@@ -3,6 +3,7 @@ package ru.umeta.libraryintegration.service
 import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.parser.IXMLParser
 import ru.umeta.libraryintegration.parser.ModsXMLParser
+import java.io.Closeable
 import java.io.File
 import java.util.*
 
@@ -10,20 +11,25 @@ import java.util.*
  * The main service to handle the integration logic
  * Created by k.kosolapov on 14/04/2015.
  */
-object MainService {
+object MainService : Closeable {
+
+    val parser: IXMLParser = ModsXMLParser.Instance
+    val documentService = DocumentService
+
+
     @Throws(InterruptedException::class)
     fun parseDirectory(path: String): UploadResult {
-
+        println("Start parsing directory.")
         val fileList = getFilesToParse(path)
         var total = 0
         val result = UploadResult(0, 0)
         for (file in fileList) {
             val startTime = System.nanoTime()
-            val resultList = ModsXMLParser.parse(file)
+            val resultList = parser.parse(file)
             val size = resultList.size
             total += size
             println("resultList size is " + size)
-            val uploadResult = DocumentService.processDocumentList(resultList, null)
+            val uploadResult = documentService.processDocumentList(resultList, null)
             val endTime = System.nanoTime()
             println("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
             result.parsedDocs = result.parsedDocs + uploadResult.parsedDocs
@@ -39,23 +45,27 @@ object MainService {
         val result = UploadResult(0, 0)
         for (file in fileList) {
             val startTime = System.nanoTime()
-            val resultList = ModsXMLParser.parse(file)
+            val resultList = parser.parse(file)
             val parseTime = System.nanoTime()
             println("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
             println("resultList size is " + resultList.size)
             for (parseResult in resultList) {
-                val saltedResult = DocumentService.addNoise(parseResult, saltLevel)
+                val saltedResult = documentService.addNoise(parseResult, saltLevel)
                 if (saltedResult == null) {
                     println("The parsed result either had no authors or the title was blank.")
                     continue
                 }
-                val uploadResult = DocumentService.processDocumentList(saltedResult, null)
+                val uploadResult = documentService.processDocumentList(saltedResult, null)
                 println("The result with salt of level " + saltLevel + " is " + uploadResult.newEnriched)
 
             }
 
         }
         return result
+    }
+
+    override fun close() {
+        documentService.close()
     }
 }
 
@@ -75,17 +85,4 @@ fun getFilesToParse(path: String): List<File> {
         }
     }
     return emptyList()
-}
-
-fun parseDirectoryStatic(path: String): UploadResult {
-    val fileList = getFilesToParse(path)
-    val result = UploadResult(0, 0)
-    for (file in fileList) {
-        val startTime = System.nanoTime()
-        val resultList = ModsXMLParser.parse(file)
-        val parseTime = System.nanoTime()
-        println("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
-        println("resultList size is " + resultList.size)
-    }
-    return result
 }

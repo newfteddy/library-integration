@@ -1,48 +1,57 @@
-package ru.umeta.libraryintegration.parser
+package ru.umeta.libraryintegration.parser;
 
-import gov.loc.mods.v3.*
-import org.apache.xmlbeans.XmlException
-import org.apache.xmlbeans.impl.values.XmlObjectBase
-import ru.umeta.libraryintegration.json.ModsParseResult
-import ru.umeta.libraryintegration.json.ParseResult
-import org.apache.xmlbeans.XmlObject
-import java.io.File
-import java.io.IOException
-import java.lang.reflect.Array
-import java.util.ArrayList
-import java.util.Arrays
+import gov.loc.mods.v3.*;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.values.XmlObjectBase;
+import ru.umeta.libraryintegration.json.ModsParseResult;
+import ru.umeta.libraryintegration.json.ParseResult;
+import ru.umeta.libraryintegration.model.EnrichedDocument;
+import org.apache.xmlbeans.XmlObject;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by k.kosolapov on 06.04.2015.
  */
-object ModsXMLParser : IXMLParser {
+public class ModsXMLParser implements IXMLParser {
 
-    private val ISBN = "isbn"
-    private val NULL: String? = null
-    private val SPACE = " "
-    private val ERROR_PARSING_XML_FILE = "Error parsing XML file"
+    private static final String ISBN = "isbn";
+    private static final String NULL = null;
+    private static final String SPACE = " ";
+    private static final String ERROR_PARSING_XML_FILE = "Error parsing XML file";
 
-    override fun parse(file: File): List<ParseResult> {
-        val resultList = ArrayList<ParseResult>()
+    public static final ModsXMLParser Instance = new ModsXMLParser();
+
+    private ModsXMLParser() {
+        //Singleton support
+    }
+
+
+    @Override
+    public List<ParseResult> parse(File file) {
+        List<ParseResult> resultList = new ArrayList<>();
         try {
-            val modsCollectionDocument = ModsCollectionDocument.Factory.parse(file)
-            val modsCollection = modsCollectionDocument.modsCollection.modsArray
-            for (mods in modsCollection) {
-                val title = parseTitle(mods)
-                val isbn = parseIdentifier(mods)
-                val name = parseName(mods)
-                val publishYear = parsePublishYear(mods)
-                resultList.add(ModsParseResult(title, isbn, name, publishYear, mods))
+            ModsCollectionDocument modsCollectionDocument = ModsCollectionDocument.Factory.parse(file);
+            ModsDefinition[] modsCollection = modsCollectionDocument.getModsCollection().getModsArray();
+            for (ModsDefinition mods : modsCollection) {
+                final String title = parseTitle(mods);
+                final String isbn = parseIdentifier(mods);
+                final String name = parseName(mods);
+                final Integer publishYear = parsePublishYear(mods);
+                resultList.add(new ModsParseResult(title, isbn, name, publishYear, mods));
             }
 
-        } catch (e: XmlException) {
-            System.err.println(ERROR_PARSING_XML_FILE)
-            e.printStackTrace()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        } catch (XmlException e) {
+            System.err.println(ERROR_PARSING_XML_FILE);
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return resultList
+        return resultList;
     }
 
     //    public EnrichedDocument enrich(ModsDefinition definition, EnrichedDocument enrichedDocument) {
@@ -120,55 +129,55 @@ object ModsXMLParser : IXMLParser {
     //        }
     //    }
 
-    private fun <T : XmlObject> mergeSimpleProperty(propertyArray: Array<T>, enrichedPropertyArray: Array<T>): Array<T> {
-        if (enrichedPropertyArray.size == 0 && propertyArray.size > 0) {
-            return propertyArray
+    private <T extends XmlObject> T[] mergeSimpleProperty(T[] propertyArray, T[] enrichedPropertyArray) {
+        if (enrichedPropertyArray.length == 0 && propertyArray.length > 0) {
+            return propertyArray;
         }
-        return enrichedPropertyArray
+        return enrichedPropertyArray;
     }
 
-    private fun <T : XmlObject> mergeComplexProperty(propertyArray: Array, enrichedPropertyArray: Array):
-            List<T> {
-        val enrichedPropertyList = ArrayList(Arrays.asList(enrichedPropertyArray))
-        var size = enrichedPropertyList.size
-        for (property in propertyArray) {
-            var i = 0
-            for (enrichedProperty in enrichedPropertyList) {
-                val enrichedPropertyBase = enrichedProperty as XmlObjectBase
-                if (property.stringValue == enrichedPropertyBase.stringValue) {
-                    break
-                }
-                i++
-            }
-            if (i == size) {
-                enrichedPropertyList.add(property)
-                size++
-            }
+    private <T extends XmlObject> List<T> mergeComplexProperty(T[] propertyArray, T[] enrichedPropertyArray) {
+        List<T> enrichedPropertyList = new ArrayList<>(Arrays.asList(enrichedPropertyArray));
+        int size = enrichedPropertyList.size();
+        for (T property : propertyArray) {
+        XmlObjectBase propertyBase = (XmlObjectBase) property;
+        int i = 0;
+        for (T enrichedProperty : enrichedPropertyList) {
+        XmlObjectBase enrichedPropertyBase = (XmlObjectBase) enrichedProperty;
+        if (propertyBase.getStringValue().equals(enrichedPropertyBase.getStringValue())) {
+            break;
         }
-        return enrichedPropertyList
+        i++;
+    }
+        if (i == size) {
+            enrichedPropertyList.add(property);
+            size++;
+        }
+    }
+        return enrichedPropertyList;
     }
 
-    fun parseTitle(document: ModsDefinition?): String {
-        val titleBuilder = StringBuilder("")
-        if (document != null) {
-            val titleInfoArray = document.titleInfoArray
+    public String parseTitle(ModsDefinition document) {
+        StringBuilder titleBuilder = new StringBuilder("");
+        if (document != null ) {
+            final TitleInfoDefinition[] titleInfoArray = document.getTitleInfoArray();
             if (titleInfoArray != null) {
-                for (i in titleInfoArray.indices) {
-                    val titleInfo = titleInfoArray[i]
+                for (int i = 0; i < titleInfoArray.length; i++) {
+                    final TitleInfoDefinition titleInfo = titleInfoArray[i];
                     if (titleInfo != null) {
-                        val titleArray = titleInfo.titleArray
+                        final StringPlusLanguage[] titleArray = titleInfo.getTitleArray();
                         if (titleArray != null) {
-                            for (j in titleArray.indices) {
-                                titleBuilder.append(titleArray[j].stringValue)
-                                titleBuilder.append(SPACE)
+                            for (int j = 0; j < titleArray.length; j++) {
+                                titleBuilder.append(titleArray[j].getStringValue());
+                                titleBuilder.append(SPACE);
                             }
                         }
 
-                        val subTitleArray = titleInfo.subTitleArray
+                        final StringPlusLanguage[] subTitleArray = titleInfo.getSubTitleArray();
                         if (subTitleArray != null) {
-                            for (j in subTitleArray.indices) {
-                                titleBuilder.append(subTitleArray[j].stringValue)
-                                titleBuilder.append(SPACE)
+                            for (int j = 0; j < subTitleArray.length; j++) {
+                                titleBuilder.append(subTitleArray[j].getStringValue());
+                                titleBuilder.append(SPACE);
                             }
                         }
                     }
@@ -176,58 +185,58 @@ object ModsXMLParser : IXMLParser {
             }
         }
 
-        return titleBuilder.toString()
+        return titleBuilder.toString();
     }
 
-    fun parseIdentifier(document: ModsDefinition): String {
-        val identifierArray = document.identifierArray
+    public String parseIdentifier(ModsDefinition document) {
+        IdentifierDefinition[] identifierArray = document.getIdentifierArray();
 
-        var isbn: String = NULL
-        for (identifier in identifierArray) {
-            if (identifier != null && ISBN.compareTo(identifier.type) == 0) {
-                isbn = identifier.stringValue
-                break
-            }
+        String isbn = NULL;
+        for (IdentifierDefinition identifier : identifierArray) {
+        if (identifier != null && ISBN.compareTo(identifier.getType()) == 0) {
+            isbn = identifier.getStringValue();
+            break;
         }
-
-        return isbn
     }
 
-    fun parseName(document: ModsDefinition?): String {
-        val nameBuilder = StringBuilder("")
+        return isbn;
+    }
+
+    public String parseName(ModsDefinition document) {
+        StringBuilder nameBuilder = new StringBuilder("");
         if (document != null) {
-            val nameArray = document.nameArray
+            final NameDefinition[] nameArray = document.getNameArray();
             if (nameArray != null) {
-                for (name in nameArray) {
-                    val namePartArray = name.namePartArray
+                for (NameDefinition name : nameArray) {
+                    final NamePartDefinition[] namePartArray = name.getNamePartArray();
                     if (namePartArray != null) {
-                        for (namePart in namePartArray) {
-                            nameBuilder.append(namePart.stringValue)
-                            nameBuilder.append(SPACE)
+                        for (NamePartDefinition namePart : namePartArray) {
+                            nameBuilder.append(namePart.getStringValue());
+                            nameBuilder.append(SPACE);
                         }
                     }
                 }
             }
         }
 
-        return nameBuilder.toString()
+        return nameBuilder.toString();
     }
 
-    fun parsePublishYear(document: ModsDefinition?): Int? {
+    public Integer parsePublishYear(ModsDefinition document) {
         if (document != null) {
-            val originInfoArray = document.originInfoArray
-            if (originInfoArray != null && originInfoArray.size > 0) {
-                val dateIssuedArray = originInfoArray[0].dateIssuedArray
-                if (dateIssuedArray != null && dateIssuedArray.size > 0) {
+            final OriginInfoDefinition[] originInfoArray = document.getOriginInfoArray();
+            if (originInfoArray != null && originInfoArray.length > 0) {
+                DateDefinition[] dateIssuedArray = originInfoArray[0].getDateIssuedArray();
+                if (dateIssuedArray != null && dateIssuedArray.length > 0) {
                     try {
-                        return Integer.valueOf(dateIssuedArray[0].stringValue)
-                    } catch (e: NumberFormatException) {
-                        return null
+                        return Integer.valueOf(dateIssuedArray[0].getStringValue());
+                    } catch (NumberFormatException e) {
+                        return null;
                     }
-
                 }
             }
         }
-        return null
+        return null;
     }
+
 }

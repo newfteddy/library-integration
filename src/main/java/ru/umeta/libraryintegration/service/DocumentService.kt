@@ -2,15 +2,12 @@ package ru.umeta.libraryintegration.service
 
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository
-import ru.umeta.libraryintegration.inmemory.IEnrichedDocumentRepository
 import ru.umeta.libraryintegration.json.ModsParseResult
 import ru.umeta.libraryintegration.json.ParseResult
 import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.model.Document
 import ru.umeta.libraryintegration.model.EnrichedDocument
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite
-import ru.umeta.libraryintegration.parser.ModsXMLParser
-
 import java.util.*
 
 
@@ -18,10 +15,13 @@ import java.util.*
  * Service for operating with [Document] and [EnrichedDocument]
  * Created by ctash on 28.04.2015.
  */
-object DocumentService {
+object DocumentService : AutoCloseable {
 
     private val DEFAULT_PROTOCOL = "Z39.50"
     private val DUPLICATE_SIZE = 1000
+
+    val enrichedDocumentRepository = EnrichedDocumentRepository
+    val stringHashService = StringHashService
 
     fun processDocumentList(resultList: List<ParseResult>, protocolName: String?): UploadResult {
         var newEnriched = 0
@@ -39,22 +39,16 @@ object DocumentService {
                         title = title.substring(0, 255)
                     }
 
-                    val docAuthor = StringHashService.getFromRepository(author)
-                    val docTitle = StringHashService.getFromRepository(title)
+                    val authorId = stringHashService.getFromRepository(author)
+                    val titleId = stringHashService.getFromRepository(title)
                     var isbn: String? = parseResult.isbn
                     if (isbn.isNullOrEmpty()) {
                     }
                     isbn = null
-
-                    val document = Document(-1, docAuthor, docTitle, isbn, null, Date(), parseResult.publishYear, null)
-
-                    var enrichedDocument = findEnrichedDocument(document)
-                    if (enrichedDocument == null) {
-                        enrichedDocument = EnrichedDocument(-1, docAuthor.id, docTitle.id, isbn, null, Date(),
-                                parseResult.publishYear)
-                        EnrichedDocumentRepository.save(enrichedDocument)
-                        newEnriched++;
-                    }
+                    val enrichedDocument = EnrichedDocument(-1, authorId, titleId, isbn, null, Date(),
+                            parseResult.publishYear)
+                    enrichedDocumentRepository.save(enrichedDocument)
+                    newEnriched++;
                     parsedDocs++
                 } catch (e: Exception) {
                     throw e
@@ -72,28 +66,15 @@ object DocumentService {
         val isbn = document.isbn
         val publishYear = document.publishYear
         var nearDuplicates: List<EnrichedDocumentLite>
-        if (isbn == null && publishYear == null) {
+        if (isbn == null) {
             // if it's null, we search through every record in the storage
-            nearDuplicates = EnrichedDocumentRepository.getNearDuplicates(document)
+            nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document)
         } else {
+            nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
 
-            // if it's not null, we search through record where isbn is the same
-            if (publishYear == null) {
-                nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
-
-                if (nearDuplicates == null || nearDuplicates.size == 0) {
-                    // if it didn't find anything, search through record with null isbn.
-                    nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document)
-                }
-            } else if (isbn == null) {
-                nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
-
-            } else {
-                nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
-
-                if (nearDuplicates == null || nearDuplicates.size == 0) {
-                    nearDuplicates = EnrichedDocumentRepository.getNearDuplicatesWithPublishYear(document)
-                }
+            if (nearDuplicates == null || nearDuplicates.size == 0) {
+                // if it didn't find anything, search through record with null isbn.
+                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document)
             }
 
         }
@@ -109,9 +90,9 @@ object DocumentService {
 
             for (nearDuplicate in nearDuplicates) {
 
-                val titleDistance = StringHashService.distance(title, nearDuplicate.titleId)
+                val titleDistance = stringHashService.distance(title, nearDuplicate.titleId)
 
-                val authorDistance = StringHashService.distance(author, nearDuplicate.authorId)
+                val authorDistance = stringHashService.distance(author, nearDuplicate.authorId)
 
                 val resultDistance = (titleDistance + authorDistance) / 2
 
@@ -123,7 +104,7 @@ object DocumentService {
             }
             //            document.distance = maxDistance
             if (closestDocument != null) {
-                return EnrichedDocumentRepository.getById(closestDocument.id)
+                return enrichedDocumentRepository.getById(closestDocument.id)
             }
         }
 
@@ -160,5 +141,10 @@ object DocumentService {
             }
             return resultList
         }
+    }
+
+    override fun close() {
+        enrichedDocumentRepository.close()
+        stringHashService.close()
     }
 }
