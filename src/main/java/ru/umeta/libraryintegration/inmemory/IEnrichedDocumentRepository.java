@@ -13,6 +13,8 @@ public interface IEnrichedDocumentRepository {
 
     List<EnrichedDocumentLite> getNearDuplicates(Document document);
 
+    List<EnrichedDocumentLite> getNearDuplicates(EnrichedDocumentLite document);
+
     List<EnrichedDocumentLite> getNearDuplicatesWithIsbn(Document document);
 
     List<EnrichedDocumentLite> getNearDuplicatesWithNullIsbn(Document document);

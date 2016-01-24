@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.service
 
 import ru.umeta.libraryintegration.json.UploadResult
+import ru.umeta.libraryintegration.model.EnrichedDocumentLite
 import ru.umeta.libraryintegration.parser.IXMLParser
 import ru.umeta.libraryintegration.parser.ModsXMLParser
 import java.io.Closeable
@@ -39,6 +40,12 @@ object MainService : Closeable {
         return result
     }
 
+    fun find() {
+        println("Start finding duplicates.")
+        for (documentLite in documentService.getDocuments()) {
+            documentService.findEnriched(documentLite);
+        }
+    }
 
     fun parseDirectoryBalance(path: String, saltLevel: Int): UploadResult {
         val fileList = getFilesToParse(path)

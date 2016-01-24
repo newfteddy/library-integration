@@ -8,7 +8,14 @@ import ru.umeta.libraryintegration.service.MainService
  */
 
 fun main(args: Array<String>) {
-    MainService.use {
-        it.parseDirectory(args[0])
+    val command = args[0]
+    when (command) {
+        "-parse" -> MainService.use {
+            it.parseDirectory(args[1])
+        }
+        "-find" -> MainService.use {
+            it.find()
+        }
     }
+
 }

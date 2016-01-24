@@ -28,7 +28,7 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
 
     internal val fsPersister = EnrichedDocumentFsPersister;
     internal val stringHashService = StringHashService;
-
+    internal val list = ArrayList<EnrichedDocumentLite>()
     //internal var isbnMap: Multimap<Int, EnrichedDocumentLite> = ArrayListMultimap.create<Int, EnrichedDocumentLite>()
 
     //no year maps
@@ -123,7 +123,6 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
     }
 
     override fun getNearDuplicates(document: Document): List<EnrichedDocumentLite> {
-        return emptyList()
 //        val author = document.author
 //        val title = document.title
 //
@@ -165,6 +164,105 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
 //        result.addAll(t3t4a1Map.get(yt3t4a1Hash))
 //        result.addAll(t3t4a2Map.get(yt3t4a2Hash))
 //        return result.distinct().toList();
+    }
+
+    override fun getNearDuplicates(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
+        val authorId = document.authorId
+        val titleId = document.titleId
+
+        val author = stringHashService.getById(authorId)
+        val title = stringHashService.getById(titleId)
+
+        val a1 = author.hashPart1()
+        val a2 = author.hashPart2()
+        val a3 = author.hashPart3()
+        val a4 = author.hashPart4()
+
+        val t1 = title.hashPart1()
+        val t2 = title.hashPart2()
+        val t3 = title.hashPart3()
+        val t4 = title.hashPart4()
+
+        val t1t2a1a2Hash = getHashWithoutYear(t1, t2, a1, a2)
+        val t1t2a1a3Hash = getHashWithoutYear(t1, t2, a1, a3)
+        val t1t2a1a4Hash = getHashWithoutYear(t1, t2, a1, a4)
+        val t1t2a2a3Hash = getHashWithoutYear(t1, t2, a2, a3)
+        val t1t2a2a4Hash = getHashWithoutYear(t1, t2, a2, a4)
+        val t1t2a3a4Hash = getHashWithoutYear(t1, t2, a3, a4)
+
+        val t1t3a1a2Hash = getHashWithoutYear(t1, t3, a1, a2)
+        val t1t3a1a3Hash = getHashWithoutYear(t1, t3, a1, a3)
+        val t1t3a1a4Hash = getHashWithoutYear(t1, t3, a1, a4)
+        val t1t3a2a3Hash = getHashWithoutYear(t1, t3, a2, a3)
+        val t1t3a2a4Hash = getHashWithoutYear(t1, t3, a2, a4)
+        val t1t3a3a4Hash = getHashWithoutYear(t1, t3, a3, a4)
+
+        val t1t4a1a2Hash = getHashWithoutYear(t1, t4, a1, a2)
+        val t1t4a1a3Hash = getHashWithoutYear(t1, t4, a1, a3)
+        val t1t4a1a4Hash = getHashWithoutYear(t1, t4, a1, a4)
+        val t1t4a2a3Hash = getHashWithoutYear(t1, t4, a2, a3)
+        val t1t4a2a4Hash = getHashWithoutYear(t1, t4, a2, a4)
+        val t1t4a3a4Hash = getHashWithoutYear(t1, t4, a3, a4)
+
+        val t2t3a1a2Hash = getHashWithoutYear(t2, t3, a1, a2)
+        val t2t3a1a3Hash = getHashWithoutYear(t2, t3, a1, a3)
+        val t2t3a1a4Hash = getHashWithoutYear(t2, t3, a1, a4)
+        val t2t3a2a3Hash = getHashWithoutYear(t2, t3, a2, a3)
+        val t2t3a2a4Hash = getHashWithoutYear(t2, t3, a2, a4)
+        val t2t3a3a4Hash = getHashWithoutYear(t2, t3, a3, a4)
+
+        val t2t4a1a2Hash = getHashWithoutYear(t2, t4, a1, a2)
+        val t2t4a1a3Hash = getHashWithoutYear(t2, t4, a1, a3)
+        val t2t4a1a4Hash = getHashWithoutYear(t2, t4, a1, a4)
+        val t2t4a2a3Hash = getHashWithoutYear(t2, t4, a2, a3)
+        val t2t4a2a4Hash = getHashWithoutYear(t2, t4, a2, a4)
+        val t2t4a3a4Hash = getHashWithoutYear(t2, t4, a3, a4)
+
+        val t3t4a1a2Hash = getHashWithoutYear(t3, t4, a1, a2)
+        val t3t4a1a3Hash = getHashWithoutYear(t3, t4, a1, a3)
+        val t3t4a1a4Hash = getHashWithoutYear(t3, t4, a1, a4)
+        val t3t4a2a3Hash = getHashWithoutYear(t3, t4, a2, a3)
+        val t3t4a2a4Hash = getHashWithoutYear(t3, t4, a2, a4)
+        val t3t4a3a4Hash = getHashWithoutYear(t3, t4, a3, a4)
+
+        val result = ArrayList<EnrichedDocumentLite>()
+
+        result.addAll(t1t2a1a2Map.get(t1t2a1a2Hash))
+        result.addAll(t1t2a1a3Map.get(t1t2a1a3Hash))
+        result.addAll(t1t2a1a4Map.get(t1t2a1a4Hash))
+        result.addAll(t1t2a2a3Map.get(t1t2a2a3Hash))
+        result.addAll(t1t2a2a4Map.get(t1t2a2a4Hash))
+        result.addAll(t1t2a3a4Map.get(t1t2a3a4Hash))
+
+        result.addAll(t1t3a1a2Map.get(t1t3a1a2Hash))
+        result.addAll(t1t3a1a3Map.get(t1t3a1a3Hash))
+        result.addAll(t1t3a1a4Map.get(t1t3a1a4Hash))
+        result.addAll(t1t3a2a3Map.get(t1t3a2a3Hash))
+        result.addAll(t1t3a2a4Map.get(t1t3a2a4Hash))
+        result.addAll(t1t3a3a4Map.get(t1t3a3a4Hash))
+
+        result.addAll(t1t4a1a2Map.get(t1t4a1a2Hash))
+        result.addAll(t1t4a1a3Map.get(t1t4a1a3Hash))
+        result.addAll(t1t4a1a4Map.get(t1t4a1a4Hash))
+        result.addAll(t1t4a2a3Map.get(t1t4a2a3Hash))
+        result.addAll(t1t4a2a4Map.get(t1t4a2a4Hash))
+        result.addAll(t1t4a3a4Map.get(t1t4a3a4Hash))
+
+        result.addAll(t2t3a1a2Map.get(t2t3a1a2Hash))
+        result.addAll(t2t3a1a3Map.get(t2t3a1a3Hash))
+        result.addAll(t2t3a1a4Map.get(t2t3a1a4Hash))
+        result.addAll(t2t3a2a3Map.get(t2t3a2a3Hash))
+        result.addAll(t2t3a2a4Map.get(t2t3a2a4Hash))
+        result.addAll(t2t3a3a4Map.get(t2t3a3a4Hash))
+
+        result.addAll(t1t3a1a2Map.get(t1t3a1a2Hash))
+        result.addAll(t1t3a1a3Map.get(t1t3a1a3Hash))
+        result.addAll(t1t3a1a4Map.get(t1t3a1a4Hash))
+        result.addAll(t1t3a2a3Map.get(t1t3a2a3Hash))
+        result.addAll(t1t3a2a4Map.get(t1t3a2a4Hash))
+        result.addAll(t1t3a3a4Map.get(t1t3a3a4Hash))
+
+        return result.distinct().toList();
     }
 
     private fun getHashWithoutYear(hash1: Byte, hash2: Byte, hash3: Byte, hash4: Byte): Int {
@@ -368,6 +466,7 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
         t3t4a2a4Map.put(t3t4a2a4Hash, lite)
         t3t4a3a4Map.put(t3t4a3a4Hash, lite)
 
+        list.add(lite)
     }
 
     override fun update(enrichedDocument: EnrichedDocument) {

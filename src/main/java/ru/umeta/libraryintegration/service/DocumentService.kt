@@ -111,6 +111,45 @@ object DocumentService : AutoCloseable {
         return null
     }
 
+    fun findEnrichedDocument(document: EnrichedDocumentLite): EnrichedDocument? {
+
+        //first check whether the document has
+        val nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document)
+
+        if (nearDuplicates.size > 0) {
+
+            var maxDistance = 0.0
+            val minDistance = 0.7
+            var closestDocument: EnrichedDocumentLite? = null
+
+            val title = document.title
+            val author = document.author
+
+            for (nearDuplicate in nearDuplicates) {
+
+                val titleDistance = stringHashService.distance(title, nearDuplicate.titleId)
+
+                val authorDistance = stringHashService.distance(author, nearDuplicate.authorId)
+
+                val resultDistance = (titleDistance + authorDistance) / 2
+
+                if (resultDistance > maxDistance && resultDistance > minDistance) {
+                    maxDistance = resultDistance
+                    closestDocument = nearDuplicate
+                }
+
+            }
+            //            document.distance = maxDistance
+            if (closestDocument != null) {
+                return enrichedDocumentRepository.getById(closestDocument.id)
+            }
+        }
+
+        return null
+    }
+
+
+
     fun addNoise(parseResult: ParseResult, saltLevel: Int): List<ParseResult>? {
         val author = parseResult.author
         val title = parseResult.title
@@ -146,5 +185,9 @@ object DocumentService : AutoCloseable {
     override fun close() {
         enrichedDocumentRepository.close()
         stringHashService.close()
+    }
+
+    fun getDocuments(): List<EnrichedDocumentLite> {
+        return enrichedDocumentRepository.list
     }
 }
