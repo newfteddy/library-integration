@@ -114,7 +114,23 @@ object StringHashService : AutoCloseable {
     override fun close() {
         stringHashRepository.close()
     }
-    
+
+    fun getFromRepositoryInit(string: String): Long {
+        var string = string
+        if (string.length > 255) {
+            string = string.substring(0, 255)
+        }
+
+        var stringHashId = stringHashRepository.getByHashCode(string)
+        if (stringHashId == TROVE_NO_VALUE_LONG) {
+            val stringHash = getStringHash(string)
+            stringHashRepository.saveInit(stringHash, string)
+            return stringHash.id
+        } else {
+            return stringHashId
+        }
+    }
+
 }
 
 public fun getTokens(string: String): TIntHashSet {

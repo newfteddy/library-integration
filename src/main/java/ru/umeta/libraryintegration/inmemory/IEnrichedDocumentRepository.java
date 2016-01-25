@@ -4,6 +4,7 @@ import ru.umeta.libraryintegration.model.Document;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite;
 
+import java.util.Collection;
 import java.util.List;
 
 /**

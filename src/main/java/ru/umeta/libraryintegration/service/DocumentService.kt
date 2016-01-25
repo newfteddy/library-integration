@@ -1,11 +1,11 @@
 package ru.umeta.libraryintegration.service
 
+import gnu.trove.set.hash.TLongHashSet
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository
 import ru.umeta.libraryintegration.json.ModsParseResult
 import ru.umeta.libraryintegration.json.ParseResult
 import ru.umeta.libraryintegration.json.UploadResult
-import ru.umeta.libraryintegration.model.Document
 import ru.umeta.libraryintegration.model.EnrichedDocument
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite
 import java.util.*
@@ -60,94 +60,37 @@ object DocumentService : AutoCloseable {
         return UploadResult(parsedDocs, newEnriched)
     }
 
-    private fun findEnrichedDocument(document: Document): EnrichedDocument? {
+    fun findEnrichedDocuments(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
 
-        //first check whether the document has isbn or not
-        val isbn = document.isbn
-        val publishYear = document.publishYear
-        var nearDuplicates: List<EnrichedDocumentLite>
-        if (isbn == null) {
-            // if it's null, we search through every record in the storage
-            nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document)
-        } else {
-            nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithIsbn(document)
+        val dfs = DFS()
+        dfs.apply(document);
 
-            if (nearDuplicates == null || nearDuplicates.size == 0) {
-                // if it didn't find anything, search through record with null isbn.
-                nearDuplicates = enrichedDocumentRepository.getNearDuplicatesWithNullIsbn(document)
-            }
-
-        }
-
-        if (nearDuplicates != null && nearDuplicates.size > 0) {
-
-            var maxDistance = 0.0
-            val minDistance = 0.7
-            var closestDocument: EnrichedDocumentLite? = null
-
-            val title = document.title
-            val author = document.author
-
-            for (nearDuplicate in nearDuplicates) {
-
-                val titleDistance = stringHashService.distance(title, nearDuplicate.titleId)
-
-                val authorDistance = stringHashService.distance(author, nearDuplicate.authorId)
-
-                val resultDistance = (titleDistance + authorDistance) / 2
-
-                if (resultDistance > maxDistance && resultDistance > minDistance) {
-                    maxDistance = resultDistance
-                    closestDocument = nearDuplicate
-                }
-
-            }
-            //            document.distance = maxDistance
-            if (closestDocument != null) {
-                return enrichedDocumentRepository.getById(closestDocument.id)
-            }
-        }
-
-        return null
+        return dfs.component;
     }
 
-    fun findEnrichedDocument(document: EnrichedDocumentLite): EnrichedDocument? {
+    class DFS {
 
-        //first check whether the document has
-        val nearDuplicates = enrichedDocumentRepository.getNearDuplicates(document)
+        val used = TLongHashSet()
+        val component = ArrayList<EnrichedDocumentLite>()
 
-        if (nearDuplicates.size > 0) {
+        var stack = Stack<EnrichedDocumentLite>();
 
-            var maxDistance = 0.0
-            val minDistance = 0.7
-            var closestDocument: EnrichedDocumentLite? = null
-
-            val title = document.title
-            val author = document.author
-
-            for (nearDuplicate in nearDuplicates) {
-
-                val titleDistance = stringHashService.distance(title, nearDuplicate.titleId)
-
-                val authorDistance = stringHashService.distance(author, nearDuplicate.authorId)
-
-                val resultDistance = (titleDistance + authorDistance) / 2
-
-                if (resultDistance > maxDistance && resultDistance > minDistance) {
-                    maxDistance = resultDistance
-                    closestDocument = nearDuplicate
+        fun apply(document: EnrichedDocumentLite) {
+            stack.add(document)
+            while (!stack.isEmpty()) {
+                val cur = stack.pop()
+                val id = cur.id
+                if (!used.contains(id)) {
+                    used.add(id)
+                    component.add(cur)
+                    for (duplicate in enrichedDocumentRepository.getNearDuplicates(document)) {
+                        stack.add(duplicate)
+                    }
                 }
-
-            }
-            //            document.distance = maxDistance
-            if (closestDocument != null) {
-                return enrichedDocumentRepository.getById(closestDocument.id)
             }
         }
 
-        return null
     }
-
 
 
     fun addNoise(parseResult: ParseResult, saltLevel: Int): List<ParseResult>? {
@@ -189,5 +132,42 @@ object DocumentService : AutoCloseable {
 
     fun getDocuments(): List<EnrichedDocumentLite> {
         return enrichedDocumentRepository.list
+    }
+
+    fun processDocumentListInit(resultList: List<ParseResult>, nothing: Nothing?): Any {
+        var newEnriched = 0
+        var parsedDocs = 0
+
+        for (parseResult in resultList) {
+            if (parseResult is ModsParseResult) {
+                try {
+                    var author = parseResult.author
+                    if (author.length > 255) {
+                        author = author.substring(0, 255)
+                    }
+                    var title = parseResult.title
+                    if (title.length > 255) {
+                        title = title.substring(0, 255)
+                    }
+
+                    val authorId = stringHashService.getFromRepositoryInit(author)
+                    val titleId = stringHashService.getFromRepositoryInit(title)
+                    var isbn: String? = parseResult.isbn
+                    if (isbn.isNullOrEmpty()) {
+                    }
+                    isbn = null
+                    val enrichedDocument = EnrichedDocument(-1, authorId, titleId, isbn, null, Date(),
+                            parseResult.publishYear)
+                    enrichedDocumentRepository.saveInit(enrichedDocument)
+                    newEnriched++;
+                    parsedDocs++
+                } catch (e: Exception) {
+                    throw e
+                }
+
+
+            }
+        }
+        return UploadResult(parsedDocs, newEnriched)
     }
 }

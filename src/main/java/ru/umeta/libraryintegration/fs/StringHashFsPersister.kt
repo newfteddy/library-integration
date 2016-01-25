@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.LineIterator
 import org.apache.commons.io.output.FileWriterWithEncoding
 import org.springframework.util.StringUtils
+import ru.umeta.libraryintegration.inmemory.javaHashCode
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.service.getTokens
 import java.io.File
@@ -62,7 +63,7 @@ object StringHashFsPersister : AutoCloseable {
     }
 
     fun fillMaps(mapHashCodeToId: TIntLongHashMap, mapIdToSimHash: TLongIntHashMap,
-                 mapIdToTokens: HashMap<Long, String>): Long {
+                 mapIdToTokens: HashMap<Long, TIntHashSet>): Long {
         var lastId: Long = 0
         try {
             val it = FileUtils.lineIterator(storageFile, UTF_8)
@@ -102,12 +103,12 @@ object StringHashFsPersister : AutoCloseable {
                         val id = splitStrings[1].toLong()
                         lastId = Math.max(id, lastId)
                         val value = splitStrings[2]
-                        //val tokens = getTokens(value)
+                        val tokens = getTokens(value)
                         val simHash = StringHash.Util.collectParts(hashPart1, hashPart2, hashPart3, hashPart4)
 
-                        mapHashCodeToId.put(value.hashCode(), id)
+                        mapHashCodeToId.put(value.javaHashCode(), id)
                         mapIdToSimHash.put(id, simHash)
-                        mapIdToTokens.put(id, value)
+                        mapIdToTokens.put(id, tokens)
 
                     } catch (e: DecoderException) {
                         e.printStackTrace()

@@ -13,6 +13,9 @@ fun main(args: Array<String>) {
         "-parse" -> MainService.use {
             it.parseDirectory(args[1])
         }
+        "-parseInit" -> MainService.use {
+            it.parseDirectoryInit(args[1])
+        }
         "-find" -> MainService.use {
             it.find()
         }

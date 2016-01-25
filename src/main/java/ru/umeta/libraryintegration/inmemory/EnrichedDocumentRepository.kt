@@ -23,6 +23,9 @@ import java.util.*
  * Created by Kirill Kosolapov (https://github.com/c-tash) on 12.11.2015.
  */
 object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
+    override fun getNearDuplicates(document: Document?): MutableList<EnrichedDocumentLite>? {
+        throw UnsupportedOperationException()
+    }
 
     private val BATCH_SIZE = 10000
 
@@ -122,51 +125,8 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
         identity = lastId + 1
     }
 
-    override fun getNearDuplicates(document: Document): List<EnrichedDocumentLite> {
-//        val author = document.author
-//        val title = document.title
-//
-//        val a1 = author.hashPart1()
-//        val a2 = author.hashPart2()
-//
-//        val t1 = title.hashPart1()
-//        val t2 = title.hashPart2()
-//        val t3 = title.hashPart3()
-//        val t4 = title.hashPart4()
-//
-//        val yt1t2a1Hash = getHashWithoutYear(t1, t2, a1, a2)
-//        val yt1t2a2Hash = getHashWithoutYear(t1, t2, a2)
-//        val yt1t3a1Hash = getHashWithoutYear(t1, t3, a1)
-//        val yt1t3a2Hash = getHashWithoutYear(t1, t3, a2)
-//        val yt1t4a1Hash = getHashWithoutYear(t1, t4, a1)
-//        val yt1t4a2Hash = getHashWithoutYear(t1, t4, a2)
-//
-//        val yt2t3a1Hash = getHashWithoutYear(t2, t3, a1)
-//        val yt2t3a2Hash = getHashWithoutYear(t2, t3, a2)
-//        val yt2t4a1Hash = getHashWithoutYear(t2, t4, a1)
-//        val yt2t4a2Hash = getHashWithoutYear(t2, t4, a2)
-//
-//        val yt3t4a1Hash = getHashWithoutYear(t3, t4, a1)
-//        val yt3t4a2Hash = getHashWithoutYear(t3, t4, a2)
-//
-//        val result = ArrayList<EnrichedDocumentLite>()
-//
-//        result.addAll(t1t2a1Map.get(yt1t2a1Hash))
-//        result.addAll(t1t2a2Map.get(yt1t2a2Hash))
-//        result.addAll(t1t3a1Map.get(yt1t3a1Hash))
-//        result.addAll(t1t3a2Map.get(yt1t3a2Hash))
-//        result.addAll(t1t4a1Map.get(yt1t4a1Hash))
-//        result.addAll(t1t4a2Map.get(yt1t4a2Hash))
-//        result.addAll(t2t3a1Map.get(yt2t3a1Hash))
-//        result.addAll(t2t3a2Map.get(yt2t3a2Hash))
-//        result.addAll(t2t4a1Map.get(yt2t4a1Hash))
-//        result.addAll(t2t4a2Map.get(yt2t4a2Hash))
-//        result.addAll(t3t4a1Map.get(yt3t4a1Hash))
-//        result.addAll(t3t4a2Map.get(yt3t4a2Hash))
-//        return result.distinct().toList();
-    }
-
-    override fun getNearDuplicates(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
+    override fun getNearDuplicates(document: EnrichedDocumentLite)
+            : List<EnrichedDocumentLite> {
         val authorId = document.authorId
         val titleId = document.titleId
 
@@ -255,12 +215,19 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
         result.addAll(t2t3a2a4Map.get(t2t3a2a4Hash))
         result.addAll(t2t3a3a4Map.get(t2t3a3a4Hash))
 
-        result.addAll(t1t3a1a2Map.get(t1t3a1a2Hash))
-        result.addAll(t1t3a1a3Map.get(t1t3a1a3Hash))
-        result.addAll(t1t3a1a4Map.get(t1t3a1a4Hash))
-        result.addAll(t1t3a2a3Map.get(t1t3a2a3Hash))
-        result.addAll(t1t3a2a4Map.get(t1t3a2a4Hash))
-        result.addAll(t1t3a3a4Map.get(t1t3a3a4Hash))
+        result.addAll(t2t4a1a2Map.get(t2t4a1a2Hash))
+        result.addAll(t2t4a1a3Map.get(t2t4a1a3Hash))
+        result.addAll(t2t4a1a4Map.get(t2t4a1a4Hash))
+        result.addAll(t2t4a2a3Map.get(t2t4a2a3Hash))
+        result.addAll(t2t4a2a4Map.get(t2t4a2a4Hash))
+        result.addAll(t2t4a3a4Map.get(t2t4a3a4Hash))
+
+        result.addAll(t3t4a1a2Map.get(t3t4a1a2Hash))
+        result.addAll(t3t4a1a3Map.get(t3t4a1a3Hash))
+        result.addAll(t3t4a1a4Map.get(t3t4a1a4Hash))
+        result.addAll(t3t4a2a3Map.get(t3t4a2a3Hash))
+        result.addAll(t3t4a2a4Map.get(t3t4a2a4Hash))
+        result.addAll(t3t4a3a4Map.get(t3t4a3a4Hash))
 
         return result.distinct().toList();
     }
@@ -281,8 +248,7 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
     }
 
     override fun getNearDuplicatesWithNullIsbn(document: Document): List<EnrichedDocumentLite> {
-        val nearDuplicates = getNearDuplicates(document)
-        return nearDuplicates.filter(EnrichedDocumentLite::isbnIsNull);
+        return emptyList()
     }
 
     override fun getNearDuplicatesWithPublishYear(document: Document): List<EnrichedDocumentLite> {
@@ -368,7 +334,7 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
             titleHash = stringHashService.getById(title)
             year = enrichedDocument.publishYear
         } catch (e: RuntimeException) {
-            e.printStackTrace()
+            println(e.message)
             return
         }
 
@@ -480,6 +446,12 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
 
     override fun close() {
         fsPersister.close()
+    }
+
+    fun saveInit(enrichedDocument: EnrichedDocument) {
+        enrichedDocument.id = identity++
+        //putIntoMaps(enrichedDocument)
+        fsPersister.save(enrichedDocument)
     }
 
 }

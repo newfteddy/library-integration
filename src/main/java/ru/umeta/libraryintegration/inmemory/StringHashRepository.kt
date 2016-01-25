@@ -15,7 +15,7 @@ object StringHashRepository : AutoCloseable {
 
     private val mapHashCodeToId = TIntLongHashMap()
     private val mapIdToSimHash = TLongIntHashMap()
-    private val mapIdToTokens = HashMap<Long, String>()
+    private val mapIdToTokens = HashMap<Long, TIntHashSet>()
 
     private var identity: Long = 0
     private val stringHashFsPersister = StringHashFsPersister
@@ -29,7 +29,7 @@ object StringHashRepository : AutoCloseable {
     }
 
     fun getByHashCode(string: String): Long {
-        return mapHashCodeToId[string.hashCode()]
+        return mapHashCodeToId[string.javaHashCode()]
     }
 
     fun getSimHashById(id: Long): Int {
@@ -39,19 +39,30 @@ object StringHashRepository : AutoCloseable {
     fun save(stringHash: StringHash, value: String) {
         val id = identity++
         stringHash.id = id
-        mapHashCodeToId.put(value.hashCode(), id)
-        //mapIdToSimHash.put(id, stringHash.simHash)
-        //mapIdToTokens.put(id, stringHash.tokens)
+        mapHashCodeToId.put(value.javaHashCode(), id)
+        mapIdToSimHash.put(id, stringHash.simHash)
+        mapIdToTokens.put(id, getTokens(value))
         stringHashFsPersister.save(stringHash, value)
     }
 
     fun getStringHashById(id: Long): StringHash {
         val simHash = mapIdToSimHash[id]
         val tokens = mapIdToTokens[id] ?: throw RuntimeException("token set for simHash with id=\"$id\" is null.")
-        return StringHash(id, getTokens(tokens), simHash)
+        return StringHash(id, tokens, simHash)
     }
 
     override fun close() {
         stringHashFsPersister.close()
     }
+
+    fun saveInit(stringHash: StringHash, value: String) {
+        val id = identity++
+        stringHash.id = id
+        mapHashCodeToId.put(value.javaHashCode(), id)
+        stringHashFsPersister.save(stringHash, value)
+    }
+}
+
+fun String.javaHashCode(): Int {
+    return (this as java.lang.String).hashCode();
 }

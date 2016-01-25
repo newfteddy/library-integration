@@ -1,11 +1,15 @@
 package ru.umeta.libraryintegration.service
 
+import gnu.trove.set.hash.TLongHashSet
+import org.apache.commons.io.output.FileWriterWithEncoding
+import ru.umeta.libraryintegration.fs.EnrichedDocumentFsPersister
 import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite
 import ru.umeta.libraryintegration.parser.IXMLParser
 import ru.umeta.libraryintegration.parser.ModsXMLParser
 import java.io.Closeable
 import java.io.File
+import java.nio.charset.Charset
 import java.util.*
 
 /**
@@ -42,9 +46,25 @@ object MainService : Closeable {
 
     fun find() {
         println("Start finding duplicates.")
-        for (documentLite in documentService.getDocuments()) {
-            documentService.findEnriched(documentLite);
-        }
+        (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
+            writer ->
+            val documents = documentService.getDocuments()
+            val marked = TLongHashSet();
+            var i = 1;
+            for (documentLite in documents) {
+                if (!marked.contains(documentLite.id)) {
+                    writer.write("SECTION $i\n")
+                    i++
+                    val duplicates = documentService.findEnrichedDocuments(documentLite)
+                    for (duplicate in duplicates) {
+                        val id = duplicate.id
+                        marked.add(id)
+                        writer.write("$id\n")
+                    }
+                }
+
+            }
+        })
     }
 
     fun parseDirectoryBalance(path: String, saltLevel: Int): UploadResult {
@@ -73,6 +93,25 @@ object MainService : Closeable {
 
     override fun close() {
         documentService.close()
+    }
+
+    fun parseDirectoryInit(path: String): Any {
+        println("Start parsing directory.")
+        val fileList = getFilesToParse(path)
+        var total = 0
+        val result = UploadResult(0, 0)
+        for (file in fileList) {
+            val startTime = System.nanoTime()
+            val resultList = parser.parse(file)
+            val size = resultList.size
+            total += size
+            println("resultList size is " + size)
+            val uploadResult = documentService.processDocumentListInit(resultList, null)
+            val endTime = System.nanoTime()
+            println("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
+        }
+
+        return result
     }
 }
 
