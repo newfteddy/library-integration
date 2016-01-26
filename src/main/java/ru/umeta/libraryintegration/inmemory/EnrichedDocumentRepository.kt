@@ -23,7 +23,12 @@ import java.util.*
  * Created by Kirill Kosolapov (https://github.com/c-tash) on 12.11.2015.
  */
 object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
-    override fun getNearDuplicates(document: Document?): MutableList<EnrichedDocumentLite>? {
+
+    override fun getNearDuplicates(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
+        return getNearDuplicates(document, ArrayList<EnrichedDocumentLite>())
+    }
+
+    override fun getNearDuplicates(document: Document): MutableList<EnrichedDocumentLite> {
         throw UnsupportedOperationException()
     }
 
@@ -125,8 +130,8 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
         identity = lastId + 1
     }
 
-    override fun getNearDuplicates(document: EnrichedDocumentLite)
-            : List<EnrichedDocumentLite> {
+    override fun getNearDuplicates(document: EnrichedDocumentLite, current: List<EnrichedDocumentLite>)
+            : ArrayList<EnrichedDocumentLite> {
         val authorId = document.authorId
         val titleId = document.titleId
 
@@ -229,7 +234,7 @@ object EnrichedDocumentRepository : IEnrichedDocumentRepository, AutoCloseable {
         result.addAll(t3t4a2a4Map.get(t3t4a2a4Hash))
         result.addAll(t3t4a3a4Map.get(t3t4a3a4Hash))
 
-        return result.distinct().toList();
+        return result.distinct().minus(current).toArrayList()
     }
 
     private fun getHashWithoutYear(hash1: Byte, hash2: Byte, hash3: Byte, hash4: Byte): Int {

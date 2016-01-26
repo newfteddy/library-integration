@@ -72,8 +72,8 @@ object DocumentService : AutoCloseable {
 
         val used = TLongHashSet()
         val component = ArrayList<EnrichedDocumentLite>()
-
-        var stack = Stack<EnrichedDocumentLite>();
+        var filtered= ArrayList<EnrichedDocumentLite>()
+        var stack = Stack<EnrichedDocumentLite>()
 
         fun apply(document: EnrichedDocumentLite) {
             stack.add(document)
@@ -81,9 +81,19 @@ object DocumentService : AutoCloseable {
                 val cur = stack.pop()
                 val id = cur.id
                 if (!used.contains(id)) {
+                    val authorId = cur.authorId
+                    val titleId = cur.titleId
                     used.add(id)
                     component.add(cur)
-                    for (duplicate in enrichedDocumentRepository.getNearDuplicates(document)) {
+                    //filter documents which have the nearest measure of 0.7 or more
+                    val current = filtered;
+                    val nearDuplicates = enrichedDocumentRepository.getNearDuplicates(cur, current)
+                    filtered = nearDuplicates.filter {
+                            (stringHashService.distance(authorId, it.authorId)
+                            + stringHashService.distance(titleId, it.titleId) >= 0.7 * 2)}
+                        .toArrayList();
+                    current.forEach { filtered.add(it)}
+                    for (duplicate in filtered) {
                         stack.add(duplicate)
                     }
                 }
