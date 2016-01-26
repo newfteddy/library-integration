@@ -62,7 +62,9 @@ object MainService : Closeable {
                         writer.write("$id\n")
                     }
                 }
-
+                if (i % 100000 == 0) {
+                    println(i);
+                }
             }
         })
     }
