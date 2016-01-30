@@ -3,6 +3,7 @@ package ru.umeta.libraryintegration.parser;
 import gov.loc.mods.v3.*;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.values.XmlObjectBase;
+import org.springframework.stereotype.Component;
 import ru.umeta.libraryintegration.json.ModsParseResult;
 import ru.umeta.libraryintegration.json.ParseResult;
 import ru.umeta.libraryintegration.model.EnrichedDocument;
@@ -17,19 +18,13 @@ import java.util.List;
 /**
  * Created by k.kosolapov on 06.04.2015.
  */
+@Component
 public class ModsXMLParser implements IXMLParser {
 
     private static final String ISBN = "isbn";
     private static final String NULL = null;
     private static final String SPACE = " ";
     private static final String ERROR_PARSING_XML_FILE = "Error parsing XML file";
-
-    public static final ModsXMLParser Instance = new ModsXMLParser();
-
-    private ModsXMLParser() {
-        //Singleton support
-    }
-
 
     @Override
     public List<ParseResult> parse(File file) {

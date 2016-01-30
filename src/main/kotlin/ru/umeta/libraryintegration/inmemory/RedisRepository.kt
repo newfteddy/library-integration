@@ -1,12 +1,5 @@
 package ru.umeta.libraryintegration.inmemory
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.redis.core.StringRedisTemplate
-import org.springframework.data.redis.core.ValueOperations
-import org.springframework.data.redis.support.atomic.RedisAtomicLong
-import org.springframework.data.redis.support.collections.DefaultRedisList
-import org.springframework.data.redis.support.collections.RedisList
-import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.model.StringHash
 
 /**

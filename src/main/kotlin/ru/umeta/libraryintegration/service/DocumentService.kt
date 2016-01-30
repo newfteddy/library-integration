@@ -1,8 +1,11 @@
 package ru.umeta.libraryintegration.service
 
 import gnu.trove.set.hash.TLongHashSet
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository
+import ru.umeta.libraryintegration.inmemory.IEnrichedDocumentRepository
 import ru.umeta.libraryintegration.json.ModsParseResult
 import ru.umeta.libraryintegration.json.ParseResult
 import ru.umeta.libraryintegration.json.UploadResult
@@ -15,13 +18,13 @@ import java.util.*
  * Service for operating with [Document] and [EnrichedDocument]
  * Created by ctash on 28.04.2015.
  */
-object DocumentService : AutoCloseable {
+@Component
+class DocumentService @Autowired constructor (
+val enrichedDocumentRepository: IEnrichedDocumentRepository,
+val stringHashService: StringHashService) {
 
     private val DEFAULT_PROTOCOL = "Z39.50"
     private val DUPLICATE_SIZE = 1000
-
-    val enrichedDocumentRepository = EnrichedDocumentRepository
-    val stringHashService = StringHashService
 
     fun processDocumentList(resultList: List<ParseResult>, protocolName: String?): UploadResult {
         var newEnriched = 0

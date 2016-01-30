@@ -2,6 +2,8 @@ package ru.umeta.libraryintegration.service
 
 import gnu.trove.set.hash.TLongHashSet
 import org.apache.commons.io.output.FileWriterWithEncoding
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.fs.EnrichedDocumentFsPersister
 import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite
@@ -16,10 +18,14 @@ import java.util.*
  * The main service to handle the integration logic
  * Created by k.kosolapov on 14/04/2015.
  */
-object MainService : Closeable {
+@Component
+class MainService : Closeable {
 
-    val parser: IXMLParser = ModsXMLParser.Instance
-    val documentService = DocumentService
+    @Autowired
+    val parser: IXMLParser
+
+    @Autowired
+    val documentService: DocumentService
 
 
     @Throws(InterruptedException::class)
