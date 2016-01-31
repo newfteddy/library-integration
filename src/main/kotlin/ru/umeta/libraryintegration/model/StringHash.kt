@@ -6,8 +6,11 @@ import gnu.trove.set.hash.TIntHashSet
  * Created by ctash on 29.04.2015.
  */
 data class StringHash(var id: Long,
-                      val tokens: TIntHashSet,
-                      val simHash: Int) {
+                      val value: String,
+                      val hashCode: Int,
+                      val simHash: Int,
+                      @Transient
+                      val tokens: TIntHashSet) {
 
     fun hashPart1(): Byte {
         return ((simHash and 0xff000000.toInt()) ushr 24).toByte()

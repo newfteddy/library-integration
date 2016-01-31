@@ -4,12 +4,8 @@ import gnu.trove.set.hash.TLongHashSet
 import org.apache.commons.io.output.FileWriterWithEncoding
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import ru.umeta.libraryintegration.fs.EnrichedDocumentFsPersister
 import ru.umeta.libraryintegration.json.UploadResult
-import ru.umeta.libraryintegration.model.EnrichedDocumentLite
 import ru.umeta.libraryintegration.parser.IXMLParser
-import ru.umeta.libraryintegration.parser.ModsXMLParser
-import java.io.Closeable
 import java.io.File
 import java.nio.charset.Charset
 import java.util.*
@@ -19,14 +15,9 @@ import java.util.*
  * Created by k.kosolapov on 14/04/2015.
  */
 @Component
-class MainService : Closeable {
-
-    @Autowired
-    val parser: IXMLParser
-
-    @Autowired
-    val documentService: DocumentService
-
+class MainService
+@Autowired
+constructor(val parser: IXMLParser, val documentService: DocumentService) {
 
     @Throws(InterruptedException::class)
     fun parseDirectory(path: String): UploadResult {
@@ -97,10 +88,6 @@ class MainService : Closeable {
 
         }
         return result
-    }
-
-    override fun close() {
-        documentService.close()
     }
 
     fun parseDirectoryInit(path: String): Any {

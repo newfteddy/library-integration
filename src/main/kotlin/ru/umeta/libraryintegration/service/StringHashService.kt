@@ -3,7 +3,9 @@ package ru.umeta.libraryintegration.service
 import com.google.common.base.Strings
 import gnu.trove.map.hash.TIntIntHashMap
 import gnu.trove.set.hash.TIntHashSet
-import ru.umeta.libraryintegration.inmemory.StringHashRepository
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import ru.umeta.libraryintegration.inmemory.RedisRepository
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.model.bigrammToInt
 import ru.umeta.libraryintegration.util.MD5To32Algorithm
@@ -12,13 +14,13 @@ import java.util.*
 /**
  * Created by k.kosolapov on 14.05.2015.
  */
-object StringHashService : AutoCloseable {
-    
+@Component
+class StringHashService @Autowired constructor(val redisRepository: RedisRepository) {
+
     public val TROVE_NO_VALUE_LONG = 0L
     public val TROVE_NO_VALUE_INT = 0
 
     private val tokenMap = TIntIntHashMap();
-    private val stringHashRepository = StringHashRepository
 
     fun getStringHash(string: String): StringHash {
         var simHash = 0
@@ -63,7 +65,7 @@ object StringHashService : AutoCloseable {
         }
 
 
-        return StringHash(-1, tokens, simHash)
+        return StringHash(-1, string, string.hashCode(), simHash, tokens)
     }
 
     fun getSimHashTokens(string: String): TIntHashSet {
@@ -75,19 +77,14 @@ object StringHashService : AutoCloseable {
         if (string.length > 255) {
             string = string.substring(0, 255)
         }
-
-        var stringHashId = stringHashRepository.getByHashCode(string)
-        if (stringHashId == TROVE_NO_VALUE_LONG) {
-            val stringHash = getStringHash(string)
-            stringHashRepository.save(stringHash, string)
-            return stringHash.id
-        } else {
-            return stringHashId
-        }
+        val stringHash = getStringHash(string);
+        redisRepository.addStringHash(stringHash);
+        return stringHash.id
     }
 
     fun getById(id: Long): StringHash {
-        return stringHashRepository.getStringHashById(id);
+        //return stringHashRepository.getStringHashById(id);
+        throw UnsupportedOperationException();
     }
 
     fun distance(tokens1: TIntHashSet, tokens2: TIntHashSet): Double {
@@ -111,24 +108,14 @@ object StringHashService : AutoCloseable {
         return distance(stringHash.tokens, otherStringHash.tokens)
     }
 
-    override fun close() {
-        stringHashRepository.close()
-    }
-
     fun getFromRepositoryInit(string: String): Long {
         var string = string
         if (string.length > 255) {
             string = string.substring(0, 255)
         }
-
-        var stringHashId = stringHashRepository.getByHashCode(string)
-        if (stringHashId == TROVE_NO_VALUE_LONG) {
-            val stringHash = getStringHash(string)
-            stringHashRepository.saveInit(stringHash, string)
-            return stringHash.id
-        } else {
-            return stringHashId
-        }
+        val stringHash = getStringHash(string);
+        redisRepository.addStringHash(stringHash);
+        return stringHash.id
     }
 
 }

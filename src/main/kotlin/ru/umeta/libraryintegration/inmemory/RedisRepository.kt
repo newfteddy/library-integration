@@ -1,5 +1,17 @@
 package ru.umeta.libraryintegration.inmemory
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.redis.core.BoundHashOperations
+import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.data.redis.core.ValueOperations
+import org.springframework.data.redis.hash.DecoratingStringHashMapper
+import org.springframework.data.redis.hash.JacksonHashMapper
+import org.springframework.data.redis.support.atomic.RedisAtomicLong
+import org.springframework.data.redis.support.collections.DefaultRedisList
+import org.springframework.data.redis.support.collections.DefaultRedisMap
+import org.springframework.data.redis.support.collections.RedisList
+import org.springframework.data.redis.support.collections.RedisMap
+import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.model.StringHash
 
 /**
@@ -18,6 +30,9 @@ public class RedisRepository {
     private val stringHashList: RedisList<String>
     private val documentList: RedisList<String>
 
+    private val postMapper = DecoratingStringHashMapper<StringHash>(
+            JacksonHashMapper<StringHash>(StringHash::class.java))
+
     @Autowired
     constructor(template: StringRedisTemplate) {
         this.template = template
@@ -29,15 +44,15 @@ public class RedisRepository {
         documentIdCounter = RedisAtomicLong("global:dId", template.connectionFactory)
     }
 
-    fun addStringHash(stringHash: StringHash): String {
-        val id = stringHashIdCounter.incrementAndGet().toString()
-        val userOps = template.boundHashOps(KeyUtils.uid(uid))
-        userOps.put("name", name)
-        userOps.put("pass", password)
-        valueOps.set(KeyUtils.user(name), uid)
-
-        users.addFirst(name)
-        return addAuth(name)
+    fun addStringHash(stringHash: StringHash) {
+        val id = stringHashIdCounter.incrementAndGet()
+        val idAsString = java.lang.String.valueOf(id)
+        stringHash.id = id
+        stringHash(idAsString).putAll(postMapper.toHash(stringHash))
+        stringHashList.addLast(idAsString)
     }
 
+    private fun stringHash(id: String): RedisMap<String, String> {
+        return DefaultRedisMap(":shId$id", template)
+    }
 }

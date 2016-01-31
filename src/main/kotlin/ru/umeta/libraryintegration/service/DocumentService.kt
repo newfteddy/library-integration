@@ -1,11 +1,9 @@
 package ru.umeta.libraryintegration.service
 
-import gnu.trove.set.hash.TLongHashSet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
-import ru.umeta.libraryintegration.inmemory.EnrichedDocumentRepository
-import ru.umeta.libraryintegration.inmemory.IEnrichedDocumentRepository
+import ru.umeta.libraryintegration.inmemory.RedisRepository
 import ru.umeta.libraryintegration.json.ModsParseResult
 import ru.umeta.libraryintegration.json.ParseResult
 import ru.umeta.libraryintegration.json.UploadResult
@@ -19,9 +17,10 @@ import java.util.*
  * Created by ctash on 28.04.2015.
  */
 @Component
-class DocumentService @Autowired constructor (
-val enrichedDocumentRepository: IEnrichedDocumentRepository,
-val stringHashService: StringHashService) {
+class DocumentService
+@Autowired constructor(
+        val redisRepository: RedisRepository,
+        val stringHashService: StringHashService) {
 
     private val DEFAULT_PROTOCOL = "Z39.50"
     private val DUPLICATE_SIZE = 1000
@@ -50,7 +49,7 @@ val stringHashService: StringHashService) {
                     isbn = null
                     val enrichedDocument = EnrichedDocument(-1, authorId, titleId, isbn, null, Date(),
                             parseResult.publishYear)
-                    enrichedDocumentRepository.save(enrichedDocument)
+                    //enrichedDocumentRepository.save(enrichedDocument)
                     newEnriched++;
                     parsedDocs++
                 } catch (e: Exception) {
@@ -65,45 +64,47 @@ val stringHashService: StringHashService) {
 
     fun findEnrichedDocuments(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
 
-        val dfs = DFS()
-        dfs.apply(document);
-
-        return dfs.component;
+        //        val dfs = DFS(enrichedDocumentRepository, stringHashService)
+        //        dfs.apply(document);
+        //
+        //        return dfs.component;
+        return emptyList()
     }
 
-    class DFS {
-
-        val used = TLongHashSet()
-        val component = ArrayList<EnrichedDocumentLite>()
-        var filtered= ArrayList<EnrichedDocumentLite>()
-        var stack = Stack<EnrichedDocumentLite>()
-
-        fun apply(document: EnrichedDocumentLite) {
-            stack.add(document)
-            while (!stack.isEmpty()) {
-                val cur = stack.pop()
-                val id = cur.id
-                if (!used.contains(id)) {
-                    val authorId = cur.authorId
-                    val titleId = cur.titleId
-                    used.add(id)
-                    component.add(cur)
-                    //filter documents which have the nearest measure of 0.7 or more
-                    val current = filtered;
-                    val nearDuplicates = enrichedDocumentRepository.getNearDuplicates(cur, current)
-                    filtered = nearDuplicates.filter {
-                            (stringHashService.distance(authorId, it.authorId)
-                            + stringHashService.distance(titleId, it.titleId) >= 0.7 * 2)}
-                        .toArrayList();
-                    current.forEach { filtered.add(it)}
-                    for (duplicate in filtered) {
-                        stack.add(duplicate)
-                    }
-                }
-            }
-        }
-
-    }
+    //    class DFS(val enrichedDocumentRepository: EnrichedDocumentRepository,
+    //              val stringHashService: StringHashService) {
+    //
+    //        val used = TLongHashSet()
+    //        val component = ArrayList<EnrichedDocumentLite>()
+    //        var filtered= ArrayList<EnrichedDocumentLite>()
+    //        var stack = Stack<EnrichedDocumentLite>()
+    //
+    //        fun apply(document: EnrichedDocumentLite) {
+    //            stack.add(document)
+    //            while (!stack.isEmpty()) {
+    //                val cur = stack.pop()
+    //                val id = cur.id
+    //                if (!used.contains(id)) {
+    //                    val authorId = cur.authorId
+    //                    val titleId = cur.titleId
+    //                    used.add(id)
+    //                    component.add(cur)
+    //                    //filter documents which have the nearest measure of 0.7 or more
+    //                    val current = filtered;
+    //                    val nearDuplicates = enrichedDocumentRepository.getNearDuplicates(cur, current)
+    //                    filtered = nearDuplicates.filter {
+    //                            (stringHashService.distance(authorId, it.authorId)
+    //                            + stringHashService.distance(titleId, it.titleId) >= 0.7 * 2)}
+    //                        .toArrayList();
+    //                    current.forEach { filtered.add(it)}
+    //                    for (duplicate in filtered) {
+    //                        stack.add(duplicate)
+    //                    }
+    //                }
+    //            }
+    //        }
+    //
+    //    }
 
 
     fun addNoise(parseResult: ParseResult, saltLevel: Int): List<ParseResult>? {
@@ -138,13 +139,9 @@ val stringHashService: StringHashService) {
         }
     }
 
-    override fun close() {
-        enrichedDocumentRepository.close()
-        stringHashService.close()
-    }
-
     fun getDocuments(): List<EnrichedDocumentLite> {
-        return enrichedDocumentRepository.list
+        //return enrichedDocumentRepository.list
+        return emptyList()
     }
 
     fun processDocumentListInit(resultList: List<ParseResult>, nothing: Nothing?): Any {
@@ -171,7 +168,7 @@ val stringHashService: StringHashService) {
                     isbn = null
                     val enrichedDocument = EnrichedDocument(-1, authorId, titleId, isbn, null, Date(),
                             parseResult.publishYear)
-                    enrichedDocumentRepository.saveInit(enrichedDocument)
+                    //enrichedDocumentRepository.saveInit(enrichedDocument)
                     newEnriched++;
                     parsedDocs++
                 } catch (e: Exception) {
