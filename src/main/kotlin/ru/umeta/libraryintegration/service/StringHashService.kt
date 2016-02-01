@@ -17,17 +17,16 @@ import java.util.*
 @Component
 class StringHashService @Autowired constructor(val redisRepository: RedisRepository) {
 
-    public val TROVE_NO_VALUE_LONG = 0L
     public val TROVE_NO_VALUE_INT = 0
 
-    private val tokenMap = TIntIntHashMap();
+    private val tokenMap = HashMap<String, Int>();
 
     fun getStringHash(string: String): StringHash {
         var simHash = 0
-        val tokens: TIntHashSet
+        val tokens: Set<String>
         if (string.length < 2) {
             simHash = 0
-            tokens = TIntHashSet(0)
+            tokens = HashSet<String>(0)
         } else {
             tokens = getSimHashTokens(string)
             /**
@@ -38,8 +37,8 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
 
             for (token in tokens) {
                 var tokenHash: Int
-                var mapTokenHash: Int = tokenMap[token]
-                if (mapTokenHash == TROVE_NO_VALUE_INT) {
+                var mapTokenHash: Int? = tokenMap[token]
+                if (mapTokenHash == null) {
                     tokenHash = MD5To32Algorithm.getHash(token)
                     tokenMap.put(token, tokenHash)
                 } else {
@@ -65,10 +64,10 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         }
 
 
-        return StringHash(-1, string, string.hashCode(), simHash, tokens)
+        return StringHash(-1, string.hashCode(), simHash, tokens)
     }
 
-    fun getSimHashTokens(string: String): TIntHashSet {
+    fun getSimHashTokens(string: String): Set<String> {
         return getTokens(string)
     }
 
@@ -87,14 +86,14 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         throw UnsupportedOperationException();
     }
 
-    fun distance(tokens1: TIntHashSet, tokens2: TIntHashSet): Double {
-        val union = TIntHashSet(tokens1)
-        val intersection = TIntHashSet(tokens1)
+    fun distance(tokens1: Set<String>, tokens2: Set<String>): Double {
+        val union = HashSet<String>(tokens1)
+        val intersection = HashSet<String>(tokens1)
 
         union.addAll(tokens2)
         intersection.retainAll(tokens2)
 
-        return (intersection.size() * 1.0) / (union.size() * 1.0)
+        return (intersection.size * 1.0) / (union.size * 1.0)
     }
 
     fun distance(stringId: Long, otherStringId: Long): Double {
@@ -120,14 +119,14 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
 
 }
 
-public fun getTokens(string: String): TIntHashSet {
+public fun getTokens(string: String): Set<String> {
     if (Strings.isNullOrEmpty(string)) {
-        return TIntHashSet()
+        return HashSet()
     }
 
-    val tokens = TIntHashSet()
+    val tokens = HashSet<String>()
     for (i in 0..string.length - 1 - 1) {
-        val bigramm = bigrammToInt(string.substring(i, i + 2));
+        val bigramm = string.substring(i, i + 2)
         if (!tokens.contains(bigramm)) {
             tokens.add(bigramm)
         }

@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'idea'
+apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -31,6 +32,8 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compile 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
+    compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
 }
 
 
@@ -47,6 +50,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
@@ -54,3 +58,6 @@ sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
 }
 
+springBoot {
+    mainClass = 'ru.umeta.libraryintegration.BootApplication'
+}
