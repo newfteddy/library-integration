@@ -27,6 +27,6 @@ public class ConsoleController : CommandLineRunner {
     }
 
     companion object {
-        val logger = LoggerFactory.getLogger(ConsoleController.javaClass)
+        val logger = LoggerFactory.getLogger(ConsoleController::class.java)
     }
 }

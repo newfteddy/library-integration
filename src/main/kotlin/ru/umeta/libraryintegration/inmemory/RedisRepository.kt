@@ -1,7 +1,9 @@
 package ru.umeta.libraryintegration.inmemory
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.redis.core.*
+import org.springframework.data.redis.core.SetOperations
+import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.data.redis.core.ValueOperations
 import org.springframework.data.redis.hash.DecoratingStringHashMapper
 import org.springframework.data.redis.hash.JacksonHashMapper
 import org.springframework.data.redis.support.atomic.RedisAtomicLong
@@ -20,10 +22,9 @@ import ru.umeta.libraryintegration.model.StringHashLite
 public class RedisRepository {
 
     private val stringTemplate: StringRedisTemplate
-    private val setTemplate: RedisTemplate<String, String>
 
     private val valueOps: ValueOperations<String, String>
-    private val setOps: ZSetOperations<String, String>
+    private val setOps: SetOperations<String, String>
 
     private val stringHashIdCounter: RedisAtomicLong
     private val documentIdCounter: RedisAtomicLong
@@ -35,11 +36,10 @@ public class RedisRepository {
             JacksonHashMapper<StringHashLite>(StringHashLite::class.java))
 
     @Autowired
-    constructor(stringTemplate: StringRedisTemplate, setTemplate: RedisTemplate<String, String>) {
+    constructor(stringTemplate: StringRedisTemplate) {
         this.stringTemplate = stringTemplate
-        this.setTemplate = setTemplate
         valueOps = stringTemplate.opsForValue()
-        setOps = setTemplate.opsForZSet()
+        setOps = stringTemplate.opsForSet()
 
         stringHashList = DefaultRedisList<String>("stringHash", stringTemplate)
         documentList = DefaultRedisList<String>("documentList", stringTemplate)
@@ -54,12 +54,30 @@ public class RedisRepository {
         val idAsString = java.lang.String.valueOf(id)
         stringHashLite.id = id
         stringHash(idAsString).putAll(postMapper.toHash(stringHashLite))
-        setOps.add("stringHash:tokens:id:$id", DefaultTypedTuple<String>())
-
+        setOps.add(stringHashTokensKey(idAsString), *tokens.toTypedArray())
+        valueOps.set("stringHash:hash:${stringHash.hashCode}", idAsString)
         stringHashList.addLast(idAsString)
     }
 
+    private fun stringHashTokensKey(id: String) = "stringHash:tokens:id:$id"
+
     private fun stringHash(id: String): RedisMap<String, String> {
-        return DefaultRedisMap("stringHash:id:$id", stringTemplate)
+        return DefaultRedisMap(stringHashKey(id), stringTemplate)
+    }
+
+    private fun stringHashKey(id: String) = "stringHash:id:$id"
+
+    fun getStringHashByHashCode(hashCode: Int): StringHash? {
+        val id: String? = valueOps.get("stringHash:hash:$hashCode")
+        if (id != null) {
+            val boundHashOps = stringTemplate.boundHashOps<String, String>(stringHashKey(id))
+            val simHash = boundHashOps.get("simHash").toInt()
+            val setOps = stringTemplate.boundSetOps(stringHashTokensKey(id))
+            val tokens = setOps.members() ?: emptySet<String>()
+            return StringHash(id.toLong(), hashCode, simHash, tokens)
+        } else {
+            return null
+        }
+
     }
 }
