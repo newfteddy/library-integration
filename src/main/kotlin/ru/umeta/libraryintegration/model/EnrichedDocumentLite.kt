@@ -7,8 +7,5 @@ data class EnrichedDocumentLite(
         val id: Long,
         val authorId: Long,
         val titleId: Long,
-        var nullIsbn: Boolean = true) {
-    fun isbnIsNull(): Boolean {
-        return nullIsbn;
-    }
-}
+        val isbn: Int,
+        val publishYear: Int)

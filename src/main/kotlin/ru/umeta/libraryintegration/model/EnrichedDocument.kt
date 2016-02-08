@@ -12,11 +12,7 @@ data class EnrichedDocument(
 
         val author: Long,
 
-        var isbn: String? = null,
+        var isbn: Int,
 
-        val xml: String? = null,
-
-        val creationTime: Date,
-
-        var publishYear: Int? = null)
+        var publishYear: Int)
 

@@ -47,8 +47,8 @@ class DocumentService
                     if (isbn.isNullOrEmpty()) {
                     }
                     isbn = null
-                    val enrichedDocument = EnrichedDocument(-1, authorId, titleId, isbn, null, Date(),
-                            parseResult.publishYear)
+                    //val enrichedDocument = EnrichedDocument(-1, authorId, titleId, isbn, null, Date(),
+//                            parseResult.publishYear)
                     //enrichedDocumentRepository.save(enrichedDocument)
                     newEnriched++;
                     parsedDocs++
@@ -162,13 +162,10 @@ class DocumentService
 
                     val authorId = stringHashService.getFromRepositoryInit(author)
                     val titleId = stringHashService.getFromRepositoryInit(title)
-                    var isbn: String? = parseResult.isbn
-                    if (isbn.isNullOrEmpty()) {
-                    }
-                    isbn = null
-                    val enrichedDocument = EnrichedDocument(-1, authorId, titleId, isbn, null, Date(),
-                            parseResult.publishYear)
-                    //enrichedDocumentRepository.saveInit(enrichedDocument)
+                    val isbn: String = parseResult.isbn?:""
+
+                    val document = EnrichedDocument(-1, authorId, titleId, isbn.hashCode(), parseResult.publishYear?:-1)
+                    redisRepository.saveDocument(document)
                     newEnriched++;
                     parsedDocs++
                 } catch (e: Exception) {

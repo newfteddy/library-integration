@@ -12,6 +12,7 @@ import org.springframework.data.redis.support.collections.DefaultRedisMap
 import org.springframework.data.redis.support.collections.RedisList
 import org.springframework.data.redis.support.collections.RedisMap
 import org.springframework.stereotype.Component
+import ru.umeta.libraryintegration.model.EnrichedDocument
 import ru.umeta.libraryintegration.model.StringHash
 import ru.umeta.libraryintegration.model.StringHashLite
 
@@ -32,8 +33,10 @@ public class RedisRepository {
     private val stringHashList: RedisList<String>
     private val documentList: RedisList<String>
 
-    private val postMapper = DecoratingStringHashMapper<StringHashLite>(
+    private val stringHashMapper = DecoratingStringHashMapper<StringHashLite>(
             JacksonHashMapper<StringHashLite>(StringHashLite::class.java))
+    private val documentMapper = DecoratingStringHashMapper<EnrichedDocument>(
+            JacksonHashMapper<EnrichedDocument>(EnrichedDocument::class.java))
 
     @Autowired
     constructor(stringTemplate: StringRedisTemplate) {
@@ -53,7 +56,7 @@ public class RedisRepository {
         val id = stringHashIdCounter.incrementAndGet()
         val idAsString = java.lang.String.valueOf(id)
         stringHashLite.id = id
-        stringHash(idAsString).putAll(postMapper.toHash(stringHashLite))
+        stringHash(idAsString).putAll(stringHashMapper.toHash(stringHashLite))
         setOps.add(stringHashTokensKey(idAsString), *tokens.toTypedArray())
         valueOps.set("stringHash:hash:${stringHash.hashCode}", idAsString)
         stringHashList.addLast(idAsString)
@@ -80,4 +83,16 @@ public class RedisRepository {
         }
 
     }
+
+    fun saveDocument(document: EnrichedDocument) {
+        val id = documentIdCounter.incrementAndGet()
+        document.id = id
+        document(id.toString()).putAll(documentMapper.toHash(document))
+    }
+
+    private fun document(id: String): RedisMap<String, String> {
+        return DefaultRedisMap(documentKey(id), stringTemplate)
+    }
+
+    private fun documentKey(id: String) = "document:id:$id"
 }
