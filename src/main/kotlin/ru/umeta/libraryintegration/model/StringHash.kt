@@ -1,14 +1,12 @@
 package ru.umeta.libraryintegration.model
 
-import gnu.trove.set.hash.TIntHashSet
-
 /**
  * Created by ctash on 29.04.2015.
  */
 data class StringHash(var id: Long,
                       val hashCode: Int,
                       val simHash: Int,
-                      val tokens: Set<String>) {
+                      val value: String) {
 
     fun hashPart1(): Byte {
         return ((simHash and 0xff000000.toInt()) ushr 24).toByte()
@@ -47,5 +45,12 @@ data class StringHash(var id: Long,
         }
     }
 
-
+    fun hashParts(): ByteArray {
+        val array = ByteArray(4)
+        array[0] = hashPart1()
+        array[1] = hashPart2()
+        array[2] = hashPart3()
+        array[3] = hashPart4()
+        return array
+    }
 }

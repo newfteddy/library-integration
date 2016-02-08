@@ -1,8 +1,5 @@
 package ru.umeta.libraryintegration.service
 
-import com.google.common.base.Strings
-import gnu.trove.map.hash.TIntIntHashMap
-import gnu.trove.set.hash.TIntHashSet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.inmemory.RedisRepository
@@ -64,7 +61,7 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         }
 
 
-        return StringHash(-1, string.hashCode(), simHash, tokens)
+        return StringHash(-1, string.hashCode(), simHash, string)
     }
 
     fun getSimHashTokens(string: String): Set<String> {
@@ -102,12 +99,12 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
     fun distance(stringId: Long, otherStringId: Long): Double {
         val stringHash = getById(stringId)
         val otherStringHash = getById(otherStringId)
-        return distance(stringHash.tokens, otherStringHash.tokens)
+        return 1.0//distance(stringHash.tokens, otherStringHash.tokens)
     }
 
     fun distance(stringHash: StringHash, otherStringId: Long): Double {
         val otherStringHash = getById(otherStringId)
-        return distance(stringHash.tokens, otherStringHash.tokens)
+        return 1.0//distance(stringHash.tokens, otherStringHash.tokens)
     }
 
     fun getFromRepositoryInit(string: String): Long {
@@ -123,7 +120,7 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
 }
 
 public fun getTokens(string: String): Set<String> {
-    if (Strings.isNullOrEmpty(string)) {
+    if (string.length == 0) {
         return HashSet()
     }
 

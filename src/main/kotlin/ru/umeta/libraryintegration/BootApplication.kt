@@ -3,7 +3,6 @@ package ru.umeta.libraryintegration
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
-
 /**
  * Created by ctash on 02.02.16.
  */

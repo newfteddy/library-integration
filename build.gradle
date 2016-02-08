@@ -18,19 +18,12 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
     compile fileTree(dir: 'lib', include: '*.jar')
     compile("org.springframework.boot:spring-boot-starter-redis:${springBootVersion}")
-    compile 'junit:junit:4.11'
-    compile 'commons-fileupload:commons-fileupload:1.2.2'
     compile 'commons-io:commons-io:2.1'
-    compile 'portlet-api:portlet-api:1.0'
 
-    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     compile 'org.apache.xmlbeans:xmlbeans:2.6.0'
     compile 'commons-codec:commons-codec:1.10'
-    compile 'com.google.guava:guava:18.0'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     compile 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
     compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
@@ -43,7 +36,7 @@ task wrapper(type: Wrapper) {
 
 buildscript {
     ext {
-        kotlinVersion = '1.0.0-beta-4584'
+        kotlinVersion = '1.0.0-rc-1036'
         springBootVersion = '1.3.2.RELEASE'
     }
     repositories {

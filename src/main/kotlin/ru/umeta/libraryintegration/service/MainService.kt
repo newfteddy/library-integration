@@ -1,6 +1,5 @@
 package ru.umeta.libraryintegration.service
 
-import gnu.trove.set.hash.TLongHashSet
 import org.apache.commons.io.output.FileWriterWithEncoding
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -46,7 +45,7 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
         (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
             writer ->
             val documents = documentService.getDocuments()
-            val marked = TLongHashSet();
+            val marked = HashSet<Long>()
             var i = 1;
             for (documentLite in documents) {
                 if (!marked.contains(documentLite.id)) {
@@ -101,7 +100,7 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
             val size = resultList.size
             total += size
             println("resultList size is " + size)
-            val uploadResult = documentService.processDocumentListInit(resultList, null)
+            val uploadResult = documentService.processDocumentListInit(resultList)
             val endTime = System.nanoTime()
             println("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
         }
