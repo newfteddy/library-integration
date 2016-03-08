@@ -54,9 +54,6 @@ class DocumentService
                     val titleId = stringHashService.getFromRepositoryInit(title)
                     val isbn: String = parseResult.isbn?:""
 
-                    val document = EnrichedDocument(-1, authorId, titleId, isbn.hashCode(), parseResult.publishYear?:-1)
-                    redisRepository.saveDocument(document)
-                    saveHashes(document);
                     newEnriched++;
                     parsedDocs++
                 } catch (e: Exception) {
@@ -151,29 +148,6 @@ class DocumentService
 
     fun processDocumentListInit(resultList: List<ParseResult>) = processDocumentList(resultList, null)
 
-    private fun saveHashes(document: EnrichedDocument) {
-        val titleHashParts = redisRepository.getStringHashById(document.title).hashParts()
-        val authorHashParts = redisRepository.getStringHashById(document.author).hashParts()
-        val executor = Executors.newFixedThreadPool(6);
-        for (ti in 0..3) {
-            for (tj in ti+1..3) {
-                for (ai in 0..3) {
-                    for (aj in ai+1..3) {
-                        executor.submit { val hash1 = titleHashParts[ti]
-                            val hash2 = titleHashParts[tj]
-                            val hash3 = authorHashParts[ai]
-                            val hash4 = authorHashParts[aj]
-                            val shift = 8
-                            var value = hash1.toInt()
-                            value = (value shl shift) + hash2.toInt()
-                            value = (value shl shift) + hash3.toInt()
-                            value = (value shl shift) + hash4.toInt()
-                            redisRepository.addHashLinkToDocument(ti, tj, ai, aj, document.id, value)
-                        }
-                    }
-                }
-            }
-        }
-    }
+
 
 }

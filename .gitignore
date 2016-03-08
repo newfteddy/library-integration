@@ -1,0 +1,18 @@
+# IDEA's garbage
+.idea
+*.iml
+*.ipr
+*.iws
+/out
+
+# Eclipse garbage
+bin/
+.classpath
+.project
+.settings
+.springBeans
+
+# gradle build
+.gradle
+build/
+tmp_download

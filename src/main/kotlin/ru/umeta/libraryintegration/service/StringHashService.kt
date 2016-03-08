@@ -73,12 +73,8 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         if (string.length > 255) {
             string = string.substring(0, 255)
         }
-        var stringHash = redisRepository.getStringHashByHashCode(string.hashCode())
-        if (stringHash == null) {
-            stringHash = getStringHash(string);
-            redisRepository.addStringHash(stringHash);
-        }
-        return stringHash.id
+        redisRepository.addString(string);
+        return -1
     }
 
     fun getById(id: Long): StringHash {
@@ -112,9 +108,8 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         if (string.length > 255) {
             string = string.substring(0, 255)
         }
-        val stringHash = getStringHash(string);
-        redisRepository.addStringHash(stringHash);
-        return stringHash.id
+        redisRepository.addString(string);
+        return -1
     }
 
 }
