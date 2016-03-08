@@ -45,7 +45,7 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
         (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
             writer ->
             val documents = documentService.getDocuments()
-            val marked = HashSet<Long>()
+            val marked = HashSet<Int>()
             var i = 1;
             for (documentLite in documents) {
                 if (!marked.contains(documentLite.id)) {

@@ -68,7 +68,7 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         return getTokens(string)
     }
 
-    fun getFromRepository(string: String): Long {
+    fun getFromRepository(string: String): Int {
         var string = string
         if (string.length > 255) {
             string = string.substring(0, 255)
@@ -103,7 +103,7 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         return 1.0//distance(stringHash.tokens, otherStringHash.tokens)
     }
 
-    fun getFromRepositoryInit(string: String): Long {
+    fun getFromRepositoryInit(string: String): Int {
         var string = string
         if (string.length > 255) {
             string = string.substring(0, 255)

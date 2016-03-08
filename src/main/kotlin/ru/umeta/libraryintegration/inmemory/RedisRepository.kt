@@ -1,18 +1,10 @@
 package ru.umeta.libraryintegration.inmemory
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.redis.core.*
-import org.springframework.data.redis.hash.DecoratingStringHashMapper
-import org.springframework.data.redis.hash.JacksonHashMapper
-import org.springframework.data.redis.support.atomic.RedisAtomicInteger
-import org.springframework.data.redis.support.atomic.RedisAtomicLong
-import org.springframework.data.redis.support.collections.DefaultRedisList
-import org.springframework.data.redis.support.collections.DefaultRedisMap
-import org.springframework.data.redis.support.collections.RedisList
-import org.springframework.data.redis.support.collections.RedisMap
 import org.springframework.stereotype.Component
-import ru.umeta.libraryintegration.model.EnrichedDocument
-import ru.umeta.libraryintegration.model.StringHash
+import redis.clients.jedis.Jedis
+import ru.umeta.libraryintegration.model.EnrichedDocumentLite
+import java.util.*
 
 /**
  * Created by ctash on 29.01.16.
@@ -20,27 +12,34 @@ import ru.umeta.libraryintegration.model.StringHash
 @Component
 public class RedisRepository {
 
-    private val stringTemplate: StringRedisTemplate
-    private val valueOps: ValueOperations<String, String>
+    private val jedis: Jedis
 
-
-    private val stringIdCounter: RedisAtomicInteger
 
     @Autowired
-    constructor(stringTemplate: StringRedisTemplate) {
-        this.stringTemplate = stringTemplate
-        valueOps = stringTemplate.opsForValue()
-
-        stringIdCounter = RedisAtomicInteger("global:id", stringTemplate.connectionFactory)
+    constructor(jedisConnector: JedisConnector) {
+        jedis = jedisConnector.jedis
     }
 
+    private fun stringIncr() = jedis.incr("global:stringId").toInt()
+
+    private fun docIncr() = jedis.incr("global:docId").toInt()
+
     fun addString(string: String) {
-        val id = stringIdCounter.incrementAndGet()
-        valueOps.set("string:$id", string)
+        val id = stringIncr()
+        jedis.set("string:$id", string)
     }
 
     fun getString(id: Int): String {
-        return valueOps.get("string:$id")
+        return jedis.get("string:$id")
+    }
+
+    fun addDoc(doc: EnrichedDocumentLite) {
+        val id = docIncr()
+        jedis.set("doc:$id", String(doc.toByteArray()))
+    }
+
+    fun getDoc(id: Int): EnrichedDocumentLite {
+        return EnrichedDocumentLite.fromByteArray(id, jedis.get("doc:$id").toByteArray());
     }
 
 }

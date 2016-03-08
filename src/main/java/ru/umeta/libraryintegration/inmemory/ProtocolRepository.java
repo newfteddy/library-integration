@@ -1,7 +1,5 @@
 package ru.umeta.libraryintegration.inmemory;
 
-import org.springframework.data.redis.hash.DecoratingStringHashMapper;
-import org.springframework.data.redis.hash.JacksonHashMapper;
 import ru.umeta.libraryintegration.model.Protocol;
 
 import java.util.HashMap;

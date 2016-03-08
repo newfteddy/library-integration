@@ -53,6 +53,13 @@ class DocumentService
                     val authorId = stringHashService.getFromRepositoryInit(author)
                     val titleId = stringHashService.getFromRepositoryInit(title)
                     val isbn: String = parseResult.isbn?:""
+                    val document = EnrichedDocumentLite(-1, authorId, author.hashCode(), titleId, title.hashCode(),
+                            isbn
+                            .hashCode(),
+                            parseResult
+                            .publishYear?:-1)
+                    redisRepository.addDoc(document)
+
 
                     newEnriched++;
                     parsedDocs++
