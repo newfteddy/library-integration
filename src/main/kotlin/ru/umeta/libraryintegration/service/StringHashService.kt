@@ -61,7 +61,7 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         }
 
 
-        return StringHash(-1, string.hashCode(), simHash, string)
+        return StringHash(simHash)
     }
 
     fun getSimHashTokens(string: String): Set<String> {

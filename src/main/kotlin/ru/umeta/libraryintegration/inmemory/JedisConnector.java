@@ -9,7 +9,5 @@ import redis.clients.jedis.Jedis;
  */
 @Component
 public class JedisConnector {
-    Jedis jedis = new Jedis("localhost");
-
-
+    Jedis jedis = new Jedis("localhost", 6379, 20000);
 }

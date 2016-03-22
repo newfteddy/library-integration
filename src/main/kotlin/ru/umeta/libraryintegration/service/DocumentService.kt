@@ -2,20 +2,16 @@ package ru.umeta.libraryintegration.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils
 import ru.umeta.libraryintegration.controller.ConsoleController
+import ru.umeta.libraryintegration.inmemory.InMemoryRepository
 import ru.umeta.libraryintegration.inmemory.RedisRepository
 import ru.umeta.libraryintegration.json.ModsParseResult
 import ru.umeta.libraryintegration.json.ParseResult
 import ru.umeta.libraryintegration.json.UploadResult
-import ru.umeta.libraryintegration.model.EnrichedDocument
 import ru.umeta.libraryintegration.model.EnrichedDocumentLite
 import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.ThreadPoolExecutor
 
 
 /**
@@ -26,7 +22,8 @@ import java.util.concurrent.ThreadPoolExecutor
 class DocumentService
 @Autowired constructor(
         val redisRepository: RedisRepository,
-        val stringHashService: StringHashService) {
+        val stringHashService: StringHashService,
+        val enrichedDocumentRepository: InMemoryRepository) {
 
     companion object {
         val logger = LoggerFactory.getLogger(ConsoleController::class.java)
@@ -50,17 +47,21 @@ class DocumentService
                         title = title.substring(0, 255)
                     }
 
-                    val authorId = stringHashService.getFromRepositoryInit(author)
-                    val titleId = stringHashService.getFromRepositoryInit(title)
-                    val isbn: String = parseResult.isbn?:""
-                    val document = EnrichedDocumentLite(-1, authorId, author.hashCode(), titleId, title.hashCode(),
-                            isbn
-                            .hashCode(),
-                            parseResult
-                            .publishYear?:-1)
+                    //val authorId = stringHashService.getFromRepositoryInit(author)
+                    //val titleId = stringHashService.getFromRepositoryInit(title)
+                    val authorHash = stringHashService.getStringHash(author)
+                    val titleHash = stringHashService.getStringHash(title)
+                    val isbn: String = parseResult.isbn ?: ""
+                    val year = parseResult.publishYear ?: -1
+
+                    val document = EnrichedDocumentLite(
+                            -1,
+                            author.hashCode(), authorHash.simHash,
+                            title.hashCode(), titleHash.simHash,
+                            isbn.hashCode(),
+                            year,
+                            0.0)
                     redisRepository.addDoc(document)
-
-
                     newEnriched++;
                     parsedDocs++
                 } catch (e: Exception) {
@@ -71,14 +72,13 @@ class DocumentService
         return UploadResult(parsedDocs, newEnriched)
     }
 
-    fun findEnrichedDocuments(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
+    data class DFS(
+            val component: List<EnrichedDocumentLite>,
+            var iterationsIsbn: Long,
+            var iterationsYear: Long,
+            var remainingDocs: Long)
 
-        //        val dfs = DFS(enrichedDocumentRepository, stringHashService)
-        //        dfs.apply(document);
-        //
-        //        return dfs.component;
-        return emptyList()
-    }
+
 
     //    class DFS(val enrichedDocumentRepository: EnrichedDocumentRepository,
     //              val stringHashService: StringHashService) {
@@ -155,6 +155,9 @@ class DocumentService
 
     fun processDocumentListInit(resultList: List<ParseResult>) = processDocumentList(resultList, null)
 
+    fun getDoc(id: Int): EnrichedDocumentLite? {
+        return enrichedDocumentRepository.docStorage[id]
+    }
 
 
 }

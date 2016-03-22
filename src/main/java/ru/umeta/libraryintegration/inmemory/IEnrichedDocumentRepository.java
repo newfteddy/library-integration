@@ -14,7 +14,7 @@ public interface IEnrichedDocumentRepository {
 
     List<EnrichedDocumentLite> getNearDuplicates(Document document);
 
-    List<EnrichedDocumentLite> getNearDuplicates(EnrichedDocumentLite document);
+    List<Integer> getNearDuplicates(EnrichedDocumentLite document);
 
     List<EnrichedDocumentLite> getNearDuplicates(EnrichedDocumentLite document, List<EnrichedDocumentLite> current);
 

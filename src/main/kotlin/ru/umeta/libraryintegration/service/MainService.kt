@@ -3,11 +3,15 @@ package ru.umeta.libraryintegration.service
 import org.apache.commons.io.output.FileWriterWithEncoding
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import ru.umeta.libraryintegration.inmemory.InMemoryRepository
 import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.parser.IXMLParser
 import java.io.File
-import java.nio.charset.Charset
 import java.util.*
+import java.util.logging.FileHandler
+import java.util.logging.Logger
+import java.util.logging.SimpleFormatter
+import javax.annotation.PostConstruct
 
 /**
  * The main service to handle the integration logic
@@ -16,11 +20,25 @@ import java.util.*
 @Component
 class MainService
 @Autowired
-constructor(val parser: IXMLParser, val documentService: DocumentService) {
+constructor(val parser: IXMLParser,
+            val documentService: DocumentService,
+            val javaDuplicateParser: JavaDuplicateService,
+            val repository: InMemoryRepository) {
+
+    companion object {
+        val logger = Logger.getLogger(MainService::class.java.name)
+    }
+
+    @PostConstruct
+    fun addFileLogger() {
+        val fileHandler = FileHandler("library.log", true)
+        fileHandler.formatter = SimpleFormatter()
+        logger.addHandler(fileHandler)
+    }
 
     @Throws(InterruptedException::class)
     fun parseDirectory(path: String): UploadResult {
-        println("Start parsing directory.")
+        logger.info("Start parsing directory.")
         val fileList = getFilesToParse(path)
         var total = 0
         val result = UploadResult(0, 0)
@@ -29,10 +47,10 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
             val resultList = parser.parse(file)
             val size = resultList.size
             total += size
-            println("resultList size is " + size)
+            logger.info("resultList size is " + size)
             val uploadResult = documentService.processDocumentList(resultList, null)
             val endTime = System.nanoTime()
-            println("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
+            logger.info("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
             result.parsedDocs = result.parsedDocs + uploadResult.parsedDocs
             result.newEnriched = result.newEnriched + uploadResult.newEnriched
         }
@@ -41,28 +59,48 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
     }
 
     fun find() {
-        println("Start finding duplicates.")
-        (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
-            writer ->
-            val documents = documentService.getDocuments()
-            val marked = HashSet<Int>()
-            var i = 1;
-            for (documentLite in documents) {
-                if (!marked.contains(documentLite.id)) {
-                    writer.write("SECTION $i\n")
-                    i++
-                    val duplicates = documentService.findEnrichedDocuments(documentLite)
-                    for (duplicate in duplicates) {
-                        val id = duplicate.id
-                        marked.add(id)
-                        writer.write("$id\n")
-                    }
-                }
-                if (i % 100000 == 0) {
-                    println(i);
-                }
-            }
-        })
+        //        logger.info("Start finding duplicates.")
+        //        (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
+        //            writer ->
+        //            var i = 1;
+        //            var iterationsIsbn = 0L
+        //            var iterationsYear = 0L
+        //            var iterationsLeft = 0L
+        //            var startId = 7200000
+        //            var id = startId
+        //            var maxId = 25000000
+        //            while (id < maxId) {
+        //                val doc = documentService.getDoc(id)
+        //                if (doc != null) {
+        //                    writer.write("SE $i\n")
+        //                    writer.write("$id\n")
+        //                    i++
+        //                    val dfsResult = documentService.findEnrichedDocuments(doc)
+        //                    iterationsIsbn += dfsResult.iterationsIsbn
+        //                    iterationsYear += dfsResult.iterationsYear
+        //                    iterationsLeft += dfsResult.remainingDocs
+        //                    dfsResult.component.forEach { duplicate ->
+        //                        writer.write("${duplicate.id}\n")
+        //                    }
+        //                    if (id % 100000 == 0) {
+        //                        logger.info(i.toString());
+        //                        logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
+        //                        logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
+        //                        logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
+        //                        logger.info("Marked ${(id - startId)}")
+        //                        logger.info("----------------------------------------------------------------------")
+        //                    }
+        //                } else {
+        //                    logger.info("Last document id is $id")
+        //                    break
+        //                }
+        //                id++
+        //            }
+        //            logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
+        //            logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
+        //            logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
+        //            logger.info("Marked ${(id - startId)}")
+        //        })
     }
 
     fun parseDirectoryBalance(path: String, saltLevel: Int): UploadResult {
@@ -72,16 +110,16 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
             val startTime = System.nanoTime()
             val resultList = parser.parse(file)
             val parseTime = System.nanoTime()
-            println("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
-            println("resultList size is " + resultList.size)
+            logger.info("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
+            logger.info("resultList size is " + resultList.size)
             for (parseResult in resultList) {
                 val saltedResult = documentService.addNoise(parseResult, saltLevel)
                 if (saltedResult == null) {
-                    println("The parsed result either had no authors or the title was blank.")
+                    logger.info("The parsed result either had no authors or the title was blank.")
                     continue
                 }
                 val uploadResult = documentService.processDocumentList(saltedResult, null)
-                println("The result with salt of level " + saltLevel + " is " + uploadResult.newEnriched)
+                logger.info("The result with salt of level " + saltLevel + " is " + uploadResult.newEnriched)
 
             }
 
@@ -90,7 +128,7 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
     }
 
     fun parseDirectoryInit(path: String): Any {
-        println("Start parsing directory.")
+        logger.info("Start parsing directory.")
         val fileList = getFilesToParse(path)
         var total = 0
         val result = UploadResult(0, 0)
@@ -99,13 +137,30 @@ constructor(val parser: IXMLParser, val documentService: DocumentService) {
             val resultList = parser.parse(file)
             val size = resultList.size
             total += size
-            println("resultList size is " + size)
+            logger.info("resultList size is " + size)
             val uploadResult = documentService.processDocumentListInit(resultList)
             val endTime = System.nanoTime()
-            println("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
+            logger.info("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
         }
 
         return result
+    }
+
+    fun collect() {
+        javaDuplicateParser.parse();
+    }
+
+    fun strings() {
+        FileWriterWithEncoding("docs.blob", "UTF-8").use { writer ->
+            repository.docStorage.forEach {
+                if (it != null) {
+                    writer.write("${it.id}\n")
+                    writer.write("${it.authorToLong()}\n")
+                    writer.write("${it.titleToLong()}\n")
+                    writer.write("${it.isbnYearToLong()}\n")
+                }
+            }
+        }
     }
 }
 

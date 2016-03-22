@@ -3,10 +3,7 @@ package ru.umeta.libraryintegration.model
 /**
  * Created by ctash on 29.04.2015.
  */
-data class StringHash(var id: Long,
-                      val hashCode: Int,
-                      val simHash: Int,
-                      val value: String) {
+data class StringHash(val simHash: Int) {
 
     fun hashPart1(): Byte {
         return ((simHash and 0xff000000.toInt()) ushr 24).toByte()
