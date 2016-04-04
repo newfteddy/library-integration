@@ -70,7 +70,7 @@ class InMemoryRepository @Autowired constructor(
                 addTokens(authorIntHash);
                 line = it.readLine();
                 i++;
-                if (i % 100000 == 0) {
+                if (i % 1000000 == 0) {
                     println(i)
                 }
             }

@@ -23,7 +23,10 @@ public class ConsoleController : CommandLineRunner {
             "-parseInit" -> mainService?.parseDirectoryInit(args[1] ?: "")
             "-find" -> mainService?.find()
             "-collect" -> mainService?.collect();
+            "-collectd" -> mainService?.collectDebug();
+            "-collectl" -> mainService?.collectLegacy();
             "-strings" -> mainService?.strings();
+            "-getstat" -> mainService?.getStat();
         }
     }
 

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.inmemory.RedisRepository
 import ru.umeta.libraryintegration.model.StringHash
-import ru.umeta.libraryintegration.model.bigrammToInt
 import ru.umeta.libraryintegration.util.MD5To32Algorithm
 import java.util.*
 
@@ -104,13 +103,14 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
     }
 
     fun getFromRepositoryInit(string: String): Int {
-        var string = string
-        if (string.length > 255) {
-            string = string.substring(0, 255)
+        var resultString = string
+        if (resultString.length > 255) {
+            resultString = resultString.substring(0, 255)
         }
-        redisRepository.addString(string);
+        redisRepository.addString(resultString);
         return -1
     }
+
 
 }
 
@@ -127,4 +127,105 @@ public fun getTokens(string: String): Set<String> {
         }
     }
     return tokens
+}
+
+public var distanceCounterAll = 0;
+public var distanceCounterOptim1 = 0;
+public var distanceCounterOptim2 = 0;
+
+public fun distanceWithTheorems(string1: String,
+                                string2: String,
+                                preCalculatedTokens1: List<Bigramm>? = null,
+                                preCalculatedTokens2: List<Bigramm>? = null,
+                                threshold: Double = 0.7):
+        Double {
+    var length1 = string1.length
+    var length2 = string2.length
+    val ratio: Double
+    distanceCounterAll++
+
+    if (length1 < length2) {
+        ratio = (1 - threshold) * (length1 - 1) + 1;
+        if (length1 < 1 + threshold * (length2 - 1)) {
+            distanceCounterOptim1++
+            return 0.0
+        }
+    } else {
+        ratio = (1 - threshold) * (length2 - 1) + 1;
+        if (length2 < 1 + threshold * (length1 - 1)) {
+            distanceCounterOptim1++
+            return 0.0
+        }
+    }
+
+    val tokens1 = preCalculatedTokens1 ?: getBigrammWeighted(string1)
+    val tokens2 = preCalculatedTokens2 ?: getBigrammWeighted(string2)
+    var index1 = 0
+    var index2 = 0
+    var sameCount = 0
+    var count1 = 0
+    var count2 = 0
+    while (index1 < tokens1.size && index2 < tokens2.size) {
+        val bigramm1 = tokens1[index1]
+        val bigramm2 = tokens2[index2]
+        if (bigramm1.value.equals(bigramm2.value)) {
+            sameCount += Math.min(bigramm1.count, bigramm2.count)
+            index1++
+            index2++
+            count1 += bigramm1.count
+            count2 += bigramm1.count
+        } else {
+            if (bigramm1.value.compareTo(bigramm2.value) < 0) {
+                index1++
+                count1 += bigramm1.count
+            } else {
+                index2++
+                count2 += bigramm2.count
+            }
+        }
+        if (((count1 > ratio) || (count2 > ratio)) && (sameCount == 0)) {
+            distanceCounterOptim2++
+            return 0.0
+        }
+    }
+    return (sameCount * 1.0)/( length1-1 + length2-1 - sameCount)
+}
+
+class Bigramm : Comparable<Bigramm> {
+    val value: String
+    var count: Int
+
+    constructor(value: String, count: Int) {
+        this.value = value
+        this.count = count
+    }
+
+
+    override fun compareTo(other: Bigramm): Int {
+        return value.compareTo(other.value)
+    }
+
+}
+
+
+public fun getBigrammWeighted(string: String): List<Bigramm> {
+    if (string.length == 0) {
+        return emptyList();
+    }
+
+    val tokens = HashMap<String, Bigramm>()
+
+    for (i in 0..string.length - 1 - 1) {
+        val bigramm = string.substring(i, i + 2)
+        val mapBigramm = tokens[bigramm];
+        if (mapBigramm != null) {
+            mapBigramm.count++;
+        } else {
+            tokens[bigramm] = Bigramm(bigramm, 1)
+        }
+    }
+
+    val result = tokens.values.toList()
+    Collections.sort(result)
+    return result
 }

@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.inmemory.InMemoryRepository
 import ru.umeta.libraryintegration.json.UploadResult
 import ru.umeta.libraryintegration.parser.IXMLParser
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileReader
 import java.util.*
 import java.util.logging.FileHandler
 import java.util.logging.Logger
@@ -22,7 +24,7 @@ class MainService
 @Autowired
 constructor(val parser: IXMLParser,
             val documentService: DocumentService,
-            val javaDuplicateParser: JavaDuplicateService,
+            val stringHashService: StringHashService,
             val repository: InMemoryRepository) {
 
     companion object {
@@ -59,48 +61,48 @@ constructor(val parser: IXMLParser,
     }
 
     fun find() {
-        //        logger.info("Start finding duplicates.")
-        //        (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
-        //            writer ->
-        //            var i = 1;
-        //            var iterationsIsbn = 0L
-        //            var iterationsYear = 0L
-        //            var iterationsLeft = 0L
-        //            var startId = 7200000
-        //            var id = startId
-        //            var maxId = 25000000
-        //            while (id < maxId) {
-        //                val doc = documentService.getDoc(id)
-        //                if (doc != null) {
-        //                    writer.write("SE $i\n")
-        //                    writer.write("$id\n")
-        //                    i++
-        //                    val dfsResult = documentService.findEnrichedDocuments(doc)
-        //                    iterationsIsbn += dfsResult.iterationsIsbn
-        //                    iterationsYear += dfsResult.iterationsYear
-        //                    iterationsLeft += dfsResult.remainingDocs
-        //                    dfsResult.component.forEach { duplicate ->
-        //                        writer.write("${duplicate.id}\n")
+        //                logger.info("Start finding duplicates.")
+        //                (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
+        //                    writer ->
+        //                    var i = 1;
+        //                    var iterationsIsbn = 0L
+        //                    var iterationsYear = 0L
+        //                    var iterationsLeft = 0L
+        //                    var startId = 1
+        //                    var id = startId
+        //                    var maxId = 72000000
+        //                    while (id < maxId) {
+        //                        val doc = documentService.getDoc(id)
+        //                        if (doc != null) {
+        //                            writer.write("SE $i\n")
+        //                            writer.write("$id\n")
+        //                            i++
+        //                            val dfsResult = documentService.findEnrichedDocuments(doc)
+        //                            iterationsIsbn += dfsResult.iterationsIsbn
+        //                            iterationsYear += dfsResult.iterationsYear
+        //                            iterationsLeft += dfsResult.remainingDocs
+        //                            dfsResult.component.forEach { duplicate ->
+        //                                writer.write("${duplicate.id}\n")
+        //                            }
+        //                            if (id % 100000 == 0) {
+        //                                logger.info(i.toString());
+        //                                logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
+        //                                logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
+        //                                logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
+        //                                logger.info("Marked ${(id - startId)}")
+        //                                logger.info("----------------------------------------------------------------------")
+        //                            }
+        //                        } else {
+        //                            logger.info("Last document id is $id")
+        //                            break
+        //                        }
+        //                        id++
         //                    }
-        //                    if (id % 100000 == 0) {
-        //                        logger.info(i.toString());
-        //                        logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
-        //                        logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
-        //                        logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
-        //                        logger.info("Marked ${(id - startId)}")
-        //                        logger.info("----------------------------------------------------------------------")
-        //                    }
-        //                } else {
-        //                    logger.info("Last document id is $id")
-        //                    break
-        //                }
-        //                id++
-        //            }
-        //            logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
-        //            logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
-        //            logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
-        //            logger.info("Marked ${(id - startId)}")
-        //        })
+        //                    logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
+        //                    logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
+        //                    logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
+        //                    logger.info("Marked ${(id - startId)}")
+        //                })
     }
 
     fun parseDirectoryBalance(path: String, saltLevel: Int): UploadResult {
@@ -147,7 +149,11 @@ constructor(val parser: IXMLParser,
     }
 
     fun collect() {
-        javaDuplicateParser.parse();
+        JavaDuplicateService(repository, stringHashService).parse();
+    }
+
+    fun collectLegacy() {
+        JavaDuplicateService(repository, stringHashService).parserLegacy();
     }
 
     fun strings() {
@@ -161,6 +167,40 @@ constructor(val parser: IXMLParser,
                 }
             }
         }
+    }
+
+    fun collectDebug() {
+        JavaDuplicateService(repository, stringHashService).parseDebug();
+    }
+
+    fun getStat() {
+        val map = HashMap<Int, Int>()
+        var duplicates = 0
+        var count = 0;
+        BufferedReader(FileReader(File("result_7200K"))).use {
+            var line = it.readLine()
+            var curSize = -1
+            while (line != null) {
+                if ("SE".equals(line)) {
+                    if (curSize > 0) {
+                        duplicates += curSize
+                    }
+                    if (map.containsKey(curSize)) {
+                        val count = map[curSize]
+                        map[curSize] = count!!.plus(1)
+                    } else {
+                        map[curSize] =1
+                    }
+                    curSize = -1;
+                } else {
+                    curSize++
+                }
+                line = it.readLine();
+                count++
+            }
+        }
+        map.forEach { println("${it.key} ${it.value}")}
+        println("Duplicates $duplicates)")
     }
 }
 
