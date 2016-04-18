@@ -47,8 +47,8 @@ class DocumentService
                         title = title.substring(0, 255)
                     }
 
-                    //val authorId = stringHashService.getFromRepositoryInit(author)
-                    //val titleId = stringHashService.getFromRepositoryInit(title)
+                    val authorId = stringHashService.getFromRepositoryInit(author)
+                    val titleId = stringHashService.getFromRepositoryInit(title)
                     val authorHash = stringHashService.getStringHash(author)
                     val titleHash = stringHashService.getStringHash(title)
                     val isbn: String = parseResult.isbn ?: ""
@@ -115,6 +115,14 @@ class DocumentService
     //
     //    }
 
+//    fun findEnrichedDocuments(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
+//
+//            val dfs = DFS(enrichedDocumentRepository, stringHashService)
+//            dfs.apply(document);
+//
+//            return dfs.component;
+//        return emptyList()
+//    }
 
     fun addNoise(parseResult: ParseResult, saltLevel: Int): List<ParseResult>? {
         val author = parseResult.author
