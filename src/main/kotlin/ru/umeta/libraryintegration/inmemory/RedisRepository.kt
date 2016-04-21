@@ -25,6 +25,8 @@ public class RedisRepository {
 
     private fun docIncr() = jedis.incr("global:docId").toInt()
 
+    fun getDocCount() = jedis.get("global:docId").toInt()
+
     fun addString(string: String) {
         val hash = string.hashCode()
         jedis.setnx("string:$hash", string)

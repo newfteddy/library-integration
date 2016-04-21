@@ -3,6 +3,7 @@ package ru.umeta.libraryintegration.inmemory
 import org.eclipse.collections.impl.factory.Lists
 import org.eclipse.collections.impl.factory.Maps
 import org.eclipse.collections.impl.factory.primitive.IntSets
+import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.model.Document
@@ -44,10 +45,12 @@ class InMemoryRepository @Autowired constructor(
         throw UnsupportedOperationException()
     }
 
+    fun getDocCount() = redisRepository.getDocCount()
+
     internal var maps = SimHashMaps();
 
-    @PostConstruct
-    fun fillMaps() {
+
+    fun fillMapsFromFile() {
         val file = File("docs.blob")
         var i = 1
         BufferedReader(FileReader(file)).use {
@@ -75,6 +78,50 @@ class InMemoryRepository @Autowired constructor(
                 if (i % 1000000 == 0) {
                     println(i)
                 }
+            }
+        }
+    }
+
+    fun fillMapsFromRedisWithTokens() {
+        val docCount = redisRepository.getDocCount()
+        for (i in 0..docCount) {
+            val doc = redisRepository.getDoc(i) ?: continue
+            docStorage[i] = doc
+            val titleIntHash = doc.titleId
+            addTokens(titleIntHash);
+            val authorIntHash = doc.authorId
+            addTokens(authorIntHash);
+            if (i % 1000000 == 0) {
+                println("Added $i docs.")
+            }
+        }
+    }
+
+    fun fillMapsFromRedis() {
+        val docCount = redisRepository.getDocCount()
+        for (i in 0..docCount) {
+            val doc = redisRepository.getDoc(i) ?: continue
+            docStorage[i] = doc
+            val titleHash = StringHash(doc.titleHash)
+            val authorHash = StringHash(doc.authorHash)
+            val hashes = SimHashes(titleHash, authorHash);
+            for (ti in 1..3) {
+                for (tj in ti + 1..4) {
+                    for (ai in 1..3) {
+                        for (aj in ai + 1..4) {
+                            val hash = hashes.getByIndex(ti, tj, ai, aj)
+                            var list = maps.getOrCreateByIndex(ti, tj, ai, aj).get(hash)
+                            if (list == null) {
+                                list = IntArrayList();
+                                maps.getOrCreateByIndex(ti, tj, ai, aj).put(hash, list)
+                            }
+                            list.add(doc.id)
+                        }
+                    }
+                }
+            }
+            if (i % 1000000 == 0) {
+                println("Added $i docs.")
             }
         }
     }
