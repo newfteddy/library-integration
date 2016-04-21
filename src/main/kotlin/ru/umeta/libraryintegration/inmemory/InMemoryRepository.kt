@@ -44,6 +44,8 @@ class InMemoryRepository @Autowired constructor(
         throw UnsupportedOperationException()
     }
 
+    internal var maps = SimHashMaps();
+
     @PostConstruct
     fun fillMaps() {
         val file = File("docs.blob")
@@ -88,6 +90,32 @@ class InMemoryRepository @Autowired constructor(
             val tokens = stringHashService.getSimHashTokens(string);
             strStorage[intHash] = string;
         }
+    }
+
+    fun getNearDuplicates(doc: EnrichedDocumentLite): List<EnrichedDocumentLite> {
+        val titleHash = StringHash(doc.titleHash)
+        val authorHash = StringHash(doc.authorHash)
+        val id = doc.id;
+        val hashes = SimHashes(titleHash, authorHash);
+
+        val resultIds = IntSets.mutable.empty()
+        val docs = Lists.mutable.empty<EnrichedDocumentLite>()
+        for (ti in 1..3) {
+            for (tj in ti + 1..4) {
+                for (ai in 1..3) {
+                    for (aj in ai + 1..4) {
+                        val hash = hashes.getByIndex(ti, tj, ai, aj)
+                        maps.getOrCreateByIndex(ti, tj, ai, aj).get(hash).forEach {
+                            if (it > id && resultIds.add(it)) {
+                                docs.add(docStorage[it])
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return docs
     }
 
     private fun getHashWithoutYear(hash1: Byte, hash2: Byte, hash3: Byte, hash4: Byte): Int {

@@ -16,6 +16,7 @@ public class ConsoleController : CommandLineRunner {
     public var mainService: MainService? = null;
 
     override fun run(vararg args: String?) {
+
         logger.info("Entered ConsoleController")
         val command = args[0]
         when (command) {

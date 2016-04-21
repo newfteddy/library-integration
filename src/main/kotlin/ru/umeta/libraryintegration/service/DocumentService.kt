@@ -72,6 +72,35 @@ class DocumentService
         return UploadResult(parsedDocs, newEnriched)
     }
 
+    fun findEnrichedDocuments(doc: EnrichedDocumentLite): DFS {
+        var nearDuplicates = enrichedDocumentRepository.getNearDuplicates(doc)
+        var iterationsIsbn = 0L
+        var iterationsYear = 0L
+        var remainingDocs = 0L
+        val isbn = doc.isbn
+        val year = doc.publishYear
+        nearDuplicates = nearDuplicates.filter { it ->
+            val otherIsbn = it.isbn
+            val otherYear = it.publishYear
+
+            if (otherIsbn != 0 && isbn != 0 && otherIsbn != isbn) {
+                iterationsIsbn++
+                return@filter false
+            } else {
+                if (otherYear != -1 && year != -1 && otherYear != year) {
+                    iterationsYear++
+                    return@filter false
+                } else {
+                    remainingDocs++
+                    return@filter true
+                }
+            }
+        }
+
+        val dfs = DFS(nearDuplicates, iterationsIsbn, iterationsYear, remainingDocs)
+        return dfs
+    }
+
     data class DFS(
             val component: List<EnrichedDocumentLite>,
             var iterationsIsbn: Long,

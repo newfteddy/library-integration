@@ -177,7 +177,7 @@ constructor(val parser: IXMLParser,
     fun getStat() {
         val map = HashMap<Int, Int>()
         var duplicates = 0
-        var count = 0;
+        var allCount = 0;
         BufferedReader(FileReader(File("result_7200K"))).use {
             var line = it.readLine()
             var curSize = -1
@@ -190,17 +190,20 @@ constructor(val parser: IXMLParser,
                         val count = map[curSize]
                         map[curSize] = count!!.plus(1)
                     } else {
-                        map[curSize] =1
+                        map[curSize] = 1
+                    }
+                    if (curSize > 100) {
+                        println("$allCount $curSize")
                     }
                     curSize = -1;
                 } else {
                     curSize++
                 }
                 line = it.readLine();
-                count++
+                allCount++
             }
         }
-        map.forEach { println("${it.key} ${it.value}")}
+        map.forEach { println("${it.key} ${it.value}") }
         println("Duplicates $duplicates)")
     }
 }
