@@ -70,9 +70,9 @@ constructor(val parser: IXMLParser,
             var iterationsIsbn = 0L
             var iterationsYear = 0L
             var iterationsLeft = 0L
-            var startId = 1
+            val startId = 1
             var id = startId
-            var maxId = repository.getDocCount()
+            val maxId = repository.getDocCount()
             while (id <= maxId) {
                 val doc = documentService.getDoc(id)
                 if (doc != null) {
@@ -105,30 +105,6 @@ constructor(val parser: IXMLParser,
             logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
             logger.info("Marked ${(id - startId)}")
         })
-    }
-
-    fun parseDirectoryBalance(path: String, saltLevel: Int): UploadResult {
-        val fileList = getFilesToParse(path)
-        val result = UploadResult(0, 0)
-        for (file in fileList) {
-            val startTime = System.nanoTime()
-            val resultList = parser.parse(file)
-            val parseTime = System.nanoTime()
-            logger.info("The documents bulk parsed in " + (parseTime - startTime).toDouble() / 1000000000.0)
-            logger.info("resultList size is " + resultList.size)
-            for (parseResult in resultList) {
-                val saltedResult = documentService.addNoise(parseResult, saltLevel)
-                if (saltedResult == null) {
-                    logger.info("The parsed result either had no authors or the title was blank.")
-                    continue
-                }
-                val uploadResult = documentService.processDocumentList(saltedResult, null)
-                logger.info("The result with salt of level " + saltLevel + " is " + uploadResult.newEnriched)
-
-            }
-
-        }
-        return result
     }
 
     fun parseDirectoryInit(path: String): Any {

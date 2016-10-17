@@ -11,11 +11,9 @@ import java.util.*
  * Created by k.kosolapov on 14.05.2015.
  */
 @Component
-class StringHashService @Autowired constructor(val redisRepository: RedisRepository) {
+open class StringHashService @Autowired constructor(val redisRepository: RedisRepository) {
 
-    public val TROVE_NO_VALUE_INT = 0
-
-    private val tokenMap = HashMap<String, Int>();
+    private val tokenMap = HashMap<String, Int>()
 
     fun getStringHash(string: String): StringHash {
         var simHash = 0
@@ -33,7 +31,7 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
 
             for (token in tokens) {
                 var tokenHash: Int
-                var mapTokenHash: Int? = tokenMap[token]
+                val mapTokenHash: Int? = tokenMap[token]
                 if (mapTokenHash == null) {
                     tokenHash = MD5To32Algorithm.getHash(token)
                     tokenMap.put(token, tokenHash)
@@ -67,20 +65,6 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         return getTokens(string)
     }
 
-    fun getFromRepository(string: String): Int {
-        var string = string
-        if (string.length > 255) {
-            string = string.substring(0, 255)
-        }
-        redisRepository.addString(string);
-        return -1
-    }
-
-    fun getById(id: Long): StringHash {
-        //return stringHashRepository.getStringHashById(id);
-        throw UnsupportedOperationException();
-    }
-
     fun distance(tokens1: Set<String>, tokens2: Set<String>): Double {
         val union = HashSet<String>(tokens1)
         val intersection = HashSet<String>(tokens1)
@@ -91,30 +75,19 @@ class StringHashService @Autowired constructor(val redisRepository: RedisReposit
         return (intersection.size * 1.0) / (union.size * 1.0)
     }
 
-    fun distance(stringId: Long, otherStringId: Long): Double {
-        val stringHash = getById(stringId)
-        val otherStringHash = getById(otherStringId)
-        return 1.0//distance(stringHash.tokens, otherStringHash.tokens)
-    }
-
-    fun distance(stringHash: StringHash, otherStringId: Long): Double {
-        val otherStringHash = getById(otherStringId)
-        return 1.0//distance(stringHash.tokens, otherStringHash.tokens)
-    }
-
     fun getFromRepositoryInit(string: String): Int {
         var resultString = string
         if (resultString.length > 255) {
             resultString = resultString.substring(0, 255)
         }
-        redisRepository.addString(resultString);
+        redisRepository.addString(resultString)
         return -1
     }
 
 
 }
 
-public fun getTokens(string: String): Set<String> {
+fun getTokens(string: String): Set<String> {
     if (string.length == 0) {
         return HashSet()
     }
@@ -129,29 +102,29 @@ public fun getTokens(string: String): Set<String> {
     return tokens
 }
 
-public var distanceCounterAll = 0;
-public var distanceCounterOptim1 = 0;
-public var distanceCounterOptim2 = 0;
+var distanceCounterAll = 0
+var distanceCounterOptim1 = 0
+var distanceCounterOptim2 = 0
 
-public fun distanceWithTheorems(string1: String,
-                                string2: String,
-                                preCalculatedTokens1: List<Bigramm>? = null,
-                                preCalculatedTokens2: List<Bigramm>? = null,
-                                threshold: Double = 0.7):
+fun distanceWithTheorems(string1: String,
+                         string2: String,
+                         preCalculatedTokens1: List<Bigramm>? = null,
+                         preCalculatedTokens2: List<Bigramm>? = null,
+                         threshold: Double = 0.7):
         Double {
-    var length1 = string1.length
-    var length2 = string2.length
+    val length1 = string1.length
+    val length2 = string2.length
     val ratio: Double
     distanceCounterAll++
 
     if (length1 < length2) {
-        ratio = (1 - threshold) * (length1 - 1) + 1;
+        ratio = (1 - threshold) * (length1 - 1) + 1
         if (length1 < 1 + threshold * (length2 - 1)) {
             distanceCounterOptim1++
             return 0.0
         }
     } else {
-        ratio = (1 - threshold) * (length2 - 1) + 1;
+        ratio = (1 - threshold) * (length2 - 1) + 1
         if (length2 < 1 + threshold * (length1 - 1)) {
             distanceCounterOptim1++
             return 0.0
@@ -168,14 +141,14 @@ public fun distanceWithTheorems(string1: String,
     while (index1 < tokens1.size && index2 < tokens2.size) {
         val bigramm1 = tokens1[index1]
         val bigramm2 = tokens2[index2]
-        if (bigramm1.value.equals(bigramm2.value)) {
+        if (bigramm1.value == bigramm2.value) {
             sameCount += Math.min(bigramm1.count, bigramm2.count)
             index1++
             index2++
             count1 += bigramm1.count
             count2 += bigramm1.count
         } else {
-            if (bigramm1.value.compareTo(bigramm2.value) < 0) {
+            if (bigramm1.value < bigramm2.value) {
                 index1++
                 count1 += bigramm1.count
             } else {
@@ -188,7 +161,7 @@ public fun distanceWithTheorems(string1: String,
             return 0.0
         }
     }
-    return (sameCount * 1.0)/( length1-1 + length2-1 - sameCount)
+    return (sameCount * 1.0) / (length1 - 1 + length2 - 1 - sameCount)
 }
 
 class Bigramm : Comparable<Bigramm> {
@@ -208,18 +181,18 @@ class Bigramm : Comparable<Bigramm> {
 }
 
 
-public fun getBigrammWeighted(string: String): List<Bigramm> {
+fun getBigrammWeighted(string: String): List<Bigramm> {
     if (string.length == 0) {
-        return emptyList();
+        return emptyList()
     }
 
     val tokens = HashMap<String, Bigramm>()
 
     for (i in 0..string.length - 1 - 1) {
         val bigramm = string.substring(i, i + 2)
-        val mapBigramm = tokens[bigramm];
+        val mapBigramm = tokens[bigramm]
         if (mapBigramm != null) {
-            mapBigramm.count++;
+            mapBigramm.count++
         } else {
             tokens[bigramm] = Bigramm(bigramm, 1)
         }

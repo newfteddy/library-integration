@@ -21,33 +21,4 @@ data class StringHash(val simHash: Int) {
         return (simHash and 0x000000ff).toByte()
     }
 
-    object Util {
-        fun collectParts(vararg bytes: Byte): Int {
-            if (bytes.size != 4) {
-                throw IllegalArgumentException("The size of byte array is not 4.")
-            }
-
-            val hashPart1 = bytes[0]
-            val hashPart2 = bytes[1]
-            val hashPart3 = bytes[2]
-            val hashPart4 = bytes[3]
-
-            var result: Int = 0;
-            result = (result shl 8) + hashPart1.toInt()
-            result = (result shl 8) + hashPart2.toInt()
-            result = (result shl 8) + hashPart3.toInt()
-            result = (result shl 8) + hashPart4.toInt()
-
-            return result
-        }
-    }
-
-    fun hashParts(): ByteArray {
-        val array = ByteArray(4)
-        array[0] = hashPart1()
-        array[1] = hashPart2()
-        array[2] = hashPart3()
-        array[3] = hashPart4()
-        return array
-    }
 }

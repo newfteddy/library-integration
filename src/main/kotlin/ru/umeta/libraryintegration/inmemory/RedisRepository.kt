@@ -10,8 +10,7 @@ import java.util.*
 /**
  * Created by ctash on 29.01.16.
  */
-@Component
-public class RedisRepository {
+@Component class RedisRepository {
 
     private val jedis: Jedis
 
@@ -20,8 +19,6 @@ public class RedisRepository {
     constructor(jedisConnector: JedisConnector) {
         jedis = jedisConnector.jedis
     }
-
-    private fun stringIncr() = jedis.incr("global:stringId").toInt()
 
     private fun docIncr() = jedis.incr("global:docId").toInt()
 
@@ -45,12 +42,12 @@ public class RedisRepository {
 
     fun getDoc(id: Int): EnrichedDocumentLite? {
         try {
-            val map = jedis.hgetAll("doc:$id");
+            val map = jedis.hgetAll("doc:$id")
             return getDocumentFromMap(id, map)
         } catch (e: NumberFormatException) {
-            return null;
+            return null
         } catch (e: NullPointerException) {
-            return null;
+            return null
         }
 
     }
@@ -69,30 +66,5 @@ public class RedisRepository {
 
         return EnrichedDocumentLite(id, authorId, authorHash, titleId, titleHash, isbn, year, 0.0)
     }
-
-    fun getDocs(ids: Collection<Int>): List<EnrichedDocumentLite> {
-        val pipeline = jedis.pipelined()
-
-        val responseResult = ArrayList<ResponseWithId<Map<String, String>>>()
-        val result = ArrayList<EnrichedDocumentLite>()
-        val idList = ArrayList<Int>()
-
-        ids.forEach {
-            val response = pipeline.hgetAll("doc:$it")
-            responseResult.add(ResponseWithId(response, it))
-            idList.add(it)
-        }
-
-        pipeline.sync()
-
-        responseResult.forEach {
-            val docMap = it.response.get()
-            result.add(getDocumentFromMap(it.id, docMap))
-        }
-
-        return result
-    }
-
-    data class ResponseWithId<T>(val response: Response<T>, val id: Int)
 
 }

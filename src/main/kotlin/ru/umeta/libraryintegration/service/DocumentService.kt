@@ -19,17 +19,15 @@ import java.util.*
  * Created by ctash on 28.04.2015.
  */
 @Component
-class DocumentService
+open class DocumentService
 @Autowired constructor(
         val redisRepository: RedisRepository,
         val stringHashService: StringHashService,
         val enrichedDocumentRepository: InMemoryRepository) {
 
     companion object {
-        val logger = LoggerFactory.getLogger(ConsoleController::class.java)
+        private val logger = LoggerFactory.getLogger(ConsoleController::class.java)
     }
-
-    private val DUPLICATE_SIZE = 1000
 
     fun processDocumentList(resultList: List<ParseResult>, protocolName: String?): UploadResult {
         var newEnriched = 0
@@ -106,89 +104,6 @@ class DocumentService
             var iterationsIsbn: Long,
             var iterationsYear: Long,
             var remainingDocs: Long)
-
-
-
-    //    class DFS(val enrichedDocumentRepository: EnrichedDocumentRepository,
-    //              val stringHashService: StringHashService) {
-    //
-    //        val used = TLongHashSet()
-    //        val component = ArrayList<EnrichedDocumentLite>()
-    //        var filtered= ArrayList<EnrichedDocumentLite>()
-    //        var stack = Stack<EnrichedDocumentLite>()
-    //
-    //        fun apply(document: EnrichedDocumentLite) {
-    //            stack.add(document)
-    //            while (!stack.isEmpty()) {
-    //                val cur = stack.pop()
-    //                val id = cur.id
-    //                if (!used.contains(id)) {
-    //                    val authorId = cur.authorId
-    //                    val titleId = cur.titleId
-    //                    used.add(id)
-    //                    component.add(cur)
-    //                    //filter documents which have the nearest measure of 0.7 or more
-    //                    val current = filtered;
-    //                    val nearDuplicates = enrichedDocumentRepository.getNearDuplicates(cur, current)
-    //                    filtered = nearDuplicates.filter {
-    //                            (stringHashService.distance(authorId, it.authorId)
-    //                            + stringHashService.distance(titleId, it.titleId) >= 0.7 * 2)}
-    //                        .toArrayList();
-    //                    current.forEach { filtered.add(it)}
-    //                    for (duplicate in filtered) {
-    //                        stack.add(duplicate)
-    //                    }
-    //                }
-    //            }
-    //        }
-    //
-    //    }
-
-//    fun findEnrichedDocuments(document: EnrichedDocumentLite): List<EnrichedDocumentLite> {
-//
-//            val dfs = DFS(enrichedDocumentRepository, stringHashService)
-//            dfs.apply(document);
-//
-//            return dfs.component;
-//        return emptyList()
-//    }
-
-    fun addNoise(parseResult: ParseResult, saltLevel: Int): List<ParseResult>? {
-        val author = parseResult.author
-        val title = parseResult.title
-
-        val authorLength = author.length
-        val titleLength = title.length
-
-        parseResult.isbn = null
-        if (StringUtils.isEmpty(author) || StringUtils.isEmpty(title)) {
-            return null
-        } else {
-            val resultList = ArrayList<ParseResult>()
-            for (i in 0..DUPLICATE_SIZE - 1) {
-                val newParseResult = parseResult.clone()
-                val newAuthor = StringBuilder(author)
-                val newTitle = StringBuilder(title)
-                for (j in 0..saltLevel - 1) {
-                    val rnd = Random()
-                    var noiseIndex = rnd.nextInt(authorLength)
-                    newAuthor.setCharAt(noiseIndex, '#')
-
-                    noiseIndex = Random().nextInt(titleLength)
-                    newTitle.setCharAt(noiseIndex, '#')
-                }
-                newParseResult.author = newAuthor.toString()
-                newParseResult.title = newTitle.toString()
-                resultList.add(newParseResult)
-            }
-            return resultList
-        }
-    }
-
-    fun getDocuments(): List<EnrichedDocumentLite> {
-        //return enrichedDocumentRepository.list
-        return emptyList()
-    }
 
     fun processDocumentListInit(resultList: List<ParseResult>) = processDocumentList(resultList, null)
 

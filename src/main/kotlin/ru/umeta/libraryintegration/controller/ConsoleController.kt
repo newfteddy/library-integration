@@ -10,10 +10,10 @@ import ru.umeta.libraryintegration.service.MainService
  * Created by ctash on 29.01.16.
  */
 @Component
-public class ConsoleController : CommandLineRunner {
+open class ConsoleController : CommandLineRunner {
 
     @Autowired
-    public var mainService: MainService? = null;
+    var mainService: MainService? = null
 
     override fun run(vararg args: String?) {
 
@@ -23,15 +23,15 @@ public class ConsoleController : CommandLineRunner {
             "-parse" -> mainService?.parseDirectory(args[1] ?: "")
             "-parseInit" -> mainService?.parseDirectoryInit(args[1] ?: "")
             "-find" -> mainService?.find()
-            "-collect" -> mainService?.collect();
-            "-collectd" -> mainService?.collectDebug();
-            "-collectl" -> mainService?.collectLegacy();
-            "-strings" -> mainService?.strings();
-            "-getstat" -> mainService?.getStat();
+            "-collect" -> mainService?.collect()
+            "-collectd" -> mainService?.collectDebug()
+            "-collectl" -> mainService?.collectLegacy()
+            "-strings" -> mainService?.strings()
+            "-getstat" -> mainService?.getStat()
         }
     }
 
     companion object {
-        val logger = LoggerFactory.getLogger(ConsoleController::class.java)
+        private val logger = LoggerFactory.getLogger(ConsoleController::class.java)
     }
 }

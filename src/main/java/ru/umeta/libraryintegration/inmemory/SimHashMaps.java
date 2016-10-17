@@ -7,7 +7,7 @@ import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
  * Created by Kirill Kosolapov (https://github.com/c-tash) on 28.02.2016.
  */
 public class SimHashMaps {
-    IntObjectHashMap<MutableIntList>[][][][] troveMaps = new IntObjectHashMap[4][4][4][4];
+    private IntObjectHashMap<MutableIntList>[][][][] troveMaps = new IntObjectHashMap[4][4][4][4];
 
     public IntObjectHashMap<MutableIntList> getOrCreateByIndex(int ti, int tj, int ai, int aj) {
         ti--;

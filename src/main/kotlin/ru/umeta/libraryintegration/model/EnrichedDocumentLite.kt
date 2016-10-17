@@ -15,14 +15,6 @@ data class EnrichedDocumentLite(
         val publishYear: Int,
         var ratio: Double) {
 
-    fun toByteArray(): ByteArray {
-        return ByteBuffer.allocate(4 * 6)
-                .putInt(authorId).putInt(authorHash)
-                .putInt(titleId).putInt(titleHash)
-                .putInt(isbn).putInt(publishYear)
-                .array()
-    }
-
     fun titleToLong(): Long {
         return twoIntsToLong(titleId, titleHash)
     }
@@ -50,15 +42,5 @@ data class EnrichedDocumentLite(
     }
 
     companion object {
-        fun fromByteArray (id: Int, array: ByteArray): EnrichedDocumentLite{
-            val buffer = ByteBuffer.wrap(array)
-            val authorId = buffer.getInt()
-            val authorHash = buffer.getInt()
-            val titleId = buffer.getInt()
-            val titleHash = buffer.getInt()
-            val isbn = buffer.getInt()
-            val publishYear = buffer.getInt()
-            return EnrichedDocumentLite(id, authorId, authorHash, titleId, titleHash, isbn, publishYear, 0.0);
-        }
     }
 }
