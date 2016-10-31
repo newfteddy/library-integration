@@ -6,7 +6,7 @@ import gov.loc.mods.v3.ModsDefinition
  * Created by Kirill Kosolapov (https://github.com/c-tash) on 14/04/2015.
  */
 class ModsParseResult(title: String,
-                      isbn: String,
+                      isbn: String?,
                       author: String,
                       publishYear: Int?,
                       var modsDefinition: ModsDefinition?)
