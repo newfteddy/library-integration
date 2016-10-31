@@ -12,16 +12,29 @@ import ru.umeta.libraryintegration.service.MainService
 @Component
 open class ConsoleController : CommandLineRunner {
 
+    companion object {
+        private val logger = LoggerFactory.getLogger(ConsoleController::class.java)
+    }
+
     @Autowired
     var mainService: MainService? = null
 
     override fun run(vararg args: String?) {
 
         logger.info("Entered ConsoleController")
+        if (args.isEmpty()) {
+            logger.error("No command was passed.")
+            return
+        }
         val command = args[0]
         when (command) {
-            "-parse" -> mainService?.parseDirectory(args[1] ?: "")
-            "-parseInit" -> mainService?.parseDirectoryInit(args[1] ?: "")
+            "-parse" -> {
+                mainService?.parseDirectory(getDirArg(args))
+            }
+
+            "-parseInit" -> {
+                mainService?.parseDirectoryInit(getDirArg(args))
+            }
             "-find" -> mainService?.find()
             "-collect" -> mainService?.collect()
             "-collectd" -> mainService?.collectDebug()
@@ -31,7 +44,14 @@ open class ConsoleController : CommandLineRunner {
         }
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(ConsoleController::class.java)
+    private fun getDirArg(args: Array<out String?>): String {
+        val dir: String
+        if (args.size > 1) {
+            dir = args[1] ?: ""
+        } else {
+            dir = ""
+        }
+        return dir
     }
+
 }
