@@ -13,11 +13,6 @@ The only requirement is the data format - [MODS](http://www.loc.gov/standards/mo
 
 ---
 ## How to run:
-# Version 1.0
-1. Clone the project.
-2. Update *src/webapp/database.properties* and *src/webapp/WEB-INF/db/data-source.xml* to your database settings.
-3. Run `gradlew jettyRunWar` to start the Jetty server with the application. Or use `gradlew war` to create `.war` file for your favorite application server.
-4. The REST URL to start adding and merging the data is `"[server]/rest/upload?path=[path to the file folder]"` (The multipart is to be implemented).
 # Version 1.1
 Version 1.1 is a console application, this was changed due to overhead of a web service.
 Requirements:
