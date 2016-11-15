@@ -28,19 +28,19 @@ open class ConsoleController : CommandLineRunner {
         }
         val command = args[0]
         when (command) {
-            "-parse" -> {
+            "parse" -> {
                 mainService?.parseDirectory(getDirArg(args))
             }
 
-            "-parseInit" -> {
+            "parseInit" -> {
                 mainService?.parseDirectoryInit(getDirArg(args))
             }
-            "-find" -> mainService?.find()
-            "-collect" -> mainService?.collect()
-            "-collectd" -> mainService?.collectDebug()
-            "-collectl" -> mainService?.collectLegacy()
-            "-strings" -> mainService?.strings()
-            "-getstat" -> mainService?.getStat()
+            "find" -> mainService?.find()
+            "collect" -> mainService?.collect()
+            "collectd" -> mainService?.collectDebug()
+            "collectl" -> mainService?.collectLegacy()
+            "strings" -> mainService?.strings()
+            "getstat" -> mainService?.getStat()
         }
     }
 
