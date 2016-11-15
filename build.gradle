@@ -25,10 +25,8 @@ dependencies {
     compile 'org.apache.xmlbeans:xmlbeans:2.6.0'
     compile 'commons-codec:commons-codec:1.10'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    compile 'org.codehaus.jackson:jackson-core-lgpl:1.9.13'
     compile 'org.eclipse.collections:eclipse-collections-api:7.0.2'
     compile 'org.eclipse.collections:eclipse-collections:7.0.2'
-    compile 'org.codehaus.jackson:jackson-mapper-lgpl:1.9.13'
 
     testCompile 'junit:junit:4.11'
     testCompile 'org.mockito:mockito-all:1.10.19'
