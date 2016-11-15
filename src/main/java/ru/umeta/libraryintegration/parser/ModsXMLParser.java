@@ -188,7 +188,7 @@ public class ModsXMLParser implements IXMLParser {
 
         String isbn = NULL;
         for (IdentifierDefinition identifier : identifierArray) {
-        if (identifier != null && ISBN.compareTo(identifier.getType()) == 0) {
+        if (identifier != null && ISBN.equals(identifier.getType())) {
             isbn = identifier.getStringValue();
             break;
         }
