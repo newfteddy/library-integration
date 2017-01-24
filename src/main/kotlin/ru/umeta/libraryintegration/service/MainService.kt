@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct
  * Created by k.kosolapov on 14/04/2015.
  */
 @Component
-class MainService
+open class MainService
 @Autowired
 constructor(val parser: IXMLParser,
             val documentService: DocumentService,
@@ -158,7 +158,7 @@ constructor(val parser: IXMLParser,
         val map = HashMap<Int, Int>()
         var duplicates = 0
         var allCount = 0;
-        BufferedReader(FileReader(File("result_7200K"))).use {
+        BufferedReader(FileReader(File("result"))).use {
             var line = it.readLine()
             var curSize = -1
             while (line != null) {

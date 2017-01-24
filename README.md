@@ -19,6 +19,10 @@ Requirements:
 1. Redis for Windows - in-memory database.
 2. Java 8+.
 
+To run:
+1. build a jar by `./gradlew jar`, the jar will be in `build/libs`
+2. run jar by `java -jar library-integration-[version].jar [command]` 
+
 #### Commands:
 
 1. `parseInit [path]`- parses directory for mods XML files and extract data needed for the program. A file `docs.blob` is going to be created and filled with this data.
