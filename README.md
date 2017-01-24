@@ -21,10 +21,10 @@ Requirements:
 
 #### Commands:
 
-1. `-parseInit [path]`- parses directory for mods XML files and extract data needed for the program. A file `docs.blob` is going to be created and filled with this data.
-2. `-find`- parses the docs blob-file and creates `duplicates.blob` file with first duplicate filtered results.
-3. `-collect` - collects the `duplicates.blob` result to create final results in file. For this you need to setup redis. The application is configured for default redis settings.
-4. `-getstat` - calculates different statistics for found duplicates.
+1. `parseInit [path]`- parses directory for mods XML files and extract data needed for the program. A file `docs.blob` is going to be created and filled with this data.
+2. `find`- parses the docs blob-file and creates `duplicates.blob` file with first duplicate filtered results.
+3. `collect` - collects the `duplicates.blob` result to create final results in file. For this you need to setup redis. The application is configured for default redis settings.
+4. `getstat` - calculates different statistics for found duplicates.
 
 #### IDE import
 There are tasks in gradle for creating Intellij IDEA and Eclipse projects. `gradlew idea` and `gradle eclipse`.
