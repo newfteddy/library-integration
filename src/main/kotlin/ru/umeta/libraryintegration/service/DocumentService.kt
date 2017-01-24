@@ -29,7 +29,7 @@ open class DocumentService
         private val logger = LoggerFactory.getLogger(ConsoleController::class.java)
     }
 
-    fun processDocumentList(resultList: List<ParseResult>, protocolName: String?): UploadResult {
+    fun processDocumentList(resultList: List<ParseResult>, protocolName: String?, saveXml: Boolean): UploadResult {
         var newEnriched = 0
         var parsedDocs = 0
 
@@ -59,7 +59,10 @@ open class DocumentService
                             isbn.hashCode(),
                             year,
                             0.0)
-                    redisRepository.addDoc(document)
+                    val docId = redisRepository.addDoc(document)
+                    if (saveXml) {
+                        redisRepository.addXml(docId, parseResult.modsDefinition.toString())
+                    }
                     newEnriched++;
                     parsedDocs++
                 } catch (e: Exception) {
@@ -105,7 +108,9 @@ open class DocumentService
             var iterationsYear: Long,
             var remainingDocs: Long)
 
-    fun processDocumentListInit(resultList: List<ParseResult>) = processDocumentList(resultList, null)
+    fun processDocumentListInit(resultList: List<ParseResult>) = processDocumentList(resultList, null, false)
+
+    fun processDocumentListLarge(resultList: List<ParseResult>) = processDocumentList(resultList, null, true)
 
     fun getDoc(id: Int): EnrichedDocumentLite? {
         return enrichedDocumentRepository.docStorage[id]

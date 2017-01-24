@@ -35,6 +35,9 @@ open class ConsoleController : CommandLineRunner {
             "parseInit" -> {
                 mainService?.parseDirectoryInit(getDirArg(args))
             }
+            "parseLarge" -> {
+                mainService?.parseDirectoryLarge(getDirArg(args))
+            }
             "find" -> mainService?.find()
             "collect" -> mainService?.collect()
             "collectd" -> mainService?.collectDebug()

@@ -51,7 +51,7 @@ constructor(val parser: IXMLParser,
             val size = resultList.size
             total += size
             logger.info("resultList size is " + size)
-            val uploadResult = documentService.processDocumentList(resultList, null)
+            val uploadResult = documentService.processDocumentList(resultList, null, true)
             val endTime = System.nanoTime()
             logger.info("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
             result.parsedDocs = result.parsedDocs + uploadResult.parsedDocs
@@ -185,6 +185,25 @@ constructor(val parser: IXMLParser,
         }
         map.forEach { println("${it.key} ${it.value}") }
         println("Duplicates $duplicates)")
+    }
+
+    fun parseDirectoryLarge(path: String): UploadResult {
+        logger.info("Start parsing directory.")
+        val fileList = getFilesToParse(path)
+        var total = 0
+        val result = UploadResult(0, 0)
+        for (file in fileList) {
+            val startTime = System.nanoTime()
+            val resultList = parser.parse(file)
+            val size = resultList.size
+            total += size
+            logger.info("resultList size is " + size)
+            val uploadResult = documentService.processDocumentListLarge(resultList)
+            val endTime = System.nanoTime()
+            logger.info("The documents bulk is added in " + (endTime - startTime).toDouble() / 1000000000.0 + ". Total: " + total)
+        }
+
+        return result
     }
 }
 

@@ -33,11 +33,12 @@ import java.util.*
         return jedis.get("string:$hash")
     }
 
-    fun addDoc(doc: EnrichedDocumentLite) {
+    fun addDoc(doc: EnrichedDocumentLite): Int {
         val id = docIncr()
         jedis.hset("doc:$id", "1", doc.authorToLong().toString())
         jedis.hset("doc:$id", "2", doc.titleToLong().toString())
         jedis.hset("doc:$id", "3", doc.isbnYearToLong().toString())
+        return id
     }
 
     fun getDoc(id: Int): EnrichedDocumentLite? {
@@ -65,6 +66,10 @@ import java.util.*
         val year: Int = (isbnYearLong and ((1L shl 32) - 1)).toInt()
 
         return EnrichedDocumentLite(id, authorId, authorHash, titleId, titleHash, isbn, year, 0.0)
+    }
+
+    fun addXml(docId: Int, xml: String) {
+        jedis.set("xml:$docId", xml)
     }
 
 }
