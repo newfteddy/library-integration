@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.service
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.support.NullValue
 import org.springframework.stereotype.Component
 import ru.umeta.libraryintegration.inmemory.RedisRepository
 import ru.umeta.libraryintegration.model.StringHash
@@ -71,8 +72,13 @@ open class StringHashService @Autowired constructor(val redisRepository: RedisRe
 
         union.addAll(tokens2)
         intersection.retainAll(tokens2)
+        /*correction*/
 
-        return (intersection.size * 1.0) / (union.size * 1.0)
+        if (union.size == 0){
+            return 1.0
+        }
+        else
+            return (intersection.size * 1.0) / (union.size * 1.0)
     }
 
     fun getFromRepositoryInit(string: String): Int {
@@ -111,11 +117,19 @@ fun distanceWithTheorems(string1: String,
                          preCalculatedTokens1: List<Bigramm>? = null,
                          preCalculatedTokens2: List<Bigramm>? = null,
                          threshold: Double = 0.7):
+
         Double {
     val length1 = string1.length
     val length2 = string2.length
     val ratio: Double
     distanceCounterAll++
+
+   /*correction */
+    if (string1 == null){
+        if (string2 == null) {
+            return 0.8
+        }
+    }
 
     if (length1 < length2) {
         ratio = (1 - threshold) * (length1 - 1) + 1

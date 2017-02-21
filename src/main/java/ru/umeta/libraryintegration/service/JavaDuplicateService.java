@@ -70,8 +70,25 @@ public class JavaDuplicateService {
                             if (docIt == headDoc) {
                                 return;
                             }
+
+                            String tStringIt = repository.getString(docIt.getTitleId());
+                            double tRatio = distanceWithTheorems(titleHead, tStringIt, tTokensHead, null, 0.7);
+
+                            /*correction*/
+                            if (tRatio >= 0){
+                                String aStringIt = repository.getString(docIt.getAuthorId());
+                                double aRatio = distanceWithTheorems(authorHead, aStringIt, aTokensHead, null, 0.7);
+                                if (aRatio >= 0) {
+                                    EnrichedDocumentLite clone = docIt.clone();
+                                    results[count.getAndIncrement()] = clone;
+                                    clone.setRatio((aRatio*0.3 + tRatio*0.7));
+                                    repository.getDocMarked()[id] = true;
+                                }
+                            }
+                            /*
                             String aStringIt = repository.getString(docIt.getAuthorId());
                             double aRatio = distanceWithTheorems(authorHead, aStringIt, aTokensHead, null, 0.7);
+
                             if (aRatio >= 0.7) {
                                 String tStringIt = repository.getString(docIt.getTitleId());
                                 double tRatio = distanceWithTheorems(titleHead, tStringIt, tTokensHead, null, 0.7);
@@ -82,6 +99,7 @@ public class JavaDuplicateService {
                                     repository.getDocMarked()[id] = true;
                                 }
                             }
+                            */
                         });
                         section.list = Arrays.stream(results).parallel()
                                 .filter(Objects::nonNull)
