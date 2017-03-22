@@ -37,6 +37,7 @@ open class DocumentService
             if (parseResult is ModsParseResult) {
                 try {
                     var author = parseResult.author
+
                     if (author.length > 255) {
                         author = author.substring(0, 255)
                     }
@@ -99,6 +100,37 @@ open class DocumentService
         }
 
         val dfs = DFS(nearDuplicates, iterationsIsbn, iterationsYear, remainingDocs)
+        return dfs
+    }
+    fun findEnrichedDocumentsNA(doc: EnrichedDocumentLite): DFS {
+        var nearDuplicatesNA = enrichedDocumentRepository.getNearDuplicatesNA(doc)
+        var iterationsIsbn = 0L
+        var iterationsYear = 0L
+        var remainingDocs = 0L
+        val isbn = doc.isbn
+        val year = doc.publishYear
+        /*correction*/
+        nearDuplicatesNA = nearDuplicatesNA.filter { it ->
+            val otherIsbn = it.isbn
+            val otherYear = it.publishYear
+
+            if (otherIsbn != 0 && isbn != 0 && otherIsbn != isbn) {
+                iterationsIsbn++
+                return@filter false
+            } else {
+                if (otherYear != -1 && year != -1 && otherYear != year) {
+                    iterationsYear++
+                    return@filter false
+                } else {
+                    remainingDocs++
+                    return@filter true
+                }
+            }
+        }
+
+        /*--correction*/
+
+        val dfs = DFS(nearDuplicatesNA, iterationsIsbn, iterationsYear, remainingDocs)
         return dfs
     }
 

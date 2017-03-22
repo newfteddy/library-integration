@@ -1,6 +1,7 @@
 package ru.umeta.libraryintegration.parser;
 
 import gov.loc.mods.v3.*;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.values.XmlObjectBase;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.*;
+
+
 
 /**
  * Created by k.kosolapov on 06.04.2015.
@@ -152,6 +156,40 @@ public class ModsXMLParser implements IXMLParser {
         return enrichedPropertyList;
     }
 
+    /*correction*/
+
+    public String StringPreProcess(String line){
+
+        String tmp = "";
+        String result = "";
+        String delims  = "[ ;:,.]+";
+        String tokens [] = line.split(delims);
+
+        for (int i = 0;i < tokens.length;i++){
+            tokens[i] = tokens[i].toLowerCase();
+            tmp = tokens[i];
+            tmp = tmp.replaceAll("\\D+","");
+
+            if (tmp.equals("") == false){
+
+                int num = Integer.parseInt(tmp);
+                if (num > 1500 && num <2020){
+                    tokens[i] = Integer.toString(num);
+                }
+                else {
+                    NumToWord converter = new NumToWord();
+                    String number = converter.ConvertNumToWord(num);
+                    tokens[i] = number;
+                }
+            }
+            result = result.concat(tokens[i] + " ");
+        }
+        //System.out.print(result + "\n");
+        return result;
+    }
+    /*--correction*/
+
+
     public String parseTitle(ModsDefinition document) {
         StringBuilder titleBuilder = new StringBuilder("");
         if (document != null ) {
@@ -163,7 +201,10 @@ public class ModsXMLParser implements IXMLParser {
                         final StringPlusLanguage[] titleArray = titleInfo.getTitleArray();
                         if (titleArray != null) {
                             for (int j = 0; j < titleArray.length; j++) {
-                                titleBuilder.append(titleArray[j].getStringValue());
+                                /*correction*/
+                                String tmp = StringPreProcess(titleArray[j].getStringValue());
+                                /*--correction*/
+                                titleBuilder.append(tmp);
                                 titleBuilder.append(SPACE);
                             }
                         }
@@ -182,6 +223,7 @@ public class ModsXMLParser implements IXMLParser {
 
         return titleBuilder.toString();
     }
+
 
     public String parseIdentifier(ModsDefinition document) {
         IdentifierDefinition[] identifierArray = document.getIdentifierArray();
@@ -209,9 +251,12 @@ public class ModsXMLParser implements IXMLParser {
                             nameBuilder.append(namePart.getStringValue());
                             nameBuilder.append(SPACE);
                         }
+
                     }
+
                 }
             }
+
         }
 
         return nameBuilder.toString();

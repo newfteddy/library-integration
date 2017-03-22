@@ -8,6 +8,10 @@ import ru.umeta.libraryintegration.model.StringHash;
 public class SimHashes {
     int hashes[][][][] = new int[4][4][4][4];
 
+    /*correction*/
+    int hashesNA[][][] = new int[4][4][4];
+    /*--correction*/
+
     public SimHashes(StringHash title, StringHash author) {
         byte[] aBytes = new byte[4];
         byte[] tBytes = new byte[4];
@@ -37,6 +41,29 @@ public class SimHashes {
         }
     }
 
+    /*correction*/
+    public SimHashes(StringHash title) {
+        byte[] tBytes = new byte[4];
+
+        tBytes[0] = title.hashPart1();
+        tBytes[1] = title.hashPart2();
+        tBytes[2] = title.hashPart3();
+        tBytes[3] = title.hashPart4();
+
+        for (int ti = 1; ti <= 2; ti++) {
+            for (int tj = ti + 1; tj <= 3; tj++) {
+                for (int tk = tj + 1; tk <= 4; tk++) {
+                    hashesNA[ti - 1][tj - 1][tk - 1] = getHashWithoutYear(
+                            tBytes[ti - 1],
+                            tBytes[tj - 1],
+                            tBytes[tk - 1], (byte) 1);
+
+                }
+            }
+        }
+    }
+    /*correction*/
+
     public int getByIndex(int ti, int tj, int ai, int aj) {
         ti--;
         tj--;
@@ -44,6 +71,15 @@ public class SimHashes {
         aj--;
         return hashes[ti][tj][ai][aj];
     }
+
+    /*correction*/
+    public int getByIndexNA(int ti, int tj, int tk) {
+        ti--;
+        tj--;
+        tk--;
+        return hashesNA[ti][tj][tk];
+    }
+    /*--correction*/
 
     private int getHashWithoutYear(byte hash1, byte hash2, byte hash3, byte hash4) {
         //shift is of the size of a byte

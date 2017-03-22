@@ -19,10 +19,12 @@ open class StringHashService @Autowired constructor(val redisRepository: RedisRe
     fun getStringHash(string: String): StringHash {
         var simHash = 0
         val tokens: Set<String>
-        if (string.length < 2) {
+
+        if (string.length < 2 ) {
             simHash = 0
             tokens = HashSet<String>(0)
-        } else {
+        }
+        else {
             tokens = getSimHashTokens(string)
             /**
              * 32 is hash size
@@ -126,9 +128,10 @@ fun distanceWithTheorems(string1: String,
 
    /*correction */
     if (string1 == null){
-        if (string2 == null) {
-            return 0.8
-        }
+        return -1.0
+    }
+    if (string2 == null){
+        return -1.0
     }
 
     if (length1 < length2) {

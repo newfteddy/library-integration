@@ -58,6 +58,7 @@ open class InMemoryRepository @Autowired constructor(
         }
     }
 
+
     fun fillMapsFromRedis() {
         val docCount = redisRepository.getDocCount()
         for (i in 0..docCount) {
@@ -86,6 +87,38 @@ open class InMemoryRepository @Autowired constructor(
             }
         }
     }
+    /*correction*/
+    fun fillMapsFromRedisNA() {
+        val docCount = redisRepository.getDocCount()
+
+        for (i in 0..docCount) {
+            val doc = redisRepository.getDoc(i) ?: continue
+
+            docStorage[i] = doc
+            val titleHash = StringHash(doc.titleHash)
+
+            val hashes = SimHashes(titleHash)
+
+            for (ti in 1..2) {
+                for (tj in ti + 1..3) {
+                    for (tk in tj + 1..4) {
+                        val hash = hashes.getByIndexNA(ti, tj, tk)
+                        var list = maps.getOrCreateByIndexNA(ti, tj, tk).get(hash)
+                        if (list == null) {
+                            list = IntArrayList()
+                            maps.getOrCreateByIndexNA(ti, tj, tk).put(hash, list)
+                        }
+                        list.add(doc.id)
+
+                    }
+                }
+            }
+            if (i % 1000000 == 0) {
+                println("Added $i docs.")
+            }
+        }
+    }
+    /*--correction*/
 
     fun getString(id: Int): String {
         return strStorage[id]!!
@@ -106,6 +139,7 @@ open class InMemoryRepository @Autowired constructor(
         val id = doc.id
         val hashes = SimHashes(titleHash, authorHash)
 
+
         val resultIds = IntSets.mutable.empty()
         val docs = Lists.mutable.empty<EnrichedDocumentLite>()
         for (ti in 1..3) {
@@ -125,5 +159,32 @@ open class InMemoryRepository @Autowired constructor(
 
         return docs
     }
+
+
+    /*correction*/
+    fun getNearDuplicatesNA(doc: EnrichedDocumentLite): List<EnrichedDocumentLite> {
+        val titleHash = StringHash(doc.titleHash)
+        val id = doc.id
+        val hashes = SimHashes(titleHash)
+
+
+        val resultIds = IntSets.mutable.empty()
+        val docs = Lists.mutable.empty<EnrichedDocumentLite>()
+        for (ti in 1..2){
+            for (tj in ti + 1..3) {
+                for (tk in tj + 1..4) {
+                    val hash = hashes.getByIndexNA(ti, tj, tk)
+                    maps.getOrCreateByIndexNA(ti, tj, tk).get(hash).forEach {
+                        if (it > id && resultIds.add(it)) {
+                            docs.add(docStorage[it])
+                        }
+                    }
+                }
+            }
+        }
+
+        return docs
+    }
+    /*--correction*/
 
 }

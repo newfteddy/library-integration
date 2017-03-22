@@ -71,20 +71,43 @@ public class JavaDuplicateService {
                                 return;
                             }
 
-                            String tStringIt = repository.getString(docIt.getTitleId());
-                            double tRatio = distanceWithTheorems(titleHead, tStringIt, tTokensHead, null, 0.7);
 
                             /*correction*/
-                            if (tRatio >= 0){
+                            String tStringIt = repository.getString(docIt.getTitleId());
+                            double tRatio = distanceWithTheorems(titleHead, tStringIt, tTokensHead, null, 0.7);
+                            if (tRatio >= 0.95){
+                                EnrichedDocumentLite clone = docIt.clone();
+                                results[count.getAndIncrement()] = clone;
+                                clone.setRatio((tRatio));
+                                repository.getDocMarked()[id] = true;
+                            }
+                            else{
                                 String aStringIt = repository.getString(docIt.getAuthorId());
                                 double aRatio = distanceWithTheorems(authorHead, aStringIt, aTokensHead, null, 0.7);
-                                if (aRatio >= 0) {
-                                    EnrichedDocumentLite clone = docIt.clone();
-                                    results[count.getAndIncrement()] = clone;
-                                    clone.setRatio((aRatio*0.3 + tRatio*0.7));
-                                    repository.getDocMarked()[id] = true;
+                                if (aRatio == -1.0){
+                                    if(tRatio >= 0.8){
+                                        EnrichedDocumentLite clone = docIt.clone();
+                                        results[count.getAndIncrement()] = clone;
+                                        clone.setRatio((tRatio));
+                                        repository.getDocMarked()[id] = true;
+                                    }
                                 }
+                                else{
+                                    if (aRatio >= 0.7) {
+                                        EnrichedDocumentLite clone = docIt.clone();
+                                        results[count.getAndIncrement()] = clone;
+                                        clone.setRatio((aRatio*0.3 + tRatio*0.7));
+                                        repository.getDocMarked()[id] = true;
+                                    }
+                                }
+
                             }
+                            /*--correction*/
+
+
+
+
+                            /*correction*/
                             /*
                             String aStringIt = repository.getString(docIt.getAuthorId());
                             double aRatio = distanceWithTheorems(authorHead, aStringIt, aTokensHead, null, 0.7);

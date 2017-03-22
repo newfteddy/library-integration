@@ -86,6 +86,7 @@ constructor(val parser: IXMLParser,
                     dfsResult.component.forEach { duplicate ->
                         writer.write("${duplicate.id}\n")
                     }
+
                     if (id % 100000 == 0) {
                         logger.info(i.toString());
                         logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
@@ -106,6 +107,66 @@ constructor(val parser: IXMLParser,
             logger.info("Marked ${(id - startId)}")
         })
     }
+
+
+    /*correction*/
+    fun findNA() {
+        repository.fillMapsFromRedis()
+        repository.fillMapsFromRedisNA()
+
+        logger.info("Start finding duplicates NA.")
+        (FileWriterWithEncoding(File("duplicates.blob"), Charset.forName("UTF-8"), false).use {
+            writer ->
+            var i = 1;
+            var iterationsIsbn = 0L
+            var iterationsYear = 0L
+            var iterationsLeft = 0L
+            val startId = 1
+            var id = startId
+            val maxId = repository.getDocCount()
+            while (id <= maxId) {
+                val doc = documentService.getDoc(id)
+                if (doc != null) {
+                    writer.write("SE $i\n")
+                    writer.write("$id\n")
+                    i++
+
+                    val dfsResultNA = documentService.findEnrichedDocumentsNA(doc)
+                    dfsResultNA.component.forEach { duplicate ->
+                        writer.write("${duplicate.id}\n")
+                    }
+                    /*
+                    val dfsResult = documentService.findEnrichedDocuments(doc)
+                    iterationsIsbn += dfsResult.iterationsIsbn
+                    iterationsYear += dfsResult.iterationsYear
+                    iterationsLeft += dfsResult.remainingDocs
+                    dfsResult.component.forEach { duplicate ->
+                        writer.write("${duplicate.id}\n")
+                    }
+                    */
+
+
+                    if (id % 100000 == 0) {
+                        logger.info(i.toString());
+                        logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
+                        logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
+                        logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
+                        logger.info("Marked ${(id - startId)}")
+                        logger.info("----------------------------------------------------------------------")
+                    }
+                } else {
+                    logger.info("Last document id is $id")
+                    break
+                }
+                id++
+            }
+            logger.info("Average Iterations on Publish Year ${iterationsYear * 1.0 / (id - startId)}")
+            logger.info("Average Iterations on Isbn ${iterationsIsbn * 1.0 / (id - startId)}")
+            logger.info("Average Iterations Left ${iterationsLeft * 1.0 / (id - startId)}")
+            logger.info("Marked ${(id - startId)}")
+        })
+    }
+    /*--correction*/
 
     fun parseDirectoryInit(path: String): Any {
         logger.info("Start parsing directory.")
