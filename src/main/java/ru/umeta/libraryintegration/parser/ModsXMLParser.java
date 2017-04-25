@@ -170,16 +170,24 @@ public class ModsXMLParser implements IXMLParser {
             tmp = tokens[i];
             tmp = tmp.replaceAll("\\D+","");
 
-            if (tmp.equals("") == false){
+            if (tmp.equals("") == false && tmp.length() < 8){
 
-                int num = Integer.parseInt(tmp);
-                if (num > 1500 && num <2020){
-                    tokens[i] = Integer.toString(num);
+
+
+                long num1 = Long.parseLong(tmp);
+                if (num1>1000000){
+                    tokens[i] = Long.toString(num1);
                 }
                 else {
-                    NumToWord converter = new NumToWord();
-                    String number = converter.ConvertNumToWord(num);
-                    tokens[i] = number;
+                    int num = (int) num1;
+
+                    if (num > 1500 && num < 2020) {
+                        tokens[i] = Integer.toString(num);
+                    } else {
+                        NumToWord converter = new NumToWord();
+                        String number = converter.ConvertNumToWord(num);
+                        tokens[i] = number;
+                    }
                 }
             }
             result = result.concat(tokens[i] + " ");

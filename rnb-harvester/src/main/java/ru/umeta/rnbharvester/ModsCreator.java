@@ -48,8 +48,9 @@ public class ModsCreator {
         Connection conn = DriverManager.getConnection(SQL_DB_CONNECT_STRING + SQL_DB_NAME, SQL_DB_USER, SQL_DB_PASS);
         PreparedStatement statement = conn.prepareStatement(
                 "SELECT Id, Author, Name, SubName, PublishYear, ISBN " +
-                        "FROM `tbl_common_biblio_card` " +
-                        "WHERE id%100 = 3 AND Author IS NOT NULL AND Id >= ? AND Id < ? + " + BATCH_SIZE);
+                        "FROM `data_set_1` " +
+                        "WHERE Id1 >= ? AND Id1 < ? + " +BATCH_SIZE
+        );
 
         statement.setLong(1, startId);
         statement.setLong(2, startId);
@@ -130,8 +131,9 @@ public class ModsCreator {
         conn.close();
     }
 
+
     private static String isMkdirs(long startId) {
-        String folder = "results/" + startId / 100000 + "/";
+        String folder = "results/" + startId / (BATCH_SIZE*10) + "/";
         new File(folder).mkdirs();
         return folder;
     }
@@ -140,7 +142,7 @@ public class ModsCreator {
         if (driverLoaded) {
             try {
                 long minId = getRecordMinIdFromDB();
-                long maxId = Math.min(4282903,getRecordMaxIdFromDB());
+                long maxId = getRecordMaxIdFromDB();
                 for (long curId = minId; curId < maxId; curId += BATCH_SIZE) {
                     getRecordListFromDB(curId);
                 }
@@ -155,7 +157,7 @@ public class ModsCreator {
     private static long getRecordMinIdFromDB() throws SQLException {
         try (Connection conn = DriverManager.getConnection(SQL_DB_CONNECT_STRING + SQL_DB_NAME, SQL_DB_USER, SQL_DB_PASS)) {
             PreparedStatement statement = conn.prepareStatement(
-                    "SELECT Id FROM `tbl_common_biblio_card` ORDER BY Id ASC LIMIT 1");
+                    "SELECT Id1 FROM `data_set_1` ORDER BY Id1 ASC LIMIT 1");
             ResultSet result = statement.executeQuery();
             result.next();
             return result.getLong(1);
@@ -165,7 +167,7 @@ public class ModsCreator {
     private static long getRecordMaxIdFromDB() throws SQLException {
         try (Connection conn = DriverManager.getConnection(SQL_DB_CONNECT_STRING + SQL_DB_NAME, SQL_DB_USER, SQL_DB_PASS)) {
             PreparedStatement statement = conn.prepareStatement(
-                    "SELECT Id FROM `tbl_common_biblio_card` ORDER BY Id DESC LIMIT 1");
+                    "SELECT Id1 FROM `data_set_1` ORDER BY Id1 DESC LIMIT 1");
             ResultSet result = statement.executeQuery();
             result.next();
             return result.getLong(1);

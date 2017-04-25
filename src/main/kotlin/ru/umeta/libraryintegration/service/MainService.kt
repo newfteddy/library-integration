@@ -83,9 +83,12 @@ constructor(val parser: IXMLParser,
                     iterationsIsbn += dfsResult.iterationsIsbn
                     iterationsYear += dfsResult.iterationsYear
                     iterationsLeft += dfsResult.remainingDocs
+                    var countDuplicates = 1
                     dfsResult.component.forEach { duplicate ->
                         writer.write("${duplicate.id}\n")
+                        countDuplicates++
                     }
+                    writer.write("SecSize $countDuplicates\n")
 
                     if (id % 100000 == 0) {
                         logger.info(i.toString());
@@ -270,6 +273,11 @@ constructor(val parser: IXMLParser,
 
 fun getFilesToParse(path: String): List<File> {
     val file = File(path)
+    if (file.endsWith(".DS_Store")) {
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + path)
+        return emptyList()
+    }
+
     if (file.exists()) {
         if (file.isDirectory) {
             if (file.listFiles() != null) {
@@ -279,8 +287,12 @@ fun getFilesToParse(path: String): List<File> {
                 }
                 return result
             }
-        } else {
+        }
+        else {
+
+
             return listOf(file)
+
         }
     }
     return emptyList()

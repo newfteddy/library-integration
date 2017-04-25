@@ -75,7 +75,7 @@ public class JavaDuplicateService {
                             /*correction*/
                             String tStringIt = repository.getString(docIt.getTitleId());
                             double tRatio = distanceWithTheorems(titleHead, tStringIt, tTokensHead, null, 0.7);
-                            if (tRatio >= 0.95){
+                            if (tRatio >= 0.9){
                                 EnrichedDocumentLite clone = docIt.clone();
                                 results[count.getAndIncrement()] = clone;
                                 clone.setRatio((tRatio));
@@ -94,10 +94,12 @@ public class JavaDuplicateService {
                                 }
                                 else{
                                     if (aRatio >= 0.7) {
-                                        EnrichedDocumentLite clone = docIt.clone();
-                                        results[count.getAndIncrement()] = clone;
-                                        clone.setRatio((aRatio*0.3 + tRatio*0.7));
-                                        repository.getDocMarked()[id] = true;
+                                        if (tRatio >= 0.7) {
+                                            EnrichedDocumentLite clone = docIt.clone();
+                                            results[count.getAndIncrement()] = clone;
+                                            clone.setRatio((aRatio * 0.3 + tRatio * 0.7));
+                                            repository.getDocMarked()[id] = true;
+                                        }
                                     }
                                 }
 
